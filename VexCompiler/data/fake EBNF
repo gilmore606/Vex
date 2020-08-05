@@ -1,0 +1,14 @@
+program
+	: topblock+
+
+topblock
+	: settingsblock | controlsblock | screenblock
+
+settingsblock
+	: 'settings' COLON assignblock
+
+assignblock
+	: assignment+
+
+assignment
+	: id ASSIGN expr

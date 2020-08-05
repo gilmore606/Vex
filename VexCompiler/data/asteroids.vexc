@@ -1,0 +1,10 @@
+controls:
+	left (switch)
+	right (switch)
+	thrust (switch)
+	start (button)
+	fire (button debounce 200)
+	hyperspace (button debounce 1000)
+
+to utilFunction:
+    a = a + b
