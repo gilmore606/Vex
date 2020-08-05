@@ -11,6 +11,8 @@ class Parser(
     fun dumpTree() {
         println("AST DUMP:")
         ast.forEach { it.print(0) }
+        println("TOKENS REMAINING:")
+        tokens.forEach { println(it.toString()) }
     }
 
 
@@ -49,10 +51,11 @@ class Parser(
     // Parsing functions
 
     fun parseTop(): Node.BLOCK {
+        println("PARSETOP next=" + nextToken().toString())
         val token = getToken()
         if (token.string.equals("to")) {
             val handler = getToken()
-            if (nextToken().type != COLON) throw RuntimeException()
+            if (getToken().type != COLON) throw RuntimeException()
             return Node.CODEBLOCK(handler.string, parseCodeblock(1))
         } else if (nextToken().type == COLON) {
             getToken() // throw away the colon
@@ -97,6 +100,7 @@ class Parser(
     }
 
     fun parseCodeblock(depth: Int): List<Node.STATEMENT> {
+        println("PARSECODEBLOCK next=" + nextToken().toString())
         val statements = ArrayList<Node.STATEMENT>()
         while (true) {
             val nextStatement = parseStatement(depth)
@@ -106,23 +110,76 @@ class Parser(
     }
 
     fun parseStatement(depth: Int): Node.STATEMENT? {
+        println("PARSESTATEMENT next=" + nextToken().toString())
         repeat (depth) { if (nextToken(it).type != INDENT) return null }
         repeat (depth) { getToken() }
+
         parseAssign()?.also { return it }
         return null
     }
 
     fun parseAssign(): Node.ASSIGN? {
+        println("PARSEASSIGN")
         if (!requireTokens(IDENTIFIER, ASSIGN)) return null
         val identifier = getToken()
         getToken() // throw away the operator
-        val expression = parseExpression()
-        if (expression == null) throw RuntimeException()
+        val expression = parseExpression() ?: throw RuntimeException()
         return Node.ASSIGN(Node.VARIABLE(identifier.string), expression)
     }
 
     fun parseExpression(): Node.EXPRESSION? {
+        return parseAddition()
+    }
 
+    fun parseAddition(): Node.EXPRESSION? {
+        var leftExpr = parseMultiplication() ?: return null
+        while (requireTokens(ADD) || requireTokens(SUBTRACT)) {
+            val operator = getToken()
+            val rightExpr = parseMultiplication()
+            if (rightExpr != null) {
+                leftExpr = if (operator.type == ADD) Node.ADD(leftExpr, rightExpr) else Node.SUBTRACT(leftExpr, rightExpr)
+            }
+        }
+        return leftExpr
+    }
+
+    fun parseMultiplication(): Node.EXPRESSION? {
+        var leftExpr = parseUnary() ?: return null
+        while (requireTokens(MULTIPLY) || requireTokens(DIVIDE)) {
+            val operator = getToken()
+            val rightExpr = parseUnary()
+            if (rightExpr != null) {
+                leftExpr = if (operator.type == MULTIPLY) Node.MULTIPLY(leftExpr, rightExpr) else Node.DIVIDE(leftExpr, rightExpr)
+            }
+        }
+        return leftExpr
+    }
+
+    fun parseUnary(): Node.EXPRESSION? {
+        if (requireTokens(BANG) || requireTokens(SUBTRACT)) {
+            val operator = getToken()
+            val rightExpr = parseUnary() ?: throw RuntimeException()
+            return if (operator.type == BANG) Node.INVERSE(rightExpr) else Node.NEGATE(rightExpr)
+        }
+        return parseValue()
+    }
+
+    fun parseValue(): Node.EXPRESSION? {
+        if (requireTokens(IDENTIFIER)) {
+            val ident = getToken()
+            if (ident.string.equals("true")) return Node.BOOLEAN(true)
+            if (ident.string.equals("false")) return Node.BOOLEAN(false)
+            return Node.VARIABLE(ident.string)
+        }
+        if (requireTokens(STRING)) return Node.STRING(getToken().string)
+        if (requireTokens(INTEGER)) return Node.INTEGER(getToken().int)
+        if (requireTokens(FLOAT)) return Node.FLOAT(getToken().float)
+        if (requireTokens(PAREN_OPEN)) {
+            getToken()
+            val expr = parseExpression() ?: throw RuntimeException()
+            if (getToken().type != PAREN_CLOSE) throw RuntimeException()
+            return expr
+        }
         return null
     }
 }

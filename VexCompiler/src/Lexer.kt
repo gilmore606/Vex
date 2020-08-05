@@ -6,6 +6,7 @@ class Lexer {
     var inBuf: String = ""
     var linePos: Int = 0
     var charPos: Int = 0
+    var spaceCount: Int = 0
 
     val outBuffer = ArrayList<Token>()
 
@@ -18,6 +19,8 @@ class Lexer {
             when (inType) {
                 ASSIGN ->
                     if (c == '=') emit(Token(EQUALS)) else finish(Token(ASSIGN), c)
+                NOTEQUALS ->
+                    if (c == '=') emit(Token(NOTEQUALS)) else finish(Token(BANG), c)
                 GREATER_THAN ->
                     if (c == '=') emit(Token(GREATER_EQUAL)) else finish(Token(GREATER_THAN), c)
                 LESS_THAN ->
@@ -49,6 +52,10 @@ class Lexer {
                 }
                 IDENTIFIER ->
                     if (isIdentChar(c)) inBuf += c else finish(Token(IDENTIFIER, inBuf), c)
+                INDENT ->
+                    if (c == ' ') {
+                        if (spaceCount == 3) emit(Token(INDENT)) else spaceCount++
+                    } else finish(null, c)
                 else -> { }
             }
         } else {
@@ -64,8 +71,11 @@ class Lexer {
                 '*' -> emit(Token(MULTIPLY))
                 '/' -> begin(DIVIDE)
                 '.' -> emit(Token(DOTJOIN))
+                '!' -> begin(NOTEQUALS)
                 '"' -> begin(STRING)
+                '^' -> emit(Token(POWER))
                 '\t' -> emit(Token(INDENT))
+                ' ' -> { spaceCount = 1 ; begin(INDENT) }
                 in '0'..'9' -> begin(INTEGER, c)
                 else -> {
                     if (isIdentChar(c)) begin(IDENTIFIER, c)
@@ -96,8 +106,9 @@ class Lexer {
         outBuffer.add(token)
     }
 
-    fun finish(token: Token, nextC: Char) {
-        emit(token)
+    fun finish(token: Token?, nextC: Char) {
+        token?.also { emit(it) }
+        inType = null
         process(nextC, true)
     }
 }

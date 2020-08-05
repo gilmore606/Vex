@@ -4,6 +4,7 @@ enum class TokenType {
     COLON,
     ASSIGN,             // =
     EQUALS,             // ==
+    NOTEQUALS,          // !=
     GREATER_THAN,       // >
     LESS_THAN,          // <
     GREATER_EQUAL,      // >=
@@ -17,6 +18,8 @@ enum class TokenType {
     MULTIPLY,               // *
     DIVIDE,                // /
     DOTJOIN,            // .
+    BANG,               // !
+    POWER,              // ^
     IDENTIFIER,
     RESERVED,
     INDENT,

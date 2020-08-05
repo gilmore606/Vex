@@ -14,6 +14,9 @@ sealed class Node {
     abstract class VALUE: EXPRESSION()
     abstract class LITERAL: VALUE()
 
+    class BOOLEAN(val value: Boolean): LITERAL() {
+        override fun toString() = if (value) "TRUE" else "FALSE"
+    }
     class INTEGER(val value: Int): LITERAL() {
         override fun toString() = super.toString() + " (" + value.toString() + ")"
     }
@@ -26,6 +29,13 @@ sealed class Node {
     class VARIABLE(val name: String): VALUE() {
         override fun toString() = super.toString() + " (" + name + ")"
     }
+    abstract class UNOP(val arg: EXPRESSION): EXPRESSION() {
+        override fun printMine(lvl: Int) {
+            arg.print(lvl)
+        }
+    }
+    class NEGATE(arg: EXPRESSION): UNOP(arg)
+    class INVERSE(arg: EXPRESSION): UNOP(arg)
 
     abstract class BINOP(val arg1: EXPRESSION, val arg2: EXPRESSION): EXPRESSION() {
         override fun printMine(lvl: Int) {
@@ -37,6 +47,7 @@ sealed class Node {
     class SUBTRACT(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class MULTIPLY(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class DIVIDE(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class POW(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
 
     abstract class STATEMENT: Node()
 
