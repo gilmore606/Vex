@@ -1,6 +1,7 @@
 import TokenType.*
 
 import java.lang.RuntimeException
+import kotlin.test.fail
 
 class Parser(
     var tokens: ArrayList<Token>
@@ -11,9 +12,10 @@ class Parser(
     fun dumpTree() {
         println("AST DUMP:")
         ast.forEach { it.print(0) }
-        println("TOKENS REMAINING:")
-        tokens.forEach { println(it.toString()) }
     }
+
+    fun linePos() = tokens[0].linePos
+    fun charPos() = tokens[0].charPos
 
 
     // Token lookahead functions
@@ -23,9 +25,9 @@ class Parser(
         return t
     }
     fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(EOP) else tokens[skip]
-    fun getToken(type: TokenType): Token {
+    fun getToken(type: TokenType, failMessage: String): Token {
         val t = getToken()
-        if (t.type != type) throw RuntimeException()
+        if (t.type != type) throw ParseException(this, failMessage)
         return t
     }
     fun requireTokens(vararg types: TokenType): Boolean {
@@ -40,7 +42,6 @@ class Parser(
     // Parse entry
 
     fun parse() {
-        dumpTree()
         val blocks = ArrayList<Node.BLOCK>()
         while (tokens.isNotEmpty()) {
             blocks.add(parseTop())
@@ -56,16 +57,16 @@ class Parser(
         val token = getToken()
         if (token.string.equals("to")) {
             val handler = getToken()
-            if (getToken().type != COLON) throw RuntimeException()
+            if (getToken().type != COLON) throw ParseException(this, "expected : after method declaration")
             return Node.CODEBLOCK(handler.string, parseCodeblock(1))
         } else if (nextToken().type == COLON) {
             getToken() // throw away the colon
             return when  {
                 token.string.equals("settings") -> Node.SETTINGS(parseSettings())
                 token.string.equals("controls") -> Node.CONTROLS(parseControls())
-                else -> throw RuntimeException()
+                else -> throw ParseException(this, "unknown top-level block type")
             }
-        } else throw RuntimeException()
+        } else throw ParseException(this, "only top-level block declarations are allowed at top level")
     }
 
     fun parseControls(): List<Node.CONTROLDEF> {
@@ -77,19 +78,19 @@ class Parser(
         return defs
     }
     fun parseControlDef(): Node.CONTROLDEF {
-        val name = getToken(IDENTIFIER)
-        if (getToken().type != PAREN_OPEN) throw RuntimeException()
+        val name = getToken(IDENTIFIER, "expected control name")
+        if (getToken().type != PAREN_OPEN) throw ParseException(this, "expected ( to begin control definition")
         val params = ArrayList<Node.CONTROLPARAM>()
         while (nextToken().type != PAREN_CLOSE) {
-            val token = getToken(IDENTIFIER)
+            val token = getToken(IDENTIFIER, "expected control modifier")
             when {
                 token.string.equals("switch") -> params.add(Node.CONTROL_SWITCH())
                 token.string.equals("button") -> params.add(Node.CONTROL_BUTTON())
                 token.string.equals("debounce") -> {
-                    val value = getToken(INTEGER)
+                    val value = getToken(INTEGER, "expected integer debounce value")
                     params.add(Node.CONTROL_DEBOUNCE(value.int))
                 }
-                else -> throw RuntimeException()
+                else -> throw ParseException(this, "unknown control modifier")
             }
         }
         getToken() // throw away the close paren
@@ -121,7 +122,7 @@ class Parser(
         if (!requireTokens(IDENTIFIER, ASSIGN)) return null
         val identifier = getToken()
         getToken() // throw away the operator
-        val expression = parseExpression() ?: throw RuntimeException()
+        val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
         return Node.ASSIGN(Node.VARIABLE(identifier.string), expression)
     }
 
@@ -210,7 +211,7 @@ class Parser(
     fun parseUnary(): Node.EXPRESSION? {
         if (requireOneOf(BANG, SUBTRACT)) {
             val operator = getToken()
-            val rightExpr = parseUnary() ?: throw RuntimeException()
+            val rightExpr = parseUnary() ?: throw ParseException(this, "expected value after unary operator")
             return if (operator.type == BANG) Node.INVERSE(rightExpr) else Node.NEGATE(rightExpr)
         }
         return parseValue()
@@ -228,8 +229,8 @@ class Parser(
         if (requireTokens(FLOAT)) return Node.FLOAT(getToken().float)
         if (requireTokens(PAREN_OPEN)) {
             getToken()
-            val expr = parseExpression() ?: throw RuntimeException()
-            if (getToken().type != PAREN_CLOSE) throw RuntimeException()
+            val expr = parseExpression() ?: throw ParseException(this, "expected expression inside parens")
+            if (getToken().type != PAREN_CLOSE) throw ParseException(this, "missing close paren")
             return expr
         }
         return null

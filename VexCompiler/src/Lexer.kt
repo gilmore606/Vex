@@ -39,9 +39,9 @@ class Lexer {
                 DIVIDE ->
                     if (c == '/') inType = COMMENT else finish(Token(DIVIDE), c)
                 LOGIC_OR ->
-                    if (c == '|') emit(Token(LOGIC_OR)) else throw RuntimeException()
+                    if (c == '|') emit(Token(LOGIC_OR)) else throw LexException(this, "expected ||")
                 LOGIC_AND ->
-                    if (c == '&') emit(Token(LOGIC_AND)) else throw RuntimeException()
+                    if (c == '&') emit(Token(LOGIC_AND)) else throw LexException(this, "expected &&")
                 STRING ->
                     if (c == '"') emit(Token(STRING)) else inBuf += c
                 COMMENT ->
