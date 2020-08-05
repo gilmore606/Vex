@@ -20,6 +20,8 @@ enum class TokenType {
     DOTJOIN,            // .
     BANG,               // !
     POWER,              // ^
+    LOGIC_OR,           // ||
+    LOGIC_AND,          // &&
     IDENTIFIER,
     RESERVED,
     INDENT,

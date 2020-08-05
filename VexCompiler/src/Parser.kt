@@ -34,11 +34,13 @@ class Parser(
         }
         return true
     }
+    fun requireOneOf(vararg types: TokenType): Boolean = nextToken().type in types
 
 
     // Parse entry
 
     fun parse() {
+        dumpTree()
         val blocks = ArrayList<Node.BLOCK>()
         while (tokens.isNotEmpty()) {
             blocks.add(parseTop())
@@ -51,7 +53,6 @@ class Parser(
     // Parsing functions
 
     fun parseTop(): Node.BLOCK {
-        println("PARSETOP next=" + nextToken().toString())
         val token = getToken()
         if (token.string.equals("to")) {
             val handler = getToken()
@@ -100,7 +101,6 @@ class Parser(
     }
 
     fun parseCodeblock(depth: Int): List<Node.STATEMENT> {
-        println("PARSECODEBLOCK next=" + nextToken().toString())
         val statements = ArrayList<Node.STATEMENT>()
         while (true) {
             val nextStatement = parseStatement(depth)
@@ -110,7 +110,6 @@ class Parser(
     }
 
     fun parseStatement(depth: Int): Node.STATEMENT? {
-        println("PARSESTATEMENT next=" + nextToken().toString())
         repeat (depth) { if (nextToken(it).type != INDENT) return null }
         repeat (depth) { getToken() }
 
@@ -119,7 +118,6 @@ class Parser(
     }
 
     fun parseAssign(): Node.ASSIGN? {
-        println("PARSEASSIGN")
         if (!requireTokens(IDENTIFIER, ASSIGN)) return null
         val identifier = getToken()
         getToken() // throw away the operator
@@ -128,12 +126,54 @@ class Parser(
     }
 
     fun parseExpression(): Node.EXPRESSION? {
-        return parseAddition()
+        return parseAndOr()
+    }
+
+    fun parseAndOr(): Node.EXPRESSION? {
+        var leftExpr = parseEquality() ?: return null
+        while (requireOneOf(LOGIC_AND, LOGIC_OR)) {
+            val operator = getToken()
+            val rightExpr = parseEquality()
+            if (rightExpr != null) {
+                leftExpr = if (operator.type == LOGIC_AND) Node.LOGIC_AND(leftExpr, rightExpr) else Node.LOGIC_OR(leftExpr, rightExpr)
+            }
+        }
+        return leftExpr
+    }
+
+    fun parseEquality(): Node.EXPRESSION? {
+        var leftExpr = parseComparison() ?: return null
+        while (requireOneOf(EQUALS, NOTEQUALS)) {
+            val operator = getToken()
+            val rightExpr = parseComparison()
+            if (rightExpr != null) {
+                leftExpr = if (operator.type == EQUALS) Node.LOGIC_EQUAL(leftExpr, rightExpr) else Node.LOGIC_NOTEQUAL(leftExpr, rightExpr)
+            }
+        }
+        return leftExpr
+    }
+
+    fun parseComparison(): Node.EXPRESSION? {
+        var leftExpr = parseAddition() ?: return null
+        while (requireOneOf(GREATER_THAN, GREATER_EQUAL, LESS_THAN, LESS_EQUAL)) {
+            val operator = getToken()
+            val rightExpr = parseAddition()
+            if (rightExpr != null) {
+                leftExpr = when (operator.type) {
+                    GREATER_THAN -> Node.LOGIC_GREATER(leftExpr, rightExpr)
+                    GREATER_EQUAL -> Node.LOGIC_GREATER_EQUAL(leftExpr, rightExpr)
+                    LESS_THAN -> Node.LOGIC_LESS(leftExpr, rightExpr)
+                    LESS_EQUAL -> Node.LOGIC_LESS_EQUAL(leftExpr, rightExpr)
+                    else -> throw RuntimeException()
+                }
+            }
+        }
+        return leftExpr
     }
 
     fun parseAddition(): Node.EXPRESSION? {
         var leftExpr = parsePower() ?: return null
-        while (requireTokens(ADD) || requireTokens(SUBTRACT)) {
+        while (requireOneOf(ADD, SUBTRACT)) {
             val operator = getToken()
             val rightExpr = parsePower()
             if (rightExpr != null) {
@@ -157,7 +197,7 @@ class Parser(
 
     fun parseMultiplication(): Node.EXPRESSION? {
         var leftExpr = parseUnary() ?: return null
-        while (requireTokens(MULTIPLY) || requireTokens(DIVIDE)) {
+        while (requireOneOf(MULTIPLY, DIVIDE)) {
             val operator = getToken()
             val rightExpr = parseUnary()
             if (rightExpr != null) {
@@ -168,7 +208,7 @@ class Parser(
     }
 
     fun parseUnary(): Node.EXPRESSION? {
-        if (requireTokens(BANG) || requireTokens(SUBTRACT)) {
+        if (requireOneOf(BANG, SUBTRACT)) {
             val operator = getToken()
             val rightExpr = parseUnary() ?: throw RuntimeException()
             return if (operator.type == BANG) Node.INVERSE(rightExpr) else Node.NEGATE(rightExpr)

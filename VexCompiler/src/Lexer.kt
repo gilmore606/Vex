@@ -1,4 +1,5 @@
 import TokenType.*
+import java.lang.RuntimeException
 
 class Lexer {
 
@@ -37,6 +38,10 @@ class Lexer {
                 }
                 DIVIDE ->
                     if (c == '/') inType = COMMENT else finish(Token(DIVIDE), c)
+                LOGIC_OR ->
+                    if (c == '|') emit(Token(LOGIC_OR)) else throw RuntimeException()
+                LOGIC_AND ->
+                    if (c == '&') emit(Token(LOGIC_AND)) else throw RuntimeException()
                 STRING ->
                     if (c == '"') emit(Token(STRING)) else inBuf += c
                 COMMENT ->
@@ -75,6 +80,8 @@ class Lexer {
                 '"' -> begin(STRING)
                 '^' -> emit(Token(POWER))
                 '\t' -> emit(Token(INDENT))
+                '|' -> begin(LOGIC_OR)
+                '&' -> begin(LOGIC_AND)
                 ' ' -> { spaceCount = 1 ; begin(INDENT) }
                 in '0'..'9' -> begin(INTEGER, c)
                 else -> {

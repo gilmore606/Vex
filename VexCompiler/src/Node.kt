@@ -48,6 +48,15 @@ sealed class Node {
     class MULTIPLY(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class DIVIDE(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class POWER(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_OR(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_AND(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_EQUAL(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_NOTEQUAL(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_GREATER(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_LESS(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_GREATER_EQUAL(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class LOGIC_LESS_EQUAL(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+
 
     abstract class STATEMENT: Node()
 

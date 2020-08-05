@@ -10,3 +10,4 @@ to utilFunction:
     a = a + (4 * b) + 7 * (foo^2)
     b = (a * 1.5) / 3
     c = 4 * 12 + 25
+    alive = !true || (hasLives && (x > 7))
