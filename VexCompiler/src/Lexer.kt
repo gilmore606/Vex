@@ -67,6 +67,7 @@ class Lexer {
                 '(' -> emit(Token(PAREN_OPEN))
                 ')' -> emit(Token(PAREN_CLOSE))
                 ':' -> emit(Token(COLON))
+                ',' -> emit(Token(COMMA))
                 '=' -> begin(ASSIGN)
                 '>' -> begin(GREATER_THAN)
                 '<' -> begin(LESS_THAN)

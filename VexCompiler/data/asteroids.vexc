@@ -11,3 +11,6 @@ to utilFunction:
     b = (a * 1.5) / 3
     c = 4 * 12 + 25
     alive = !true || (hasLives && (x > 7))
+
+to mangle:
+    result = trystuff(4, "test", 56, vec(5,5), vec(3,3))

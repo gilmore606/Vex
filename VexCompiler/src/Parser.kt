@@ -12,13 +12,14 @@ class Parser(
         ast.forEach { it.print(0) }
     }
 
-    fun linePos() = tokens[0].linePos
-    fun charPos() = tokens[0].charPos
+    fun linePos() = if (tokens.isEmpty()) 0 else tokens[0].linePos
+    fun charPos() = if (tokens.isEmpty()) 0 else tokens[0].charPos
 
 
     // Token lookahead functions
 
     fun getToken() = tokens.removeAt(0)
+    fun tossNextToken() = getToken()
     fun expectToken(type: TokenType, failMessage: String): Token {
         val t = getToken()
         if (t.type != type) throw ParseException(this, failMessage)
@@ -53,7 +54,7 @@ class Parser(
             if (getToken().type != COLON) throw ParseException(this, "expected : after method declaration")
             return Node.CODEBLOCK(handler.string, parseCodeblock(1))
         } else if (nextToken().type == COLON) {
-            getToken() // throw away the colon
+            tossNextToken()
             return when  {
                 token.string.equals("settings") -> Node.SETTINGS(parseSettings())
                 token.string.equals("controls") -> Node.CONTROLS(parseControls())
@@ -65,7 +66,7 @@ class Parser(
     fun parseControls(): List<Node.CONTROLDEF> {
         val defs = ArrayList<Node.CONTROLDEF>()
         while (nextToken().type == INDENT) {
-            getToken() // throw away the indent
+            tossNextToken()
             defs.add(parseControlDef())
         }
         return defs
@@ -86,7 +87,7 @@ class Parser(
                 else -> throw ParseException(this, "unknown control modifier")
             }
         }
-        getToken() // throw away the close paren
+        tossNextToken()
         return Node.CONTROLDEF(name.string, params)
     }
 
@@ -104,7 +105,7 @@ class Parser(
 
     fun parseStatement(depth: Int): Node.STATEMENT? {
         repeat (depth) { if (nextToken(it).type != INDENT) return null }
-        repeat (depth) { getToken() }
+        repeat (depth) { tossNextToken() }
 
         parseAssign()?.also { return it }
         return null
@@ -113,7 +114,7 @@ class Parser(
     fun parseAssign(): Node.ASSIGN? {
         if (!nextTokensAre(IDENTIFIER, ASSIGN)) return null
         val identifier = getToken()
-        getToken() // throw away the operator
+        tossNextToken()
         val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
         return Node.ASSIGN(Node.VARIABLE(identifier.string), expression)
     }
@@ -179,7 +180,7 @@ class Parser(
     fun parsePower(): Node.EXPRESSION? {
         var leftExpr = parseMultiplication() ?: return null
         while (nextTokenIs(POWER)) {
-            getToken()
+            tossNextToken()
             val rightExpr = parseMultiplication()
             if (rightExpr != null) {
                 leftExpr = Node.POWER(leftExpr, rightExpr)
@@ -214,17 +215,31 @@ class Parser(
             val ident = getToken()
             if (ident.string.equals("true")) return Node.BOOLEAN(true)
             if (ident.string.equals("false")) return Node.BOOLEAN(false)
+            if (nextTokenIs(PAREN_OPEN)) {
+                tossNextToken()
+                return Node.CALL(ident.string, parseArglist())
+            }
             return Node.VARIABLE(ident.string)
         }
         if (nextTokenIs(STRING)) return Node.STRING(getToken().string)
         if (nextTokenIs(INTEGER)) return Node.INTEGER(getToken().int)
         if (nextTokenIs(FLOAT)) return Node.FLOAT(getToken().float)
         if (nextTokenIs(PAREN_OPEN)) {
-            getToken()
+            tossNextToken()
             val expr = parseExpression() ?: throw ParseException(this, "expected expression inside parens")
             if (getToken().type != PAREN_CLOSE) throw ParseException(this, "missing close paren")
             return expr
         }
         return null
+    }
+
+    fun parseArglist(): List<Node.EXPRESSION> {
+        val args = ArrayList<Node.EXPRESSION>()
+        while (!nextTokenIs(PAREN_CLOSE)) {
+            parseExpression()?.also { args.add(it) }
+            if (nextTokenIs(COMMA)) tossNextToken()
+        }
+        tossNextToken()
+        return args
     }
 }

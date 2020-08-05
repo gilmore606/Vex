@@ -29,6 +29,13 @@ sealed class Node {
     class VARIABLE(val name: String): VALUE() {
         override fun toString() = super.toString() + " (" + name + ")"
     }
+    class CALL(val name: String, val args: List<EXPRESSION>): VALUE() {
+        override fun toString() = super.toString() + " (" + name + ")"
+        override fun printMine(lvl: Int) {
+            args.forEach { it.print(lvl) }
+        }
+    }
+
     abstract class UNOP(val arg: EXPRESSION): EXPRESSION() {
         override fun printMine(lvl: Int) {
             arg.print(lvl)

@@ -22,6 +22,7 @@ enum class TokenType {
     POWER,              // ^
     LOGIC_OR,           // ||
     LOGIC_AND,          // &&
+    COMMA,              // ,
     IDENTIFIER,
     RESERVED,
     INDENT,
