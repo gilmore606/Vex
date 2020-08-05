@@ -132,12 +132,24 @@ class Parser(
     }
 
     fun parseAddition(): Node.EXPRESSION? {
-        var leftExpr = parseMultiplication() ?: return null
+        var leftExpr = parsePower() ?: return null
         while (requireTokens(ADD) || requireTokens(SUBTRACT)) {
             val operator = getToken()
-            val rightExpr = parseMultiplication()
+            val rightExpr = parsePower()
             if (rightExpr != null) {
                 leftExpr = if (operator.type == ADD) Node.ADD(leftExpr, rightExpr) else Node.SUBTRACT(leftExpr, rightExpr)
+            }
+        }
+        return leftExpr
+    }
+
+    fun parsePower(): Node.EXPRESSION? {
+        var leftExpr = parseMultiplication() ?: return null
+        while (requireTokens(POWER)) {
+            getToken()
+            val rightExpr = parseMultiplication()
+            if (rightExpr != null) {
+                leftExpr = Node.POWER(leftExpr, rightExpr)
             }
         }
         return leftExpr

@@ -47,7 +47,7 @@ sealed class Node {
     class SUBTRACT(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class MULTIPLY(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class DIVIDE(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
-    class POW(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
+    class POWER(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
 
     abstract class STATEMENT: Node()
 
