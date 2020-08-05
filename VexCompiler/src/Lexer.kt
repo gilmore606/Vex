@@ -1,5 +1,4 @@
 import TokenType.*
-import java.lang.RuntimeException
 
 class Lexer {
 

@@ -1,7 +1,5 @@
 import TokenType.*
-
 import java.lang.RuntimeException
-import kotlin.test.fail
 
 class Parser(
     var tokens: ArrayList<Token>
@@ -20,26 +18,24 @@ class Parser(
 
     // Token lookahead functions
 
-    fun getToken(): Token {
-        val t = tokens.removeAt(0)
-        return t
-    }
-    fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(EOP) else tokens[skip]
-    fun getToken(type: TokenType, failMessage: String): Token {
+    fun getToken() = tokens.removeAt(0)
+    fun expectToken(type: TokenType, failMessage: String): Token {
         val t = getToken()
         if (t.type != type) throw ParseException(this, failMessage)
         return t
     }
-    fun requireTokens(vararg types: TokenType): Boolean {
+    fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(EOP) else tokens[skip]
+    fun nextTokenIs(type: TokenType) = nextToken().type == type
+    fun nextTokensAre(vararg types: TokenType): Boolean {
         types.forEachIndexed { i, type ->
             if (nextToken(i).type != type) return false
         }
         return true
     }
-    fun requireOneOf(vararg types: TokenType): Boolean = nextToken().type in types
+    fun nextTokenOneOf(vararg types: TokenType): Boolean = nextToken().type in types
 
 
-    // Parse entry
+    // Parsing functions
 
     fun parse() {
         val blocks = ArrayList<Node.BLOCK>()
@@ -49,9 +45,6 @@ class Parser(
         ast.add(Node.PROGRAM(blocks))
         println("AST generated!")
     }
-
-
-    // Parsing functions
 
     fun parseTop(): Node.BLOCK {
         val token = getToken()
@@ -78,16 +71,16 @@ class Parser(
         return defs
     }
     fun parseControlDef(): Node.CONTROLDEF {
-        val name = getToken(IDENTIFIER, "expected control name")
+        val name = expectToken(IDENTIFIER, "expected control name")
         if (getToken().type != PAREN_OPEN) throw ParseException(this, "expected ( to begin control definition")
         val params = ArrayList<Node.CONTROLPARAM>()
         while (nextToken().type != PAREN_CLOSE) {
-            val token = getToken(IDENTIFIER, "expected control modifier")
+            val token = expectToken(IDENTIFIER, "expected control modifier")
             when {
                 token.string.equals("switch") -> params.add(Node.CONTROL_SWITCH())
                 token.string.equals("button") -> params.add(Node.CONTROL_BUTTON())
                 token.string.equals("debounce") -> {
-                    val value = getToken(INTEGER, "expected integer debounce value")
+                    val value = expectToken(INTEGER, "expected integer debounce value")
                     params.add(Node.CONTROL_DEBOUNCE(value.int))
                 }
                 else -> throw ParseException(this, "unknown control modifier")
@@ -104,9 +97,8 @@ class Parser(
     fun parseCodeblock(depth: Int): List<Node.STATEMENT> {
         val statements = ArrayList<Node.STATEMENT>()
         while (true) {
-            val nextStatement = parseStatement(depth)
-            if (nextStatement == null) return statements
-            else statements.add(nextStatement)
+            val nextStatement = parseStatement(depth) ?: return statements
+            statements.add(nextStatement)
         }
     }
 
@@ -119,7 +111,7 @@ class Parser(
     }
 
     fun parseAssign(): Node.ASSIGN? {
-        if (!requireTokens(IDENTIFIER, ASSIGN)) return null
+        if (!nextTokensAre(IDENTIFIER, ASSIGN)) return null
         val identifier = getToken()
         getToken() // throw away the operator
         val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
@@ -132,7 +124,7 @@ class Parser(
 
     fun parseAndOr(): Node.EXPRESSION? {
         var leftExpr = parseEquality() ?: return null
-        while (requireOneOf(LOGIC_AND, LOGIC_OR)) {
+        while (nextTokenOneOf(LOGIC_AND, LOGIC_OR)) {
             val operator = getToken()
             val rightExpr = parseEquality()
             if (rightExpr != null) {
@@ -144,7 +136,7 @@ class Parser(
 
     fun parseEquality(): Node.EXPRESSION? {
         var leftExpr = parseComparison() ?: return null
-        while (requireOneOf(EQUALS, NOTEQUALS)) {
+        while (nextTokenOneOf(EQUALS, NOTEQUALS)) {
             val operator = getToken()
             val rightExpr = parseComparison()
             if (rightExpr != null) {
@@ -156,7 +148,7 @@ class Parser(
 
     fun parseComparison(): Node.EXPRESSION? {
         var leftExpr = parseAddition() ?: return null
-        while (requireOneOf(GREATER_THAN, GREATER_EQUAL, LESS_THAN, LESS_EQUAL)) {
+        while (nextTokenOneOf(GREATER_THAN, GREATER_EQUAL, LESS_THAN, LESS_EQUAL)) {
             val operator = getToken()
             val rightExpr = parseAddition()
             if (rightExpr != null) {
@@ -174,7 +166,7 @@ class Parser(
 
     fun parseAddition(): Node.EXPRESSION? {
         var leftExpr = parsePower() ?: return null
-        while (requireOneOf(ADD, SUBTRACT)) {
+        while (nextTokenOneOf(ADD, SUBTRACT)) {
             val operator = getToken()
             val rightExpr = parsePower()
             if (rightExpr != null) {
@@ -186,7 +178,7 @@ class Parser(
 
     fun parsePower(): Node.EXPRESSION? {
         var leftExpr = parseMultiplication() ?: return null
-        while (requireTokens(POWER)) {
+        while (nextTokenIs(POWER)) {
             getToken()
             val rightExpr = parseMultiplication()
             if (rightExpr != null) {
@@ -198,7 +190,7 @@ class Parser(
 
     fun parseMultiplication(): Node.EXPRESSION? {
         var leftExpr = parseUnary() ?: return null
-        while (requireOneOf(MULTIPLY, DIVIDE)) {
+        while (nextTokenOneOf(MULTIPLY, DIVIDE)) {
             val operator = getToken()
             val rightExpr = parseUnary()
             if (rightExpr != null) {
@@ -209,7 +201,7 @@ class Parser(
     }
 
     fun parseUnary(): Node.EXPRESSION? {
-        if (requireOneOf(BANG, SUBTRACT)) {
+        if (nextTokenOneOf(BANG, SUBTRACT)) {
             val operator = getToken()
             val rightExpr = parseUnary() ?: throw ParseException(this, "expected value after unary operator")
             return if (operator.type == BANG) Node.INVERSE(rightExpr) else Node.NEGATE(rightExpr)
@@ -218,16 +210,16 @@ class Parser(
     }
 
     fun parseValue(): Node.EXPRESSION? {
-        if (requireTokens(IDENTIFIER)) {
+        if (nextTokenIs(IDENTIFIER)) {
             val ident = getToken()
             if (ident.string.equals("true")) return Node.BOOLEAN(true)
             if (ident.string.equals("false")) return Node.BOOLEAN(false)
             return Node.VARIABLE(ident.string)
         }
-        if (requireTokens(STRING)) return Node.STRING(getToken().string)
-        if (requireTokens(INTEGER)) return Node.INTEGER(getToken().int)
-        if (requireTokens(FLOAT)) return Node.FLOAT(getToken().float)
-        if (requireTokens(PAREN_OPEN)) {
+        if (nextTokenIs(STRING)) return Node.STRING(getToken().string)
+        if (nextTokenIs(INTEGER)) return Node.INTEGER(getToken().int)
+        if (nextTokenIs(FLOAT)) return Node.FLOAT(getToken().float)
+        if (nextTokenIs(PAREN_OPEN)) {
             getToken()
             val expr = parseExpression() ?: throw ParseException(this, "expected expression inside parens")
             if (getToken().type != PAREN_CLOSE) throw ParseException(this, "missing close paren")

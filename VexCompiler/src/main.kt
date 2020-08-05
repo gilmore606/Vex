@@ -4,7 +4,8 @@ class main {
 
     companion object {
         @JvmStatic fun main(args: Array<String>) {
-            println("hello world!  let's compile asteroids")
+            println("SHALL WE COMPILE A GAME?")
+            println("")
 
             val inStream = File("data/asteroids.vexc").inputStream()
 
@@ -16,7 +17,7 @@ class main {
                 try {
                     lexer.process(c)
                 } catch (e: LexException) {
-                    println("Tokenize error at line " + e.lexer.linePos + "," + e.lexer.charPos + ": ")
+                    println("Syntax error at line " + e.lexer.linePos + "," + e.lexer.charPos + ": ")
                     println("  " + e.m)
                 }
                 nextChar = inStream.read()
@@ -26,13 +27,15 @@ class main {
             val parser = Parser(lexer.outBuffer)
             try {
                 parser.parse()
-                parser.dumpTree()
             } catch (e: ParseException) {
-                parser.dumpTree()
                 println("")
-                println("Parse error at line " + e.parser.linePos() + "," + e.parser.charPos() + ": ")
+                println("Syntax error at line " + e.parser.linePos() + "," + e.parser.charPos() + ": ")
                 println("  " + e.m)
             }
+            parser.dumpTree()
+
+            // Fill in AST with action tree
+
         }
     }
 }
