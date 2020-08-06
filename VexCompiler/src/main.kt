@@ -34,8 +34,8 @@ class main {
             }
             parser.dumpTree()
 
-            // Fill in AST with action tree
-
+            // Fill in symbols and types
+            val semantor = Semantor(parser.ast)
         }
     }
 }

@@ -3,7 +3,10 @@ sealed class Node {
     var linePos = 0
     var charPos = 0
 
-
+    fun tag(p: Parser) {
+        this.linePos = p.linePos()
+        this.charPos = p.charPos()
+    }
     open fun print(lvl: Int) {
         println("  ".repeat(lvl) + this.toString())
         printMine(lvl + 1)
