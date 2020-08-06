@@ -81,6 +81,13 @@ sealed class Node {
         }
     }
 
+    class EACH(val iterator: VARIABLE, val code: CODEBLOCK): STATEMENT() {
+        override fun printMine(lvl: Int) {
+            iterator.print(lvl)
+            code.print(lvl)
+        }
+    }
+
     class IFELSE(val condition: EXPRESSION, val ifblock: CODEBLOCK, val elseblock: CODEBLOCK): STATEMENT() {
         override fun printMine(lvl: Int) {
             condition.print(lvl)

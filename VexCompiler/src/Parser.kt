@@ -109,6 +109,7 @@ class Parser(
 
         parseAssign()?.also { return it }
         parseRepeat(depth)?.also { return it }
+        parseEach(depth)?.also { return it }
 
         return null
     }
@@ -128,6 +129,16 @@ class Parser(
         expectToken(COLON, "expected colon after repeat count expression")
         val code = parseCodeblock(depth + 1)
         return Node.REPEAT(count, Node.CODEBLOCK(code))
+    }
+
+    fun parseEach(depth: Int): Node.EACH? {
+        if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("each"))) return null
+        tossNextToken()
+        val iterator = parseValue() ?: throw ParseException(this, "expected iterator name for each loop")
+        if (!(iterator is Node.VARIABLE)) throw ParseException(this, "cannot each-iterate anything but a variable name")
+        expectToken(COLON, "expected colon after each iterator name")
+        val code = parseCodeblock(depth + 1)
+        return Node.EACH(iterator, Node.CODEBLOCK(code))
     }
 
     fun parseExpression(): Node.EXPRESSION? {

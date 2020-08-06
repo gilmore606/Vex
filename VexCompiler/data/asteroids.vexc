@@ -18,3 +18,5 @@ to mangle:
         a = 4
         b = 7
         d = trystuff()
+    each rock:
+        rockCount = rockCount + 1
