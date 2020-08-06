@@ -1,9 +1,9 @@
 import TokenType.*
-import node.Node
 import java.lang.RuntimeException
 
 class Parser(
-    var tokens: ArrayList<Token>
+    var tokens: ArrayList<Token>,
+    var methodNames: ArrayList<MethodSpec>
 ) {
     val ast = ArrayList<Node>()
 
@@ -93,7 +93,12 @@ class Parser(
     }
 
     fun parseSettings(): List<Node.ASSIGN> {
-        return ArrayList()
+        val assigns = ArrayList<Node.ASSIGN>()
+        while (true) {
+            val nextAssign = parseStatement(1) ?: return assigns
+            if (nextAssign !is Node.ASSIGN) throw ParseException(this, "only assignments allowed in settings block")
+            assigns.add(nextAssign)
+        }
     }
 
     fun parseCodeblock(depth: Int): List<Node.STATEMENT> {

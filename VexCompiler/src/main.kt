@@ -23,8 +23,13 @@ class main {
                 nextChar = inStream.read()
             }
 
+            // Let peeper find method names
+            val peeper = Peeper(lexer.outBuffer)
+            peeper.peep()
+            peeper.dump()
+
             // Send lexer tokens to parser
-            val parser = Parser(lexer.outBuffer)
+            val parser = Parser(lexer.outBuffer, peeper.methods)
             try {
                 parser.parse()
             } catch (e: ParseException) {
