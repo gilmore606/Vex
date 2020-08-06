@@ -74,6 +74,21 @@ sealed class Node {
         }
     }
 
+    class REPEAT(val count: EXPRESSION, val code: CODEBLOCK): STATEMENT() {
+        override fun printMine(lvl: Int) {
+            count.print(lvl)
+            code.print(lvl)
+        }
+    }
+
+    class IFELSE(val condition: EXPRESSION, val ifblock: CODEBLOCK, val elseblock: CODEBLOCK): STATEMENT() {
+        override fun printMine(lvl: Int) {
+            condition.print(lvl)
+            ifblock.print(lvl)
+            elseblock.print(lvl)
+        }
+    }
+
     class CONTROLDEF(val name: String, val params: List<CONTROLPARAM>): STATEMENT() {
         override fun toString() = super.toString() + " (" + name + ")"
         override fun printMine(lvl: Int) {
@@ -99,10 +114,15 @@ sealed class Node {
             controls.forEach { it.print(lvl) }
         }
     }
-    class CODEBLOCK(val name: String, val statements: List<STATEMENT>): BLOCK() {
-        override fun toString() = super.toString() + " (" + name + ")"
+    class CODEBLOCK(val statements: List<STATEMENT>): BLOCK() {
         override fun printMine(lvl: Int) {
             statements.forEach { it.print(lvl) }
+        }
+    }
+    class FUNCTION(val name: String, val code: CODEBLOCK): BLOCK() {
+        override fun toString() = super.toString() + " (" + name + ")"
+        override fun printMine(lvl: Int) {
+            code.print(lvl)
         }
     }
 

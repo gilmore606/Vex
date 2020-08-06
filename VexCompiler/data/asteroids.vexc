@@ -14,3 +14,7 @@ to utilFunction:
 
 to mangle:
     result = trystuff(4, "test", 56, vec(5,5), vec(3,3))
+    repeat n+4:
+        a = 4
+        b = 7
+        d = trystuff()

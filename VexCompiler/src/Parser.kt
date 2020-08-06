@@ -52,7 +52,7 @@ class Parser(
         if (token.string.equals("to")) {
             val handler = getToken()
             if (getToken().type != COLON) throw ParseException(this, "expected : after method declaration")
-            return Node.CODEBLOCK(handler.string, parseCodeblock(1))
+            return Node.FUNCTION(handler.string, Node.CODEBLOCK(parseCodeblock(1)))
         } else if (nextToken().type == COLON) {
             tossNextToken()
             return when  {
@@ -108,6 +108,8 @@ class Parser(
         repeat (depth) { tossNextToken() }
 
         parseAssign()?.also { return it }
+        parseRepeat(depth)?.also { return it }
+
         return null
     }
 
@@ -117,6 +119,15 @@ class Parser(
         tossNextToken()
         val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
         return Node.ASSIGN(Node.VARIABLE(identifier.string), expression)
+    }
+
+    fun parseRepeat(depth: Int): Node.REPEAT? {
+        if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("repeat"))) return null
+        tossNextToken()
+        val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
+        expectToken(COLON, "expected colon after repeat count expression")
+        val code = parseCodeblock(depth + 1)
+        return Node.REPEAT(count, Node.CODEBLOCK(code))
     }
 
     fun parseExpression(): Node.EXPRESSION? {
