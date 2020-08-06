@@ -13,6 +13,7 @@ sealed class Node {
     abstract class EXPRESSION: Node()
     abstract class VALUE: EXPRESSION()
     abstract class LITERAL: VALUE()
+    abstract class VARREF: VALUE()
 
     class BOOLEAN(val value: Boolean): LITERAL() {
         override fun toString() = if (value) "TRUE" else "FALSE"
@@ -26,9 +27,14 @@ sealed class Node {
     class STRING(val value: String): LITERAL() {
         override fun toString() = super.toString() + " (" + value + ")"
     }
-    class VARIABLE(val name: String): VALUE() {
+
+    class VARIABLE(val name: String): VARREF() {
         override fun toString() = super.toString() + " (" + name + ")"
     }
+    class PROPREF(val objectname: String, val propname: String): VARREF() {
+        override fun toString() = super.toString() + " (" + objectname + "." + propname + ")"
+    }
+
     class CALL(val name: String, val args: List<EXPRESSION>): VALUE() {
         override fun toString() = super.toString() + " (" + name + ")"
         override fun printMine(lvl: Int) {
@@ -67,7 +73,7 @@ sealed class Node {
 
     abstract class STATEMENT: Node()
 
-    class ASSIGN(val variable: VARIABLE, val value: EXPRESSION): STATEMENT() {
+    class ASSIGN(val variable: VALUE, val value: EXPRESSION): STATEMENT() {
         override fun printMine(lvl: Int) {
             variable.print(lvl)
             value.print(lvl)

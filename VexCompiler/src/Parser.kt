@@ -107,19 +107,20 @@ class Parser(
         repeat (depth) { if (nextToken(it).type != INDENT) return null }
         repeat (depth) { tossNextToken() }
 
-        parseAssign()?.also { return it }
         parseRepeat(depth)?.also { return it }
         parseEach(depth)?.also { return it }
+        parseAssign()?.also { return it }
 
         return null
     }
 
     fun parseAssign(): Node.ASSIGN? {
-        if (!nextTokensAre(IDENTIFIER, ASSIGN)) return null
-        val identifier = getToken()
+        if (!nextTokenIs(IDENTIFIER)) return null
+        val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
+        if (identifier !is Node.VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
         tossNextToken()
         val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
-        return Node.ASSIGN(Node.VARIABLE(identifier.string), expression)
+        return Node.ASSIGN(identifier, expression)
     }
 
     fun parseRepeat(depth: Int): Node.REPEAT? {
@@ -233,16 +234,7 @@ class Parser(
     }
 
     fun parseValue(): Node.EXPRESSION? {
-        if (nextTokenIs(IDENTIFIER)) {
-            val ident = getToken()
-            if (ident.string.equals("true")) return Node.BOOLEAN(true)
-            if (ident.string.equals("false")) return Node.BOOLEAN(false)
-            if (nextTokenIs(PAREN_OPEN)) {
-                tossNextToken()
-                return Node.CALL(ident.string, parseArglist())
-            }
-            return Node.VARIABLE(ident.string)
-        }
+        if (nextTokenIs(IDENTIFIER)) return parseIdentifier()
         if (nextTokenIs(STRING)) return Node.STRING(getToken().string)
         if (nextTokenIs(INTEGER)) return Node.INTEGER(getToken().int)
         if (nextTokenIs(FLOAT)) return Node.FLOAT(getToken().float)
@@ -253,6 +245,24 @@ class Parser(
             return expr
         }
         return null
+    }
+
+    fun parseIdentifier(): Node.VALUE? {
+        if (!nextTokenIs(IDENTIFIER)) return null
+        val ident = getToken()
+        if (ident.string.equals("true")) return Node.BOOLEAN(true)
+        if (ident.string.equals("false")) return Node.BOOLEAN(false)
+        if (nextTokenIs(PAREN_OPEN)) {
+            tossNextToken()
+            return Node.CALL(ident.string, parseArglist())
+        }
+        if (nextTokenIs(DOTJOIN)) {
+            println(ident)
+            tossNextToken()
+            val propname = expectToken(IDENTIFIER, "expected identifier for property reference")
+            return Node.PROPREF(ident.string, propname.string)
+        }
+        return Node.VARIABLE(ident.string)
     }
 
     fun parseArglist(): List<Node.EXPRESSION> {
