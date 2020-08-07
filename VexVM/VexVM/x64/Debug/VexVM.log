@@ -1,2 +1,2 @@
-﻿LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  VexVM.vcxproj -> D:\githome\Vex\VexVM\VexVM\x64\Debug\VexVM.exe
+﻿  glad.c
+C:\Users\default.DESKTOP-VBV79OD\Desktop\Vex\VexVM\VexVM\glad.c(25,10): fatal error C1083: Cannot open include file: 'glad/glad.h': No such file or directory
