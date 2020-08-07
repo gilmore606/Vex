@@ -2,6 +2,8 @@
 #include <GLFW\glfw3.h>
 #include <iostream>
 
+#include "Shader.h"
+
 const char* vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec2 aPos;\n"
 	"void main()\n"
