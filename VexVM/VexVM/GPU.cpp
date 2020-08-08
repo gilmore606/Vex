@@ -81,46 +81,35 @@ void GPU::Assemble() {
 
 void GPU::Render() {
 	
-	// Draw lines to trailbuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, trailBuffer.ID());
-	glViewport(0, 0, w, h);
-
-	drawShader.Use();
-	drawShader.setFloat("brightness", 0.4f);
+	// Buffer linedata into its VBO
 	glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(linedata), linedata, GL_STREAM_DRAW);
+
+	// Draw lines to trailbuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, trailBuffer.ID());
+	drawShader.Use("brightness", 0.4f);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedataCount);
 
 	// Fade trailbuffer
-	fadeShader.Use();
-	glBindVertexArray(screenVAO);
+	glBindFramebuffer(GL_FRAMEBUFFER, trailBuffer.ID());
 	glBindTexture(GL_TEXTURE_2D, trailBuffer.texID());
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	trailBuffer.Blit(fadeShader, screenVAO);
 
 	// Blit trailbuffer to screenbuffer
-	blitShader.Use();
 	glBindFramebuffer(GL_FRAMEBUFFER, screenBuffer.ID());
-	screenBuffer.Clear(0.1f, 0.1f, 0.3f, 0.5f);
-	glBindVertexArray(screenVAO);
-	glBindTexture(GL_TEXTURE_2D, trailBuffer.texID());
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	trailBuffer.Blit(blitShader, screenVAO);
 
 	// Draw lines to screenbuffer
-	drawShader.Use();
-	drawShader.setFloat("brightness", 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, screenBuffer.ID());
+	drawShader.Use("brightness", 1.0f);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedataCount);
 
 	// Draw screenbuffer to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, w, h);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	blitShader.Use();
-	glBindVertexArray(screenVAO);
-	glBindTexture(GL_TEXTURE_2D, screenBuffer.texID());
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	screenBuffer.Blit(blitShader, screenVAO);
 }

@@ -2,6 +2,7 @@
 #include <GLFW\glfw3.h>
 #include "Framebuffer.h"
 #include <iostream>
+#include "Shader.h"
 
 Framebuffer::Framebuffer() : w(0), h(0), id(0) { }
 
@@ -43,4 +44,11 @@ void Framebuffer::Create() {
 void Framebuffer::Clear(float r, float g, float b, float a) {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Framebuffer::Blit(Shader shader, GLuint vao) {
+	shader.Use();
+	glBindVertexArray(vao);
+	glBindTexture(GL_TEXTURE_2D, texid);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
