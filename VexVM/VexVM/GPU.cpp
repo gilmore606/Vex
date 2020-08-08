@@ -48,7 +48,8 @@ void GPU::Setup() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	Framebuffer screenBuffer = Framebuffer(w, h);
+	screenBuffer = Framebuffer(w, h);
+	screenBuffer.Create();
 
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
@@ -59,7 +60,7 @@ void GPU::Setup() {
 }
 
 void GPU::Assemble() {
-	// Update all sprite data and copy lines into linedata for rendering
+	// TODO: Update all sprite data and copy lines into linedata for rendering
 	for (int i = 0; i < linedataCount; i++) {
 		linedata[i] = linedata[i] + ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.001f;
 	}
@@ -68,7 +69,7 @@ void GPU::Assemble() {
 void GPU::Render() {
 
 	// Draw lines to screenbuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, screenBuffer.ID());
 	glViewport(0, 0, w, h);
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -79,8 +80,6 @@ void GPU::Render() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(linedata), linedata, GL_STREAM_DRAW);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedataCount);
-
-	return;
 
 	// Draw screenbuffer to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

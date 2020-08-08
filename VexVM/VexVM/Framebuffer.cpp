@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 #include "Framebuffer.h"
+#include <iostream>
 
 Framebuffer::Framebuffer() : w(0), h(0), id(0) { }
 
@@ -27,5 +28,11 @@ void Framebuffer::Create() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texid, 0);
 	
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "Framebuffer created" << std::endl;
+	}
+	else {
+		std::cout << "Framebuffer create failed!" << std::endl;
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
