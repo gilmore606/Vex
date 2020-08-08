@@ -19,6 +19,9 @@ int main() {
 	int w = 2000;
 	int h = 1200;
 
+	int currentFrame, lastFrame, deltaTime;
+	lastFrame = glfwGetTime();
+
 	// Setup window
 
 	std::cout << "GLFW initializing" << std::endl;
@@ -51,6 +54,9 @@ int main() {
 	// MAIN LOOP
 
 	while (!shouldQuit) {
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
 		gpu.Assemble();
 		gpu.Render();

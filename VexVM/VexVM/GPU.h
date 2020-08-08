@@ -23,10 +23,13 @@ private:
 
 	float linedata[40000];
 	int linedataCount;
-	float screendata[12] = {
-		-1.0f, -1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f, 1.0f
+	float screendata[24] = {
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
 	};
 };
 
