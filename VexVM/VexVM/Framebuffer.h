@@ -10,6 +10,8 @@ struct Framebuffer {
 	GLuint texID();
 
 	void Create();
+	void Clear(float r, float g, float b, float a);
+
 private:
 	GLuint id;
 	GLuint texid;

@@ -163,6 +163,8 @@
     <None Include="data\shaders\blit.vert" />
     <None Include="data\shaders\draw.frag" />
     <None Include="data\shaders\draw.vert" />
+    <None Include="data\shaders\fade.frag" />
+    <None Include="data\shaders\fade.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

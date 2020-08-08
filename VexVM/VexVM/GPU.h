@@ -22,8 +22,8 @@ private:
 	GLFWwindow* window;
 	GLuint linesVBO, linesVAO;
 	GLuint screenVBO, screenVAO;
-	Shader drawShader, blitShader, postShader;
-	Framebuffer screenBuffer;
+	Shader drawShader, blitShader, fadeShader;
+	Framebuffer trailBuffer, screenBuffer;
 
 	float linedata[40000];
 	int linedataCount;

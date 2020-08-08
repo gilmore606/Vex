@@ -87,6 +87,10 @@ void Shader::setInt(const std::string& name, int value) {
 	glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 }
 
+void Shader::setFloat(const std::string& name, float value) {
+	glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+}
+
 void Shader::SendLine(GLuint vao, float x0, float y0, float x1, float y1) {
 	// Generate a buffer
 	GLuint buffer;
