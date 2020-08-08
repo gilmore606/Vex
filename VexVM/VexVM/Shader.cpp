@@ -36,11 +36,6 @@ Shader::Shader(const char* vertex_path, const char* fragment_path) : id(0) {
 }
 
 Shader::~Shader() {
-	// You probably want a memory manager eventually
-	// Either you heap allocate shaders or be careful when they go out of scope for the sake of efficiency
-	// Or you just write a memory manager for your opengl objects
-
-	glDeleteProgram(id);
 }
 
 GLuint Shader::ID() {
@@ -51,11 +46,13 @@ void Shader::Load() {
 	int success;
 	char infoLog[512];
 
-	const char* vertex_src = ShaderSourceFromFile(vertex_path).c_str();
-	const char* fragment_src = ShaderSourceFromFile(fragment_path).c_str();
+	std::string vertex_src = ShaderSourceFromFile(vertex_path);
+	std::string fragment_src = ShaderSourceFromFile(fragment_path);
+	const char* vertex_src_cstr = vertex_src.c_str();
+	const char* fragment_src_cstr = fragment_src.c_str();
 
-	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertex_src, NULL);
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertex_src_cstr, NULL);
 	glCompileShader(vertexShader);
 
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -65,8 +62,8 @@ void Shader::Load() {
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragment_src, NULL);
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragment_src_cstr, NULL);
 	glCompileShader(fragmentShader);
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 
@@ -75,7 +72,7 @@ void Shader::Load() {
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	this->id = glCreateProgram();
+	id = glCreateProgram();
 
 	glAttachShader(id, vertexShader);
 	glAttachShader(id, fragmentShader);
