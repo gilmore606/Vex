@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
-#include "Buffer.h"
+#include "Framebuffer.h"
 
 Framebuffer::Framebuffer() : w(0), h(0), id(0) { }
 

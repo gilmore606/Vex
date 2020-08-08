@@ -152,7 +152,7 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>

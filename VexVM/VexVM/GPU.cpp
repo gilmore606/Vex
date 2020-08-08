@@ -1,4 +1,5 @@
 #include "GPU.h"
+#include "Framebuffer.h"
 #include <iostream>
 
 GPU::GPU() : w(0), h(0), window(0) { }

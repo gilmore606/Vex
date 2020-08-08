@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "Shader.h"
-#include "Buffer.h"
 #include "GPU.h"
 
 GLFWwindow* window;
