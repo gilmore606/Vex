@@ -10,6 +10,7 @@ struct Shader {
 	GLuint ID();
 
 	void Load();
+	void Use();
 	void SendLine(GLuint vao, float x0, float y0, float x1, float y1);
 private:
 	GLuint id;

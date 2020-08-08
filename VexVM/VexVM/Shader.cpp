@@ -79,6 +79,10 @@ void Shader::Load() {
 	std::cout << "Shader loaded" << std::endl;
 }
 
+void Shader::Use() {
+	glUseProgram(id);
+}
+
 void Shader::SendLine(GLuint vao, float x0, float y0, float x1, float y1) {
 	// Generate a buffer
 	GLuint buffer;
