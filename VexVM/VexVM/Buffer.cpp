@@ -2,6 +2,8 @@
 #include <GLFW\glfw3.h>
 #include "Buffer.h"
 
+Buffer::Buffer() : w(0), h(0), id(0) { }
+
 Buffer::Buffer(int w, int h) : id(0) {
 	this->w = w;
 	this->h = h;
