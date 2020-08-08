@@ -19,7 +19,7 @@ private:
 	GLuint linesVBO, linesVAO;
 	GLuint screenVBO, screenVAO;
 	Shader drawShader, blitShader, postShader;
-	Buffer screenBuffer;
+	Framebuffer screenBuffer;
 
 	float linedata[40000];
 	int linedataCount;

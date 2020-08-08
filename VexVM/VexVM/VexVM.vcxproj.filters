@@ -24,10 +24,10 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Buffer.cpp">
+    <ClCompile Include="GPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GPU.cpp">
+    <ClCompile Include="Framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

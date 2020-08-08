@@ -145,7 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="Main.cpp" />

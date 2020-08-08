@@ -2,22 +2,22 @@
 #include <GLFW\glfw3.h>
 #include "Buffer.h"
 
-Buffer::Buffer() : w(0), h(0), id(0) { }
+Framebuffer::Framebuffer() : w(0), h(0), id(0) { }
 
-Buffer::Buffer(int w, int h) : id(0) {
+Framebuffer::Framebuffer(int w, int h) : id(0) {
 	this->w = w;
 	this->h = h;
 }
 
-GLuint Buffer::ID() {
+GLuint Framebuffer::ID() {
 	return id;
 }
 
-GLuint Buffer::texID() {
+GLuint Framebuffer::texID() {
 	return texid;
 }
 
-void Buffer::Create() {
+void Framebuffer::Create() {
 	glGenFramebuffers(1, &id);
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	glGenTextures(1, &texid);

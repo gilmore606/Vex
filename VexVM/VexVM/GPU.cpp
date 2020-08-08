@@ -47,7 +47,7 @@ void GPU::Setup() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	Buffer screenBuffer = Buffer(w, h);
+	Framebuffer screenBuffer = Framebuffer(w, h);
 
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
@@ -68,11 +68,13 @@ void GPU::Render() {
 
 	// Draw lines to screenbuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, w, h);
 	glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(linedata), linedata, GL_STREAM_DRAW);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
 
 	glUseProgram(drawShader.ID());
 	glBindVertexArray(linesVAO);
@@ -82,11 +84,13 @@ void GPU::Render() {
 
 	// Draw screenbuffer to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glViewport(0, 0, w, h);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
 	glUseProgram(blitShader.ID());
 	glBindVertexArray(screenVAO);
 	glDisable(GL_DEPTH_TEST);
 	glBindTexture(GL_TEXTURE_2D, screenBuffer.texID());
-	glDrawArrays(GL_TRIANGLES, 0, 12);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

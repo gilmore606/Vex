@@ -2,9 +2,9 @@
 
 #include <glad/glad.h>
 
-struct Buffer {
-	Buffer();
-	Buffer(int w, int h);
+struct Framebuffer {
+	Framebuffer();
+	Framebuffer(int w, int h);
 
 	GLuint ID();
 	GLuint texID();
