@@ -17,10 +17,16 @@ private:
 	int w, h;
 	GLFWwindow* window;
 	GLuint linesVBO, linesVAO;
-	Shader drawShader, postShader;
-	Buffer glowBuffer, drawBuffer;
+	GLuint screenVBO, screenVAO;
+	Shader drawShader, blitShader, postShader;
+	Buffer screenBuffer;
 
 	float linedata[40000];
 	int linedataCount;
+	float screendata[12] = {
+		-1.0f, -1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f, 1.0f
+	};
 };
 

@@ -13,6 +13,10 @@ GLuint Buffer::ID() {
 	return id;
 }
 
+GLuint Buffer::texID() {
+	return texid;
+}
+
 void Buffer::Create() {
 	glGenFramebuffers(1, &id);
 	glBindFramebuffer(GL_FRAMEBUFFER, id);

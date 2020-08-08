@@ -76,6 +76,7 @@ void Shader::Load() {
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+	std::cout << "Shader loaded" << std::endl;
 }
 
 void Shader::SendLine(GLuint vao, float x0, float y0, float x1, float y1) {

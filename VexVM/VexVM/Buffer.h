@@ -7,6 +7,7 @@ struct Buffer {
 	Buffer(int w, int h);
 
 	GLuint ID();
+	GLuint texID();
 
 	void Create();
 private:

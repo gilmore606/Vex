@@ -42,4 +42,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="data\shaders\draw.frag" />
+    <None Include="data\shaders\draw.vert" />
+    <None Include="data\shaders\blit.frag" />
+    <None Include="data\shaders\blit.vert" />
+  </ItemGroup>
 </Project>
