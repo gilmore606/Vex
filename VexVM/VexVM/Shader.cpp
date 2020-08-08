@@ -7,20 +7,12 @@
 static std::string ShaderSourceFromFile(const char* path) {
 	std::ifstream file(path);
 	std::string empty = "";
-
 	if(!file.is_open()) {
-		std::string str = "Failed to load shader from ";
-		str += path;
-		str += "\n";
-		
-		std::cout << str << std::endl;
-
+		std::cout << "Failed to load shader\n" << std::endl;
 		return empty;
 	}
-
 	std::ostringstream string_stream;
 	string_stream << file.rdbuf();
-
 	return string_stream.str();
 }
 
@@ -31,8 +23,6 @@ Shader::Shader() : vertex_path(0), fragment_path(0), id(0) {
 Shader::Shader(const char* vertex_path, const char* fragment_path) : id(0) {
 	this->vertex_path = vertex_path;
 	this->fragment_path = fragment_path;
-
-	Load();
 }
 
 Shader::~Shader() {
