@@ -19,7 +19,10 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 		float y1 = (randFloat() - 0.5f) * 2.0f;
 		float x2 = x1 + (randFloat() - 0.5f) * 0.1f;
 		float y2 = y1 + (randFloat() - 0.5f) * 0.1f;
-		lines[i] = Line(x1, y1, x2, y2);
+		float r = randFloat();
+		float g = randFloat();
+		float b = randFloat();
+		lines[i] = Line(x1, y1, x2, y2, r, g, b);
 	}
 
 	std::cout << "GPU created" << std::endl;
@@ -30,8 +33,10 @@ void GPU::Setup() {
 	glGenBuffers(1, &linesVBO);
 	glBindVertexArray(linesVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -60,7 +65,8 @@ void GPU::Setup() {
 	screenBuffer.Create();
 	trailBuffer = Framebuffer(w, h);
 	trailBuffer.Create();
-	trailBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
+	glowBuffer = Framebuffer(w, h);
+	glowBuffer.Create();
 
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);

@@ -23,9 +23,9 @@ private:
 	GLuint linesVBO, linesVAO;
 	GLuint screenVBO, screenVAO;
 	Shader drawShader, blitShader, fadeShader;
-	Framebuffer trailBuffer, screenBuffer;
+	Framebuffer trailBuffer, screenBuffer, glowBuffer;
 
-	float linedata[40000];
+	float linedata[100000];
 	int linedataCount;
 	float screendata[24] = {
 		-1.0f, 1.0f, 0.0f, 1.0f,
