@@ -4,6 +4,7 @@
 #include <GLFW\glfw3.h>
 #include "Shader.h"
 #include "Framebuffer.h"
+#include "Line.h"
 
 struct GPU{
 	GPU();
@@ -12,6 +13,9 @@ struct GPU{
 	void Setup();
 	void Assemble();
 	void Render();
+
+	Line lines[10000];
+	int lineCount;
 
 private:
 	int w, h;
@@ -31,5 +35,6 @@ private:
 		1.0f, -1.0f, 1.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 	};
+
 };
 

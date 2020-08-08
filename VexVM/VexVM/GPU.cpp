@@ -2,6 +2,10 @@
 #include "Framebuffer.h"
 #include <iostream>
 
+static float randFloat() {
+	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+}
+
 GPU::GPU() : w(0), h(0), window(0) { }
 
 GPU::GPU(int w, int h, GLFWwindow* window) {
@@ -9,16 +13,14 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	this->h = h;
 	this->window = window;
 
-	int pointCount = 20000;
-
-	for (int i = 0; i < pointCount / 4; i++) {
-		linedata[i * 4] = ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 2.0f;
-		linedata[i * 4 + 1] = ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 2.0f;
-		linedata[i * 4 + 2] = linedata[i * 4] + ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.1f;
-		linedata[i * 4 + 3] = linedata[i * 4 + 1] + ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.1f;
+	lineCount = 5000;
+	for (int i = 0; i < lineCount; i++) {
+		float x1 = (randFloat() - 0.5f) * 2.0f;
+		float y1 = (randFloat() - 0.5f) * 2.0f;
+		float x2 = x1 + (randFloat() - 0.5f) * 0.1f;
+		float y2 = y1 + (randFloat() - 0.5f) * 0.1f;
+		lines[i] = Line(x1, y1, x2, y2);
 	}
-
-	linedataCount = pointCount;
 
 	std::cout << "GPU created" << std::endl;
 }
@@ -64,9 +66,10 @@ void GPU::Setup() {
 }
 
 void GPU::Assemble() {
-	// TODO: Update all sprite data and copy lines into linedata for rendering
-	for (int i = 0; i < linedataCount; i++) {
-		linedata[i] = linedata[i] + ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.001f;
+	linedataCount = 0;
+	for (int i = 0; i < lineCount; i++) {
+		lines[i].move();
+		lines[i].pushData(linedata, &linedataCount);
 	}
 }
 
