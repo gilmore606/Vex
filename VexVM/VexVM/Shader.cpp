@@ -94,25 +94,3 @@ void Shader::setInt(const std::string& name, int value) {
 void Shader::setFloat(const std::string& name, float value) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
-
-void Shader::SendLine(GLuint vao, float x0, float y0, float x1, float y1) {
-	// Generate a buffer
-	GLuint buffer;
-	glGenBuffers(1, &buffer);
-
-	// Bind VAO
-	glBindVertexArray(vao);
-
-	float verts[4] = { x0, y0, x1, y1 };
-
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	// Clean up
-	glDeleteBuffers(1, &buffer);
-}

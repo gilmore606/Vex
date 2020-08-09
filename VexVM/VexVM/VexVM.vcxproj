@@ -161,6 +161,8 @@
   <ItemGroup>
     <None Include="data\shaders\blit.frag" />
     <None Include="data\shaders\blit.vert" />
+    <None Include="data\shaders\blur.frag" />
+    <None Include="data\shaders\blur.vert" />
     <None Include="data\shaders\compose.frag" />
     <None Include="data\shaders\compose.vert" />
     <None Include="data\shaders\draw.frag" />

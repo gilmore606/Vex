@@ -57,5 +57,7 @@
     <None Include="data\shaders\fade.vert" />
     <None Include="data\shaders\compose.frag" />
     <None Include="data\shaders\compose.vert" />
+    <None Include="data\shaders\blur.frag" />
+    <None Include="data\shaders\blur.vert" />
   </ItemGroup>
 </Project>

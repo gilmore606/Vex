@@ -1,6 +1,9 @@
 #include "GPU.h"
+#include <glad/glad.h>
+#include <GLFW\glfw3.h>
 #include "Framebuffer.h"
 #include <iostream>
+
 
 static float randFloat() {
 	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -64,6 +67,10 @@ void GPU::Setup() {
 	composeShader.Load();
 	composeShader.setInt("screenTex", 0);
 	composeShader.setInt("glowTex", 1);
+	blurShader = Shader("./data/shaders/blur.vert", "./data/shaders/blur.frag");
+	blurShader.Load();
+	blurShader.setInt("texture", 0);
+
 
 	screenBuffer = Framebuffer(w, h);
 	screenBuffer.Create();
@@ -71,6 +78,8 @@ void GPU::Setup() {
 	trailBuffer.Create();
 	glowBuffer = Framebuffer(w, h);
 	glowBuffer.Create();
+	glowDestBuffer = Framebuffer(w, h);
+	glowDestBuffer.Create();
 
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
@@ -97,16 +106,28 @@ void GPU::Render() {
 
 	// Draw lines to trailbuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, trailBuffer.ID());
-	drawShader.Use("brightness", 0.4f);
+	drawShader.Use("brightness", 0.5f);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedataCount);
 
 	// Draw lines to glowbuffer
+	glLineWidth(3.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, glowBuffer.ID());
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
-	drawShader.Use("brightness", 0.7f);
+	drawShader.Use("brightness", 0.9f);
 	glBindVertexArray(linesVAO);
-	//glDrawArrays(GL_LINES, 0, linedataCount);
+	glDrawArrays(GL_LINES, 0, linedataCount);
+	glLineWidth(0.8f);
+
+	// Blur glowbuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, glowDestBuffer.ID());
+	glBindVertexArray(screenVAO);
+	blurShader.Use();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, glowBuffer.texID());
+	blurShader.setInt("texture", 0);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	// Fade trailbuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, trailBuffer.ID());
@@ -121,7 +142,7 @@ void GPU::Render() {
 
 	// Draw lines to screenbuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, screenBuffer.ID());
-	drawShader.Use("brightness", 1.0f);
+	drawShader.Use("brightness", 1.5f);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedataCount);
 
@@ -133,7 +154,7 @@ void GPU::Render() {
 	glBindTexture(GL_TEXTURE_2D, screenBuffer.texID());
 	composeShader.setInt("screenTex", 0);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, glowBuffer.texID());
+	glBindTexture(GL_TEXTURE_2D, glowDestBuffer.texID());
 	composeShader.setInt("glowTex", 1);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
