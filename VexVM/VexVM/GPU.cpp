@@ -30,7 +30,7 @@ void GPU::Reset() {
 		float size = randFloat() * 3.5f + 1.0f;
 		points[i] = Point(x, y, r, g, b, size);
 	}
-	linec = 50;
+	linec = 2000;
 	for (int i = 0; i < linec; i++) {
 		float x1 = (randFloat() - 0.5f) * 2.0f;
 		float y1 = (randFloat() - 0.5f) * 2.0f;

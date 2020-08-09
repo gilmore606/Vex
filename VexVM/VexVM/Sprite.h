@@ -13,8 +13,8 @@ struct Sprite
 private:
 	void update();
 
-	Line data[64];
-	Line data_out[64];
+	Line* data = new Line[64];
+	Line* data_out = new Line[64];
 	int datac;
 	bool dirty = true;
 	float x, y;

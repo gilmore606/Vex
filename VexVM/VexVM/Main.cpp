@@ -7,7 +7,6 @@
 
 GLFWwindow* window;
 GPU gpu;
-bool shouldQuit = false;
 bool inMotion = true;
 
 
@@ -22,10 +21,36 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 	} else if (key == GLFW_KEY_SPACE) {
 		inMotion = !inMotion;
 	} else if (key == GLFW_KEY_ESCAPE) {
-		shouldQuit = true;
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
 }
 
+bool makeWindow(int w, int h) {
+	std::cout << "GLFW initializing" << std::endl;
+	glfwInit();
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+
+	window = glfwCreateWindow(w, h, "VEX", NULL, NULL);
+	if (window == NULL) {
+		glfwTerminate();
+		return false;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int w, int h) { glViewport(0, 0, w, h); });
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return false;
+	}
+	std::cout << "GLFW window initialized" << std::endl;
+	return true;
+}
 
 int main() {
 
@@ -36,28 +61,12 @@ int main() {
 	lastFrame = glfwGetTime();
 
 	// Setup window
-
-	std::cout << "GLFW initializing" << std::endl;
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	window = glfwCreateWindow(w, h, "VEX", NULL, NULL);
-	if (window == NULL) {
+	if (!makeWindow(w, h)) {
 		glfwTerminate();
 		return 0;
 	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int w, int h) { glViewport(0, 0, w, h); });
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return 0;
-	}
-	std::cout << "GLFW window initialized" << std::endl;
 
 	// Setup devices
-
 	gpu = GPU(w, h, window);
 	gpu.Setup();
 
@@ -66,12 +75,12 @@ int main() {
 
 	// MAIN LOOP
 
-	while (!shouldQuit) {
+	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		gpu.Assemble(inMotion);
+		gpu.Assemble(inMotion); // TODO move this test shit out of GPU!
 		gpu.Render();
 
 		glfwSwapBuffers(window);

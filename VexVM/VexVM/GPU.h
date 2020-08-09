@@ -25,11 +25,11 @@ private:
 	float linedata[100000];
 	int linedatac = 0;
 
-	Point* points = new Point[1000];
+	Point* points = new Point[1024];
 	int pointc = 0;
-	Line* lines = new Line[10000];
+	Line* lines = new Line[8192];
 	int linec = 0;
-	Sprite* sprites = new Sprite[1000];
+	Sprite* sprites = new Sprite[1024];
 	int spritec = 0;
 
 	int w, h;
@@ -50,4 +50,3 @@ private:
 	};
 
 };
-
