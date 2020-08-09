@@ -14,7 +14,7 @@ struct GPU{
 
 	void Setup();
 	void Reset();
-	void Assemble();
+	void Assemble(bool inMotion);
 	void Render();
 
 private:

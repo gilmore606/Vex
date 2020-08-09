@@ -8,6 +8,7 @@
 GLFWwindow* window;
 GPU gpu;
 bool shouldQuit = false;
+bool inMotion = true;
 
 
 void doReset() {
@@ -15,8 +16,11 @@ void doReset() {
 }
 
 void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (key == GLFW_KEY_SPACE) {
+	if (action != GLFW_PRESS) return;
+	if (key == GLFW_KEY_TAB) {
 		doReset();
+	} else if (key == GLFW_KEY_SPACE) {
+		inMotion = !inMotion;
 	} else if (key == GLFW_KEY_ESCAPE) {
 		shouldQuit = true;
 	}
@@ -67,7 +71,7 @@ int main() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		gpu.Assemble();
+		gpu.Assemble(inMotion);
 		gpu.Render();
 
 		glfwSwapBuffers(window);

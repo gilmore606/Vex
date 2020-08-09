@@ -20,7 +20,7 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 }
 
 void GPU::Reset() {
-	linec = 5000;
+	linec = 1000;
 	for (int i = 0; i < linec; i++) {
 		float x1 = (randFloat() - 0.5f) * 2.0f;
 		float y1 = (randFloat() - 0.5f) * 2.0f;
@@ -91,14 +91,14 @@ void GPU::Setup() {
 	std::cout << "GPU initialized" << std::endl;
 }
 
-void GPU::Assemble() {
+void GPU::Assemble(bool inMotion) {
 	pointdatac = 0;
 	for (int i = 0; i < pointc; i++) {
 		points[i].pushData(pointdata, &pointdatac);
 	}
 	linedatac = 0;
 	for (int i = 0; i < linec; i++) {
-		lines[i].move();
+		if (inMotion) lines[i].move();
 		lines[i].pushData(linedata, &linedatac);
 	}
 	for (int i = 0; i < spritec; i++) {
@@ -123,11 +123,18 @@ void GPU::Render() {
 	// Draw to trailbuffer
 	glLineWidth(3.0f);
 	trailBuffer.DrawTo();
-	drawShader.Use("brightness", 0.4f);
+	drawShader.Use("brightness", 0.3f);
 	DrawPrims();
 
+	// Blur trailbuffer
+	blurShader.Use();
+	trailBuffer.BindTexture(GL_TEXTURE0);
+	blurShader.setInt("texture", 0);
+	blurShader.Blur(screenVAO, w, 1.0f, 1.0f, 0.0f);
+	blurShader.Blur(screenVAO, h, 1.0f, 0.0f, 1.0f);
+
 	// Draw to glowbuffer
-	glLineWidth(3.0f);
+	glLineWidth(2.4f);
 	glowBuffer.DrawTo();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
 	drawShader.Use("brightness", 0.7f);
@@ -135,12 +142,15 @@ void GPU::Render() {
 
 	// Blur glowbuffer
 	glowDestBuffer.DrawTo();
-	glBindVertexArray(screenVAO);
 	blurShader.Use();
 	glowBuffer.BindTexture(GL_TEXTURE0);
 	blurShader.setInt("texture", 0);
-	blurShader.Blur(w, 4.0f, 1.0f, 0.0f);
-	blurShader.Blur(h, 4.0f, 0.0f, 1.0f);
+	for (int i = 0; i < 6; i++) {
+		blurShader.Blur(screenVAO, w, 2.0f, 1.0f, 0.0f);
+		blurShader.Blur(screenVAO, h, 2.0f, 0.0f, 1.0f);
+		blurShader.Blur(screenVAO, h, 2.0f, 1.0f, 1.0f);
+		blurShader.Blur(screenVAO, h, 2.0f, -1.0f, -1.0f);
+	}
 
 	// Fade trailbuffer
 	trailBuffer.DrawTo();
