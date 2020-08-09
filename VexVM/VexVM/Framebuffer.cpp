@@ -28,8 +28,6 @@ void Framebuffer::Create() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texid, 0);
-	//GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	//glDrawBuffers(1, DrawBuffers);
 	
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
 		std::cout << "Framebuffer created" << std::endl;
@@ -49,6 +47,7 @@ void Framebuffer::Clear(float r, float g, float b, float a) {
 void Framebuffer::Blit(Shader shader, GLuint vao) {
 	shader.Use();
 	glBindVertexArray(vao);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texid);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
