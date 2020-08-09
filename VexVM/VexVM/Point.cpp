@@ -11,6 +11,7 @@ Point::Point(float x, float y, float r, float g, float b) {
 }
 
 void Point::pushData(float dataArray[], int* counter) {
+	// TODO: this is fake, probably need to make a quad or something
 	dataArray[*counter] = x;
 	dataArray[*counter + 1] = y;
 	dataArray[*counter + 2] = r;

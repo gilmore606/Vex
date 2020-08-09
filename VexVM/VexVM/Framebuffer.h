@@ -13,6 +13,8 @@ struct Framebuffer {
 	void Create();
 	void Clear(float r, float g, float b, float a);
 	void Blit(Shader shader, GLuint vao);
+	void DrawTo();
+	void BindTexture(int texunit);
 
 private:
 	GLuint id;

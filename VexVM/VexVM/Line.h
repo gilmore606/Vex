@@ -7,7 +7,6 @@ struct Line
 	void pushData(float dataArray[], int* counter);
 	void move();
 
-private:
 	float x1, y1, x2, y2;
 	float r, g, b;
 	float xd, yd;

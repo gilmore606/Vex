@@ -51,3 +51,12 @@ void Framebuffer::Blit(Shader shader, GLuint vao) {
 	glBindTexture(GL_TEXTURE_2D, texid);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
+
+void Framebuffer::DrawTo() {
+	glBindFramebuffer(GL_FRAMEBUFFER, id);
+}
+
+void Framebuffer::BindTexture(int texunit) {
+	glActiveTexture(texunit);
+	glBindTexture(GL_TEXTURE_2D, texid);
+}

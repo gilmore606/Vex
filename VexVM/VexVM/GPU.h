@@ -16,10 +16,16 @@ struct GPU{
 	void Reset();
 	void Assemble();
 	void Render();
-	void DrawPrims();
 
 private:
-	Point* points = new Point[10000];
+	void DrawPrims();
+	void BindTex(GLuint texid, int texunit);
+	float pointdata[7000];
+	int pointdatac;
+	float linedata[100000];
+	int linedatac;
+
+	Point* points = new Point[1000];
 	int pointc = 0;
 	Line* lines = new Line[10000];
 	int linec = 0;
@@ -33,8 +39,6 @@ private:
 	Shader drawShader, blitShader, fadeShader, composeShader, blurShader;
 	Framebuffer trailBuffer, screenBuffer, glowBuffer, glowDestBuffer;
 
-	float linedata[100000];
-	int linedatac;
 	float screendata[24] = {
 		-1.0f, 1.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 0.0f,
