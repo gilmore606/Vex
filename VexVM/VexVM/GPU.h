@@ -18,7 +18,7 @@ struct GPU{
 	void Render();
 
 private:
-	void DrawPrims(float brightness);
+	void DrawPrims(float pointBright, float lineBright);
 	void BindTex(GLuint texid, int texunit);
 	float pointdata[10000];
 	int pointdatac = 0;
