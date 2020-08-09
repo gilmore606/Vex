@@ -18,9 +18,9 @@ struct GPU{
 	void Render();
 
 private:
-	void DrawPrims();
+	void DrawPrims(float brightness);
 	void BindTex(GLuint texid, int texunit);
-	float pointdata[7000];
+	float pointdata[10000];
 	int pointdatac;
 	float linedata[100000];
 	int linedatac;
@@ -34,9 +34,10 @@ private:
 
 	int w, h;
 	GLFWwindow* window;
+	GLuint pointsVBO, pointsVAO;
 	GLuint linesVBO, linesVAO;
 	GLuint screenVBO, screenVAO;
-	Shader drawShader, blitShader, fadeShader, composeShader, blurShader;
+	Shader lineShader, blitShader, fadeShader, composeShader, blurShader;
 	Framebuffer trailBuffer, screenBuffer, glowBuffer, glowDestBuffer;
 
 	float screendata[24] = {

@@ -61,8 +61,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="data\shaders\draw.frag" />
-    <None Include="data\shaders\draw.vert" />
     <None Include="data\shaders\blit.frag" />
     <None Include="data\shaders\blit.vert" />
     <None Include="data\shaders\fade.frag" />
@@ -71,5 +69,7 @@
     <None Include="data\shaders\compose.vert" />
     <None Include="data\shaders\blur.frag" />
     <None Include="data\shaders\blur.vert" />
+    <None Include="data\shaders\drawline.frag" />
+    <None Include="data\shaders\drawline.vert" />
   </ItemGroup>
 </Project>
