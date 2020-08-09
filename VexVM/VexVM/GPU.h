@@ -11,6 +11,7 @@ struct GPU{
 	GPU(int w, int h, GLFWwindow* window);
 
 	void Setup();
+	void Reset();
 	void Assemble();
 	void Render();
 

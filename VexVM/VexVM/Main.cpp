@@ -10,9 +10,18 @@ GPU gpu;
 bool shouldQuit = false;
 
 
-void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	shouldQuit = true;
+void doReset() {
+	gpu.Reset();
 }
+
+void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (key == GLFW_KEY_SPACE) {
+		doReset();
+	} else if (key == GLFW_KEY_ESCAPE) {
+		shouldQuit = true;
+	}
+}
+
 
 int main() {
 
