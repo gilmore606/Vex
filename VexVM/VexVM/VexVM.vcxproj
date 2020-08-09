@@ -150,13 +150,17 @@
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Point.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\shaders\blit.frag" />

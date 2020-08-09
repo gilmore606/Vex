@@ -94,3 +94,11 @@ void Shader::setInt(const std::string& name, int value) {
 void Shader::setFloat(const std::string& name, float value) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
+
+void Shader::Blur(float resolution, float radius, float dirx, float diry) {
+	setFloat("resolution", resolution);
+	setFloat("radius", radius);
+	setFloat("dirx", dirx);
+	setFloat("diry", diry);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
