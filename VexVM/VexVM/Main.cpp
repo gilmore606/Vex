@@ -29,8 +29,8 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 
 int main() {
 
-	int w = 2000;
-	int h = 1200;
+	int w = 1280;
+	int h = 720;
 
 	int currentFrame, lastFrame, deltaTime;
 	lastFrame = glfwGetTime();

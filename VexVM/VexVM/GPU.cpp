@@ -20,7 +20,17 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 }
 
 void GPU::Reset() {
-	linec = 3000;
+	pointc = 500;
+	for (int i = 0; i < pointc; i++) {
+		float x = (randFloat() - 0.5f) * 2.0f;
+		float y = (randFloat() - 0.5f) * 2.0f;
+		float r = randFloat();
+		float g = randFloat();
+		float b = randFloat();
+		float size = randFloat() * 10.0f + 2.0f;
+		points[i] = Point(x, y, r, g, b, size);
+	}
+	linec = 20;
 	for (int i = 0; i < linec; i++) {
 		float x1 = (randFloat() - 0.5f) * 2.0f;
 		float y1 = (randFloat() - 0.5f) * 2.0f;
@@ -38,10 +48,12 @@ void GPU::Setup() {
 	glGenBuffers(1, &pointsVBO);
 	glBindVertexArray(pointsVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, pointsVBO);
-	glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);  // pos
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);  // color
+	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);  // size
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -69,11 +81,15 @@ void GPU::Setup() {
 	glBindVertexArray(0);
 
 	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 	glDepthMask(false);
 	glDisable(GL_DEPTH_TEST);
 
 	std::cout << "Compiling shaders..." << std::endl;
 
+	pointShader = Shader("./data/shaders/drawpoint.vert", "./data/shaders/drawpoint.frag");
+	pointShader.Load();
 	lineShader = Shader("./data/shaders/drawline.vert", "./data/shaders/drawline.frag");
 	lineShader.Load();
 	blitShader = Shader("./data/shaders/blit.vert", "./data/shaders/blit.frag");
@@ -121,6 +137,10 @@ void GPU::DrawPrims(float brightness) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 
+	pointShader.Use("brightness", brightness);
+	glBindVertexArray(pointsVAO);
+	glDrawArrays(GL_POINTS, 0, pointdatac);
+
 	lineShader.Use("brightness", brightness);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedatac);
@@ -130,7 +150,9 @@ void GPU::DrawPrims(float brightness) {
 
 void GPU::Render() {
 	
-	// Buffer linedata into its VBO
+	// Buffer prim data into their VBOs
+	glBindBuffer(GL_ARRAY_BUFFER, pointsVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pointdata), pointdata, GL_STREAM_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(linedata), linedata, GL_STREAM_DRAW);
 

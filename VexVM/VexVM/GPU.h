@@ -21,9 +21,9 @@ private:
 	void DrawPrims(float brightness);
 	void BindTex(GLuint texid, int texunit);
 	float pointdata[10000];
-	int pointdatac;
+	int pointdatac = 0;
 	float linedata[100000];
-	int linedatac;
+	int linedatac = 0;
 
 	Point* points = new Point[1000];
 	int pointc = 0;
@@ -37,7 +37,7 @@ private:
 	GLuint pointsVBO, pointsVAO;
 	GLuint linesVBO, linesVAO;
 	GLuint screenVBO, screenVAO;
-	Shader lineShader, blitShader, fadeShader, composeShader, blurShader;
+	Shader pointShader, lineShader, blitShader, fadeShader, composeShader, blurShader;
 	Framebuffer trailBuffer, screenBuffer, glowBuffer, glowDestBuffer;
 
 	float screendata[24] = {

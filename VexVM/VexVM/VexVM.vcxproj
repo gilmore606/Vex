@@ -171,6 +171,8 @@
     <None Include="data\shaders\compose.vert" />
     <None Include="data\shaders\drawline.frag" />
     <None Include="data\shaders\drawline.vert" />
+    <None Include="data\shaders\drawpoint.frag" />
+    <None Include="data\shaders\drawpoint.vert" />
     <None Include="data\shaders\fade.frag" />
     <None Include="data\shaders\fade.vert" />
   </ItemGroup>

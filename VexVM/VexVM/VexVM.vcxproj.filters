@@ -71,5 +71,7 @@
     <None Include="data\shaders\blur.vert" />
     <None Include="data\shaders\drawline.frag" />
     <None Include="data\shaders\drawline.vert" />
+    <None Include="data\shaders\drawpoint.frag" />
+    <None Include="data\shaders\drawpoint.vert" />
   </ItemGroup>
 </Project>
