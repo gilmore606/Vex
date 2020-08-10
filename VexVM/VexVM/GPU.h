@@ -13,11 +13,14 @@ struct GPU{
 	GPU(int w, int h, GLFWwindow* window);
 
 	void Setup();
+	void Resize(int w, int h);
 	void Reset();
 	void Assemble(bool inMotion);
 	void Render();
 
 private:
+	void makeShaders();
+	void makeBuffers();
 	void DrawPrims(float pointBright, float lineBright);
 	void BindTex(GLuint texid, int texunit);
 	float pointdata[10000];

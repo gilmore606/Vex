@@ -6,6 +6,8 @@
 #include "GPU.h"
 
 GLFWwindow* window;
+int windowWidth = 2000;
+int windowHeight = 1300;
 GPU gpu;
 bool inMotion = true;
 
@@ -23,6 +25,12 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 	} else if (key == GLFW_KEY_ESCAPE) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
+}
+
+void onResize(GLFWwindow* window, int w, int h) {
+	windowWidth = w;
+	windowHeight = h;
+	gpu.Resize(w, h);
 }
 
 bool makeWindow(int w, int h) {
@@ -43,7 +51,7 @@ bool makeWindow(int w, int h) {
 		return false;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int w, int h) { glViewport(0, 0, w, h); });
+	glfwSetFramebufferSizeCallback(window, onResize);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return false;
@@ -54,20 +62,17 @@ bool makeWindow(int w, int h) {
 
 int main() {
 
-	int w = 2000;
-	int h = 1200;
-
 	int currentFrame, lastFrame, deltaTime;
 	lastFrame = glfwGetTime();
 
 	// Setup window
-	if (!makeWindow(w, h)) {
+	if (!makeWindow(windowWidth, windowHeight)) {
 		glfwTerminate();
 		return 0;
 	}
 
 	// Setup devices
-	gpu = GPU(w, h, window);
+	gpu = GPU(windowWidth, windowHeight, window);
 	gpu.Setup();
 
 	glfwSetKeyCallback(window, handleKey);
@@ -90,4 +95,3 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-

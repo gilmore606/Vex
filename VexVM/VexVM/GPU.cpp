@@ -19,6 +19,13 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	std::cout << "GPU created" << std::endl;
 }
 
+void GPU::Resize(int w, int h) {
+	this->w = w;
+	this->h = h;
+	glViewport(0, 0, w, h);
+	makeBuffers();
+}
+
 void GPU::Reset() {
 	pointc = 800;
 	for (int i = 0; i < pointc; i++) {
@@ -41,6 +48,38 @@ void GPU::Reset() {
 		float b = randFloat();
 		lines[i] = Line(x1, y1, x2, y2, r, g, b);
 	}
+}
+
+void GPU::makeShaders() {
+	std::cout << "Compiling shaders..." << std::endl;
+	pointShader = Shader("./data/shaders/drawpoint.vert", "./data/shaders/drawpoint.frag");
+	pointShader.Load();
+	lineShader = Shader("./data/shaders/drawline.vert", "./data/shaders/drawline.frag");
+	lineShader.Load();
+	blitShader = Shader("./data/shaders/blit.vert", "./data/shaders/blit.frag");
+	blitShader.Load();
+	blitShader.setInt("screenTexture", 0);
+	fadeShader = Shader("./data/shaders/fade.vert", "./data/shaders/fade.frag");
+	fadeShader.Load();
+	fadeShader.setInt("inTexture", 0);
+	composeShader = Shader("./data/shaders/compose.vert", "./data/shaders/compose.frag");
+	composeShader.Load();
+	composeShader.setInt("screenTex", 0);
+	composeShader.setInt("glowTex", 1);
+	blurShader = Shader("./data/shaders/blur.vert", "./data/shaders/blur.frag");
+	blurShader.Load();
+	blurShader.setInt("texture", 0);
+}
+
+void GPU::makeBuffers() {
+	screenBuffer = Framebuffer(w, h);
+	screenBuffer.Create();
+	trailBuffer = Framebuffer(w, h);
+	trailBuffer.Create();
+	glowBuffer = Framebuffer(w, h);
+	glowBuffer.Create();
+	glowDestBuffer = Framebuffer(w, h);
+	glowDestBuffer.Create();
 }
 
 void GPU::Setup() {
@@ -86,34 +125,8 @@ void GPU::Setup() {
 	glDepthMask(false);
 	glDisable(GL_DEPTH_TEST);
 
-	std::cout << "Compiling shaders..." << std::endl;
-
-	pointShader = Shader("./data/shaders/drawpoint.vert", "./data/shaders/drawpoint.frag");
-	pointShader.Load();
-	lineShader = Shader("./data/shaders/drawline.vert", "./data/shaders/drawline.frag");
-	lineShader.Load();
-	blitShader = Shader("./data/shaders/blit.vert", "./data/shaders/blit.frag");
-	blitShader.Load();
-	blitShader.setInt("screenTexture", 0);
-	fadeShader = Shader("./data/shaders/fade.vert", "./data/shaders/fade.frag");
-	fadeShader.Load();
-	fadeShader.setInt("inTexture", 0);
-	composeShader = Shader("./data/shaders/compose.vert", "./data/shaders/compose.frag");
-	composeShader.Load();
-	composeShader.setInt("screenTex", 0);
-	composeShader.setInt("glowTex", 1);
-	blurShader = Shader("./data/shaders/blur.vert", "./data/shaders/blur.frag");
-	blurShader.Load();
-	blurShader.setInt("texture", 0);
-
-	screenBuffer = Framebuffer(w, h);
-	screenBuffer.Create();
-	trailBuffer = Framebuffer(w, h);
-	trailBuffer.Create();
-	glowBuffer = Framebuffer(w, h);
-	glowBuffer.Create();
-	glowDestBuffer = Framebuffer(w, h);
-	glowDestBuffer.Create();
+	makeShaders();
+	makeBuffers();
 
 	std::cout << "GPU initialized" << std::endl;
 }
