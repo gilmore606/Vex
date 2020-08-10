@@ -76,30 +76,20 @@ void GPU::makeBuffers() {
 	glowDestBuffer.Create();
 }
 
-void GPU::Setup() {
-	glGenVertexArrays(1, &pointsVAO);
-	glGenBuffers(1, &pointsVBO);
-	glBindVertexArray(pointsVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, pointsVBO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);  // pos
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-	glEnableVertexAttribArray(1);  // color
-	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(2);  // size
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+void GPU::makeVBs() {
+	std::cout << "Allocating vertex buffers..." << std::endl;
+	pointsVB = Vertbuffer(GL_POINTS);
+	pointsVB.addAttrib(2, GL_FLOAT); // pos
+	pointsVB.addAttrib(3, GL_FLOAT); // color
+	pointsVB.addAttrib(1, GL_FLOAT); // size
+	pointsVB.Create();
+	linesVB = Vertbuffer(GL_LINES);
+	linesVB.addAttrib(2, GL_FLOAT); // pos
+	linesVB.addAttrib(3, GL_FLOAT); // color
+	linesVB.Create();
+}
 
-	glGenVertexArrays(1, &linesVAO);
-	glGenBuffers(1, &linesVBO);
-	glBindVertexArray(linesVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);  // pos
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-	glEnableVertexAttribArray(1);  // color
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+void GPU::Setup() {
 
 	glGenVertexArrays(1, &screenVAO);
 	glGenBuffers(1, &screenVBO);
@@ -121,6 +111,8 @@ void GPU::Setup() {
 
 	makeShaders();
 	makeBuffers();
+	makeVBs();
+
 	Reset();
 	std::cout << "GPU initialized" << std::endl;
 }
@@ -139,23 +131,22 @@ void GPU::Assemble() {
 	}
 }
 
-void GPU::DrawPrims(float pointBright, float lineBright) {
+void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
+	glLineWidth(lineThickness);
 
 	pointShader.Use("brightness", pointBright);
 	pointShader.setFloat("time", glfwGetTime());
 	pointShader.setFloat("spread", 0.001f);
 	pointShader.setFloat("stability", 0.990f);
-	glBindVertexArray(pointsVAO);
-	glDrawArrays(GL_POINTS, 0, pointdatac);
+	pointsVB.Draw();
 
 	lineShader.Use("brightness", lineBright);
 	lineShader.setFloat("time", glfwGetTime());
 	lineShader.setFloat("spread", 0.002f);
 	lineShader.setFloat("stability", 0.997f);
-	glBindVertexArray(linesVAO);
-	glDrawArrays(GL_LINES, 0, linedatac);
+	linesVB.Draw();
 
 	glDisable(GL_BLEND);
 }
@@ -163,15 +154,12 @@ void GPU::DrawPrims(float pointBright, float lineBright) {
 void GPU::Render() {
 	
 	// Buffer prim data into their VBOs
-	glBindBuffer(GL_ARRAY_BUFFER, pointsVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(pointdata), pointdata, GL_STREAM_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(linedata), linedata, GL_STREAM_DRAW);
+	pointsVB.loadVertices(pointdata, pointdatac, GL_STREAM_DRAW);
+	linesVB.loadVertices(linedata, linedatac, GL_STREAM_DRAW);
 
 	// Draw to trailbuffer
-	glLineWidth(3.0f);
-	trailBuffer.DrawTo();
-	DrawPrims(1.0f, 0.3f);
+	trailBuffer.Target();
+	DrawPrims(3.0f, 1.0f, 0.3f);
 
 	// Blur trailbuffer
 	blurShader.Use();
@@ -181,13 +169,12 @@ void GPU::Render() {
 	blurShader.Blur(screenVAO, h, 0.5f, 0.0f, 1.0f);
 
 	// Draw to glowbuffer
-	glLineWidth(2.4f);
-	glowBuffer.DrawTo();
+	glowBuffer.Target();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
-	DrawPrims(1.0f, 0.7f);
+	DrawPrims(2.4f, 1.0f, 0.7f);
 
 	// Blur glowbuffer
-	glowDestBuffer.DrawTo();
+	glowDestBuffer.Target();
 	blurShader.Use();
 	glowBuffer.BindTexture(GL_TEXTURE0);
 	blurShader.setInt("texture", 0);
@@ -197,19 +184,18 @@ void GPU::Render() {
 	blurShader.Blur(screenVAO, h, 2.0f, 0.0f, 1.0f);
 
 	// Fade trailbuffer
-	trailBuffer.DrawTo();
+	trailBuffer.Target();
 	trailBuffer.BindTexture(GL_TEXTURE0);
 	trailBuffer.Blit(fadeShader, screenVAO);
 
 	// Blit trailbuffer to screenbuffer
-	screenBuffer.DrawTo();
+	screenBuffer.Target();
 	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
 	trailBuffer.Blit(blitShader, screenVAO);
 
 	// Draw to screenbuffer
-	glLineWidth(0.8f);
-	screenBuffer.DrawTo();
-	DrawPrims(1.5f, 1.5f);
+	screenBuffer.Target();
+	DrawPrims(0.8f, 1.5f, 1.5f);
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

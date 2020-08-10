@@ -49,7 +49,7 @@ void Framebuffer::Blit(Shader shader, GLuint vao) {
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Framebuffer::DrawTo() {
+void Framebuffer::Target() {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 

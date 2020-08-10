@@ -44,5 +44,5 @@ void Vertbuffer::Draw() {
 void Vertbuffer::loadVertices(float data[], int count, GLuint mode) {
 	vertc = count;
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), &data, mode);
+	glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), data, mode);
 }
