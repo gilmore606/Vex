@@ -90,11 +90,10 @@ void Shader::setFloat(const std::string& name, float value) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
 
-void Shader::Blur(GLuint screenVAO, float resolution, float radius, float dirx, float diry) {
+void Shader::Blur(Vertbuffer vb, float resolution, float radius, float dirx, float diry) {
 	setFloat("resolution", resolution);
 	setFloat("radius", radius);
 	setFloat("dirx", dirx);
 	setFloat("diry", diry);
-	glBindVertexArray(screenVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	vb.Draw();
 }

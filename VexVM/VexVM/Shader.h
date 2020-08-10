@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <string>
+#include "Vertbuffer.h"
 
 struct Shader {
 	Shader();
@@ -15,7 +16,7 @@ struct Shader {
 	void Use(const std::string& name, float paramValue);
 	void setInt(const std::string& name, int value);
 	void setFloat(const std::string& name, float value);
-	void Blur(GLuint screenVAO, float radius, float resolution, float dirx, float diry);
+	void Blur(Vertbuffer vb, float radius, float resolution, float dirx, float diry);
 private:
 	GLuint id;
 	const char* vertex_path;

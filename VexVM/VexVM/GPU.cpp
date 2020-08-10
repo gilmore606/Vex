@@ -87,22 +87,13 @@ void GPU::makeVBs() {
 	linesVB.addAttrib(2, GL_FLOAT); // pos
 	linesVB.addAttrib(3, GL_FLOAT); // color
 	linesVB.Create();
+	screenVB = Vertbuffer(GL_TRIANGLES);
+	screenVB.addAttrib(2, GL_FLOAT); // pos
+	screenVB.addAttrib(2, GL_FLOAT); // uv
+	screenVB.Create();
 }
 
 void GPU::Setup() {
-
-	glGenVertexArrays(1, &screenVAO);
-	glGenBuffers(1, &screenVBO);
-	glBindVertexArray(screenVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(screendata), &screendata, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);  // pos
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);  // UV
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -156,6 +147,7 @@ void GPU::Render() {
 	// Buffer prim data into their VBOs
 	pointsVB.loadVertices(pointdata, pointdatac, GL_STREAM_DRAW);
 	linesVB.loadVertices(linedata, linedatac, GL_STREAM_DRAW);
+	screenVB.loadVertices(screendata, 24, GL_STATIC_DRAW);
 
 	// Draw to trailbuffer
 	trailBuffer.Target();
@@ -165,8 +157,8 @@ void GPU::Render() {
 	blurShader.Use();
 	trailBuffer.BindTexture(GL_TEXTURE0);
 	blurShader.setInt("texture", 0);
-	blurShader.Blur(screenVAO, w, 0.5f, 1.0f, 0.0f);
-	blurShader.Blur(screenVAO, h, 0.5f, 0.0f, 1.0f);
+	blurShader.Blur(screenVB, w, 0.5f, 1.0f, 0.0f);
+	blurShader.Blur(screenVB, h, 0.5f, 0.0f, 1.0f);
 
 	// Draw to glowbuffer
 	glowBuffer.Target();
@@ -178,20 +170,20 @@ void GPU::Render() {
 	blurShader.Use();
 	glowBuffer.BindTexture(GL_TEXTURE0);
 	blurShader.setInt("texture", 0);
-	blurShader.Blur(screenVAO, w, 1.0f, 1.0f, 0.0f);
-	blurShader.Blur(screenVAO, h, 1.0f, 0.0f, 1.0f);
-	blurShader.Blur(screenVAO, w, 2.0f, 1.0f, 0.0f);
-	blurShader.Blur(screenVAO, h, 2.0f, 0.0f, 1.0f);
+	blurShader.Blur(screenVB, w, 1.0f, 1.0f, 0.0f);
+	blurShader.Blur(screenVB, h, 1.0f, 0.0f, 1.0f);
+	blurShader.Blur(screenVB, w, 2.0f, 1.0f, 0.0f);
+	blurShader.Blur(screenVB, h, 2.0f, 0.0f, 1.0f);
 
 	// Fade trailbuffer
 	trailBuffer.Target();
 	trailBuffer.BindTexture(GL_TEXTURE0);
-	trailBuffer.Blit(fadeShader, screenVAO);
+	trailBuffer.Blit(fadeShader, screenVB);
 
 	// Blit trailbuffer to screenbuffer
 	screenBuffer.Target();
 	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-	trailBuffer.Blit(blitShader, screenVAO);
+	trailBuffer.Blit(blitShader, screenVB);
 
 	// Draw to screenbuffer
 	screenBuffer.Target();
@@ -199,11 +191,10 @@ void GPU::Render() {
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindVertexArray(screenVAO);
 	composeShader.Use();
 	screenBuffer.BindTexture(GL_TEXTURE0);
 	composeShader.setInt("screenTex", 0);
 	glowDestBuffer.BindTexture(GL_TEXTURE1);
 	composeShader.setInt("glowTex", 1);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	screenVB.Draw();
 }

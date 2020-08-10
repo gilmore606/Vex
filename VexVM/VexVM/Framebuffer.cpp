@@ -41,12 +41,11 @@ void Framebuffer::Clear(float r, float g, float b, float a) {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Framebuffer::Blit(Shader shader, GLuint vao) {
+void Framebuffer::Blit(Shader shader, Vertbuffer vb) {
 	shader.Use();
-	glBindVertexArray(vao);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texid);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	vb.Draw();
 }
 
 void Framebuffer::Target() {

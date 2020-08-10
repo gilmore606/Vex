@@ -42,9 +42,6 @@ private:
 
 	int w, h;
 	GLFWwindow* window;
-	GLuint pointsVBO, pointsVAO;
-	GLuint linesVBO, linesVAO;
-	GLuint screenVBO, screenVAO;
 	Shader pointShader, lineShader, blitShader, fadeShader, composeShader, blurShader;
 	Framebuffer trailBuffer, screenBuffer, glowBuffer, glowDestBuffer;
 	Vertbuffer pointsVB, linesVB, screenVB;
