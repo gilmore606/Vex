@@ -57,7 +57,7 @@ private:
 	int w, h;
 	GLFWwindow* window;
 	Shader pointShader, lineShader, blitShader, fadeShader, composeShader, blurShader;
-	Framebuffer trailBuffer, screenBuffer, glowBuffer, glowDestBuffer;
+	Framebuffer trailBuffer, screenBuffer, glowBuffer;
 	Vertbuffer pointsVB, linesVB, screenVB;
 
 	float screendata[24] = {

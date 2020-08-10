@@ -70,8 +70,6 @@ void GPU::makeBuffers() {
 	trailBuffer.Create();
 	glowBuffer = Framebuffer(w, h);
 	glowBuffer.Create();
-	glowDestBuffer = Framebuffer(w, h);
-	glowDestBuffer.Create();
 }
 
 void GPU::makeVBs() {
@@ -160,9 +158,10 @@ void GPU::Render() {
 	DrawPrims(settings.GLOW_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
 
 	// Blur glowbuffer
-	glowDestBuffer.Target();
+	glowBuffer.Target();
 	blurShader.Use();
 	glowBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
+	blurShader.Blur(screenVB, w, h, 0.5f);
 	blurShader.Blur(screenVB, w, h, 1.0f);
 	blurShader.Blur(screenVB, w, h, 2.0f);
 
@@ -185,6 +184,6 @@ void GPU::Render() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	composeShader.Use();
 	screenBuffer.BindAsTexture(GL_TEXTURE0, composeShader, "screenTex", 0);
-	glowDestBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);
+	glowBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);
 	screenVB.Draw();
 }
