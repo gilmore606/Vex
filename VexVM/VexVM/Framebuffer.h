@@ -8,14 +8,11 @@ struct Framebuffer {
 	Framebuffer();
 	Framebuffer(int w, int h);
 
-	GLuint ID();
-	GLuint texID();
-
 	void Create();
 	void Clear(float r, float g, float b, float a);
 	void Blit(Shader shader, Vertbuffer vb);
 	void Target();
-	void BindTexture(int texunit);
+	void BindAsTexture(int texunit);
 
 private:
 	GLuint id;

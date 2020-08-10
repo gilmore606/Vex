@@ -11,14 +11,6 @@ Framebuffer::Framebuffer(int w, int h) : id(0) {
 	this->h = h;
 }
 
-GLuint Framebuffer::ID() {
-	return id;
-}
-
-GLuint Framebuffer::texID() {
-	return texid;
-}
-
 void Framebuffer::Create() {
 	glGenFramebuffers(1, &id);
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -52,7 +44,7 @@ void Framebuffer::Target() {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 
-void Framebuffer::BindTexture(int texunit) {
+void Framebuffer::BindAsTexture(int texunit) {
 	glActiveTexture(texunit);
 	glBindTexture(GL_TEXTURE_2D, texid);
 }

@@ -18,6 +18,7 @@ struct Vertbuffer{
 	void loadVertices(float data[], int count, GLuint mode);
 	void Draw();
 
+private:
 	GLuint vao, vbo;
 	Vattrib attributes[8];
 	int attribc = 0;

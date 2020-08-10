@@ -6,6 +6,8 @@
 #include "GPU.h"
 #include "APU.h"
 
+#include "util.cpp"
+
 GLFWwindow* window;
 int windowWidth = 1800;
 int windowHeight = 1300;
@@ -26,9 +28,6 @@ struct DemoLine {
 };
 DemoLine demoLines[2000];
 
-static float randFloat() {
-	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-}
 
 void makeDemoPrims();
 void doReset() {

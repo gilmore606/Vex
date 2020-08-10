@@ -27,7 +27,7 @@ private:
 	void makeBuffers();
 	void makeVBs();
 	void DrawPrims(float lineThickness, float pointBright, float lineBright);
-	void BindTex(GLuint texid, int texunit);
+
 	float pointdata[20000];
 	int pointdatac = 0;
 	float linedata[120000];

@@ -3,11 +3,8 @@
 #include <GLFW\glfw3.h>
 #include "Framebuffer.h"
 #include <iostream>
+#include "util.cpp"
 
-
-static float randFloat() {
-	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-}
 
 GPU::GPU() : w(0), h(0), window(0) { }
 
@@ -155,10 +152,9 @@ void GPU::Render() {
 
 	// Blur trailbuffer
 	blurShader.Use();
-	trailBuffer.BindTexture(GL_TEXTURE0);
+	trailBuffer.BindAsTexture(GL_TEXTURE0);
 	blurShader.setInt("texture", 0);
-	blurShader.Blur(screenVB, w, 0.5f, 1.0f, 0.0f);
-	blurShader.Blur(screenVB, h, 0.5f, 0.0f, 1.0f);
+	blurShader.Blur(screenVB, w, h, 0.5f);
 
 	// Draw to glowbuffer
 	glowBuffer.Target();
@@ -168,16 +164,14 @@ void GPU::Render() {
 	// Blur glowbuffer
 	glowDestBuffer.Target();
 	blurShader.Use();
-	glowBuffer.BindTexture(GL_TEXTURE0);
+	glowBuffer.BindAsTexture(GL_TEXTURE0);
 	blurShader.setInt("texture", 0);
-	blurShader.Blur(screenVB, w, 1.0f, 1.0f, 0.0f);
-	blurShader.Blur(screenVB, h, 1.0f, 0.0f, 1.0f);
-	blurShader.Blur(screenVB, w, 2.0f, 1.0f, 0.0f);
-	blurShader.Blur(screenVB, h, 2.0f, 0.0f, 1.0f);
+	blurShader.Blur(screenVB, w, h, 1.0f);
+	blurShader.Blur(screenVB, w, h, 2.0f);
 
 	// Fade trailbuffer
 	trailBuffer.Target();
-	trailBuffer.BindTexture(GL_TEXTURE0);
+	trailBuffer.BindAsTexture(GL_TEXTURE0);
 	trailBuffer.Blit(fadeShader, screenVB);
 
 	// Blit trailbuffer to screenbuffer
@@ -192,9 +186,9 @@ void GPU::Render() {
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	composeShader.Use();
-	screenBuffer.BindTexture(GL_TEXTURE0);
+	screenBuffer.BindAsTexture(GL_TEXTURE0);
 	composeShader.setInt("screenTex", 0);
-	glowDestBuffer.BindTexture(GL_TEXTURE1);
+	glowDestBuffer.BindAsTexture(GL_TEXTURE1);
 	composeShader.setInt("glowTex", 1);
 	screenVB.Draw();
 }
