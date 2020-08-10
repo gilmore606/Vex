@@ -4,20 +4,22 @@
 
 #include "Shader.h"
 #include "GPU.h"
+#include "APU.h"
 
 GLFWwindow* window;
-int windowWidth = 1300;
+int windowWidth = 1800;
 int windowHeight = 1300;
 GPU gpu;
+APU apu;
 bool inMotion = true;
 
-const static int demoPointC = 800;
+const static int demoPointC = 1600;
 struct DemoPoint {
 	Point* gpupoint;
 	float dx, dy;
 };
 const static int demoLineC = 2000;
-DemoPoint demoPoints[800];
+DemoPoint demoPoints[1600];
 struct DemoLine {
 	Line* gpuline;
 	float dx, dy;
@@ -134,6 +136,8 @@ int main() {
 	// Setup devices
 	gpu = GPU(windowWidth, windowHeight, window);
 	gpu.Setup();
+	apu = APU();
+	apu.Setup();
 
 	glfwSetKeyCallback(window, handleKey);
 

@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.\dependencies\glfw\include;$(IncludePath)</IncludePath>
-    <LibraryPath>.\dependencies\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\githome\Vex\VexVM\VexVM\dependencies\rtaudio-5.1.0;D:\githome\Vex\VexVM\VexVM\dependencies\rtaudio-5.1.0\include;.\dependencies\glfw\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\githome\Vex\VexVM\VexVM\dependencies\rtaudio-5.1.0;.\dependencies\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -116,7 +116,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__WINDOWS_WASAPI__;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\githome\Vex\VexVM\VexVM\dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="APU.cpp" />
+    <ClCompile Include="dependencies\rtaudio-5.1.0\RtAudio.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GPU.cpp" />
@@ -155,6 +157,8 @@
     <ClCompile Include="Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="APU.h" />
+    <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="Line.h" />

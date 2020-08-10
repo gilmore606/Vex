@@ -15,7 +15,6 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	this->w = w;
 	this->h = h;
 	this->window = window;
-	Reset();
 	std::cout << "GPU created" << std::endl;
 }
 
@@ -122,7 +121,7 @@ void GPU::Setup() {
 
 	makeShaders();
 	makeBuffers();
-
+	Reset();
 	std::cout << "GPU initialized" << std::endl;
 }
 
