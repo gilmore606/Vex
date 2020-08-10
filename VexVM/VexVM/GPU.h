@@ -28,11 +28,6 @@ private:
 	void makeVBs();
 	void DrawPrims(float lineThickness, float pointBright, float lineBright);
 
-	float* pointdata;
-	int pointdatac = 0;
-	float* linedata;
-	int linedatac = 0;
-
 	Point* points = new Point[2048];
 	int pointc = 0;
 	Line* lines = new Line[8192];

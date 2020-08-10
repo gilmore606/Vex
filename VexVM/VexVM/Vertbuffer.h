@@ -11,18 +11,25 @@ struct Vattrib {
 
 struct Vertbuffer{
 	Vertbuffer();
-	Vertbuffer(GLuint drawtype);
+	Vertbuffer(GLuint drawtype, int maxsize, GLuint drawmode);
 
 	void addAttrib(int size, GLuint type);
 	void Create();
-	void loadVertices(float data[], int count, GLuint mode);
+	void Reset();
+	void bulkLoad(float data[], int count);
+	void push(float f);
+	void Update();
 	void Draw();
 
+	float* vertdata;
+	int vertdatac = 0;
+
 private:
+	GLuint drawmode;
+	int maxsize;
 	GLuint vao, vbo;
 	Vattrib attributes[8];
 	int attribc = 0;
 	GLuint drawtype;
-	int vertc = 0;
-};
 
+};

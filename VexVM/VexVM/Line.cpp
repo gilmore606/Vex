@@ -27,3 +27,15 @@ void Line::pushData(float dataArray[], int* counter) {
 	*counter += 10;
 }
 
+void Line::pushToBuffer(Vertbuffer vb) {
+	vb.push(x1);
+	vb.push(y1);
+	vb.push(r);
+	vb.push(g);
+	vb.push(b);
+	vb.push(x2);
+	vb.push(y2);
+	vb.push(r);
+	vb.push(g);
+	vb.push(b);
+}

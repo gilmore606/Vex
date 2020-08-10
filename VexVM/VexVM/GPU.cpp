@@ -12,8 +12,6 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	this->w = w;
 	this->h = h;
 	this->window = window;
-	pointdata = new float[20000];
-	linedata = new float[120000];
 	std::cout << "GPU created" << std::endl;
 }
 
@@ -77,19 +75,20 @@ void GPU::makeBuffers() {
 
 void GPU::makeVBs() {
 	std::cout << "Allocating vertex buffers..." << std::endl;
-	pointsVB = Vertbuffer(GL_POINTS);
+	pointsVB = Vertbuffer(GL_POINTS, 24000, GL_STREAM_DRAW);
 	pointsVB.addAttrib(2, GL_FLOAT); // pos
 	pointsVB.addAttrib(3, GL_FLOAT); // color
 	pointsVB.addAttrib(1, GL_FLOAT); // size
 	pointsVB.Create();
-	linesVB = Vertbuffer(GL_LINES);
+	linesVB = Vertbuffer(GL_LINES, 128000, GL_STREAM_DRAW);
 	linesVB.addAttrib(2, GL_FLOAT); // pos
 	linesVB.addAttrib(3, GL_FLOAT); // color
 	linesVB.Create();
-	screenVB = Vertbuffer(GL_TRIANGLES);
+	screenVB = Vertbuffer(GL_TRIANGLES, 24, GL_STATIC_DRAW);
 	screenVB.addAttrib(2, GL_FLOAT); // pos
 	screenVB.addAttrib(2, GL_FLOAT); // uv
 	screenVB.Create();
+	screenVB.bulkLoad(screendata, 24);
 }
 
 void GPU::Setup() {
@@ -108,17 +107,16 @@ void GPU::Setup() {
 }
 
 void GPU::Assemble() {
-	pointdatac = 0;
+	pointsVB.Reset();
 	for (int i = 0; i < pointc; i++) {
-		points[i].pushData(pointdata, &pointdatac);
+		points[i].pushData(pointsVB.vertdata, &pointsVB.vertdatac);
 	}
-	linedatac = 0;
+	pointsVB.Update();
+	linesVB.Reset();
 	for (int i = 0; i < linec; i++) {
-		lines[i].pushData(linedata, &linedatac);
+		lines[i].pushData(linesVB.vertdata, &linesVB.vertdatac);
 	}
-	for (int i = 0; i < spritec; i++) {
-		sprites[i].pushData(linedata, &linedatac);
-	}
+	linesVB.Update();
 }
 
 void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
@@ -142,12 +140,6 @@ void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 }
 
 void GPU::Render() {
-	
-	// Buffer prim data into their VBOs
-	pointsVB.loadVertices(pointdata, pointdatac, GL_STREAM_DRAW);
-	linesVB.loadVertices(linedata, linedatac, GL_STREAM_DRAW);
-	screenVB.loadVertices(screendata, 24, GL_STATIC_DRAW);
-
 	// Draw to trailbuffer
 	trailBuffer.Target();
 	DrawPrims(3.0f, 1.0f, 0.3f);

@@ -1,4 +1,7 @@
 #pragma once
+
+#include "Vertbuffer.h"
+
 struct Point
 {
 	Point();
@@ -8,4 +11,3 @@ struct Point
 
 	float x, y, r, g, b, size;
 };
-
