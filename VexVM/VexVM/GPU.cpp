@@ -144,10 +144,16 @@ void GPU::DrawPrims(float pointBright, float lineBright) {
 	glBlendFunc(GL_ONE, GL_ONE);
 
 	pointShader.Use("brightness", pointBright);
+	pointShader.setFloat("time", glfwGetTime());
+	pointShader.setFloat("spread", 0.001f);
+	pointShader.setFloat("stability", 0.990f);
 	glBindVertexArray(pointsVAO);
 	glDrawArrays(GL_POINTS, 0, pointdatac);
 
 	lineShader.Use("brightness", lineBright);
+	lineShader.setFloat("time", glfwGetTime());
+	lineShader.setFloat("spread", 0.002f);
+	lineShader.setFloat("stability", 0.997f);
 	glBindVertexArray(linesVAO);
 	glDrawArrays(GL_LINES, 0, linedatac);
 
