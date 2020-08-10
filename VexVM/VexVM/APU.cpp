@@ -12,7 +12,7 @@ int sendSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
 
 	// TODO: test and implement something
-	return;
+	return 0;
 
 	unsigned int i, j;
 	double* buffer = (double*)outBuffer;
