@@ -12,6 +12,8 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	this->w = w;
 	this->h = h;
 	this->window = window;
+	pointdata = new float[20000];
+	linedata = new float[120000];
 	std::cout << "GPU created" << std::endl;
 }
 
