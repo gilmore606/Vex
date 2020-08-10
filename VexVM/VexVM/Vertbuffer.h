@@ -17,17 +17,16 @@ struct Vertbuffer{
 	void Create();
 	void Reset();
 	void bulkLoad(float data[], int count);
-	void push(float f);
 	void Update();
 	void Draw();
 
 	float* vertdata;
 	int vertdatac = 0;
+	int maxsize;
 
 private:
 	GLuint drawmode;
 	GLuint drawtype;
-	int maxsize;
 	GLuint vao, vbo;
 	Vattrib attributes[8];
 	int attribc = 0;

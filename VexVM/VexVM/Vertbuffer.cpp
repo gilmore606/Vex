@@ -56,12 +56,6 @@ void Vertbuffer::bulkLoad(float data[], int count) {
 	Update();
 }
 
-void Vertbuffer::push(float f) {
-	if (vertdatac >= maxsize) return;  // TODO: throw capacity exceeded
-	vertdata[vertdatac] = f;
-	++vertdatac;
-}
-
 // Load the completed buffer into the VBO for render
 void Vertbuffer::Update() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
