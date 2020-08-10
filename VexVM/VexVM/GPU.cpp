@@ -131,14 +131,14 @@ void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 
 	pointShader.Use("brightness", pointBright);
 	pointShader.setFloat("time", glfwGetTime());
-	pointShader.setFloat("spread", 0.001f);
-	pointShader.setFloat("stability", 0.990f);
+	pointShader.setFloat("spread", settings.POINT_SPREAD);
+	pointShader.setFloat("stability", settings.POINT_STABILITY);
 	pointsVB.Draw();
 
 	lineShader.Use("brightness", lineBright);
 	lineShader.setFloat("time", glfwGetTime());
-	lineShader.setFloat("spread", 0.002f);
-	lineShader.setFloat("stability", 0.997f);
+	lineShader.setFloat("spread", settings.LINE_SPREAD);
+	lineShader.setFloat("stability", settings.LINE_STABILITY);
 	linesVB.Draw();
 
 	glDisable(GL_BLEND);
@@ -147,17 +147,17 @@ void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 void GPU::Render() {
 	// Draw to trailbuffer
 	trailBuffer.Target();
-	DrawPrims(3.0f, 1.0f, 0.3f);
+	DrawPrims(settings.GLOW_WIDTH * 1.5f, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
 
 	// Blur trailbuffer
 	blurShader.Use();
 	trailBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
-	blurShader.Blur(screenVB, w, h, 0.5f);
+	blurShader.Blur(screenVB, w, h, settings.TRAIL_BLUR);
 
 	// Draw to glowbuffer
 	glowBuffer.Target();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
-	DrawPrims(2.4f, 1.0f, 0.7f);
+	DrawPrims(settings.GLOW_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
 
 	// Blur glowbuffer
 	glowDestBuffer.Target();
@@ -169,6 +169,7 @@ void GPU::Render() {
 	// Fade trailbuffer
 	trailBuffer.Target();
 	trailBuffer.BindAsTexture(GL_TEXTURE0, fadeShader, "texture", 0);
+	fadeShader.Use("decay", settings.TRAIL_DECAY);
 	trailBuffer.Blit(fadeShader, screenVB);
 
 	// Blit trailbuffer to screenbuffer
@@ -178,7 +179,7 @@ void GPU::Render() {
 
 	// Draw to screenbuffer
 	screenBuffer.Target();
-	DrawPrims(0.8f, 1.5f, 1.5f);
+	DrawPrims(settings.LINE_WIDTH, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
