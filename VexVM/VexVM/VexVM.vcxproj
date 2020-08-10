@@ -155,6 +155,7 @@
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="Vertbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APU.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Point.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Vertbuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\shaders\blit.frag" />

@@ -45,6 +45,9 @@
     <ClCompile Include="dependencies\rtaudio-5.1.0\RtAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Vertbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertbuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
