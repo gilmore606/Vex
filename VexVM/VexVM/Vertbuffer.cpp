@@ -62,6 +62,7 @@ void Vertbuffer::push(float f) {
 	++vertdatac;
 }
 
+// Load the completed buffer into the VBO for render
 void Vertbuffer::Update() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertdatac * sizeof(float), vertdata, drawmode);

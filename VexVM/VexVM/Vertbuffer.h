@@ -26,10 +26,9 @@ struct Vertbuffer{
 
 private:
 	GLuint drawmode;
+	GLuint drawtype;
 	int maxsize;
 	GLuint vao, vbo;
 	Vattrib attributes[8];
 	int attribc = 0;
-	GLuint drawtype;
-
 };

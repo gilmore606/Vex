@@ -12,7 +12,7 @@ struct Framebuffer {
 	void Clear(float r, float g, float b, float a);
 	void Blit(Shader shader, Vertbuffer vb);
 	void Target();
-	void BindAsTexture(int texunit);
+	void BindAsTexture(GLuint texunit, Shader shader, const std::string& attribName, int attribId);
 
 private:
 	GLuint id;

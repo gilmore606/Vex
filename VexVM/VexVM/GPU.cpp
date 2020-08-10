@@ -1,8 +1,8 @@
 #include "GPU.h"
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
-#include "Framebuffer.h"
 #include <iostream>
+#include "Framebuffer.h"
 #include "util.cpp"
 
 
@@ -34,6 +34,7 @@ Line* GPU::addLine(float x1, float y1, float x2, float y2, float r, float g, flo
 	return &lines[linec - 1];
 }
 
+// Remove all prims from draw lists
 void GPU::Reset() {
 	pointc = 0;
 	linec = 0;
@@ -106,16 +107,20 @@ void GPU::Setup() {
 	std::cout << "GPU initialized" << std::endl;
 }
 
+// Copy all our abstract prims into vertex buffers, to prep for render
 void GPU::Assemble() {
 	pointsVB.Reset();
-	for (int i = 0; i < pointc; i++) {
-		points[i].pushData(pointsVB.vertdata, &pointsVB.vertdatac);
-	}
-	pointsVB.Update();
 	linesVB.Reset();
+	for (int i = 0; i < pointc; i++) {
+		points[i].pushData(pointsVB.vertdata, &pointsVB.vertdatac);  // internals exposed for speed
+	}
 	for (int i = 0; i < linec; i++) {
 		lines[i].pushData(linesVB.vertdata, &linesVB.vertdatac);
 	}
+	for (int i = 0; i < spritec; i++) {
+		sprites[i].pushData(linesVB.vertdata, &linesVB.vertdatac);
+	}
+	pointsVB.Update();
 	linesVB.Update();
 }
 
@@ -146,8 +151,7 @@ void GPU::Render() {
 
 	// Blur trailbuffer
 	blurShader.Use();
-	trailBuffer.BindAsTexture(GL_TEXTURE0);
-	blurShader.setInt("texture", 0);
+	trailBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
 	blurShader.Blur(screenVB, w, h, 0.5f);
 
 	// Draw to glowbuffer
@@ -158,14 +162,13 @@ void GPU::Render() {
 	// Blur glowbuffer
 	glowDestBuffer.Target();
 	blurShader.Use();
-	glowBuffer.BindAsTexture(GL_TEXTURE0);
-	blurShader.setInt("texture", 0);
+	glowBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
 	blurShader.Blur(screenVB, w, h, 1.0f);
 	blurShader.Blur(screenVB, w, h, 2.0f);
 
 	// Fade trailbuffer
 	trailBuffer.Target();
-	trailBuffer.BindAsTexture(GL_TEXTURE0);
+	trailBuffer.BindAsTexture(GL_TEXTURE0, fadeShader, "texture", 0);
 	trailBuffer.Blit(fadeShader, screenVB);
 
 	// Blit trailbuffer to screenbuffer
@@ -180,9 +183,7 @@ void GPU::Render() {
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	composeShader.Use();
-	screenBuffer.BindAsTexture(GL_TEXTURE0);
-	composeShader.setInt("screenTex", 0);
-	glowDestBuffer.BindAsTexture(GL_TEXTURE1);
-	composeShader.setInt("glowTex", 1);
+	screenBuffer.BindAsTexture(GL_TEXTURE0, composeShader, "screenTex", 0);
+	glowDestBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);
 	screenVB.Draw();
 }

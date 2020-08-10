@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
-#include "Framebuffer.h"
 #include <iostream>
+#include "Framebuffer.h"
 #include "Shader.h"
 
 Framebuffer::Framebuffer() : w(0), h(0), id(0) { }
@@ -44,7 +44,8 @@ void Framebuffer::Target() {
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 
-void Framebuffer::BindAsTexture(int texunit) {
+void Framebuffer::BindAsTexture(GLuint texunit, Shader shader, const std::string& attribName, int attribId) {
 	glActiveTexture(texunit);
 	glBindTexture(GL_TEXTURE_2D, texid);
+	shader.setInt(attribName, attribId);
 }
