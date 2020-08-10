@@ -11,12 +11,15 @@ void APU::Reset() {
 int sendSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
 
+	// TODO: test and implement something
+	return;
+
 	unsigned int i, j;
 	double* buffer = (double*)outBuffer;
 	double* lastValues = (double*)userData;
 	if (status) std::cout << "Stream underflow detected!" << std::endl;
 
-	// Write interleaved audio data.
+	// Write test sawtooths.  this doesn't work, dunno why.
 	for (i = 0; i < nFrames; i++) {
 		for (j = 0; j < 2; j++) {
 			*buffer++ = lastValues[j];
@@ -24,7 +27,6 @@ int sendSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 			if (lastValues[j] >= 1.0) lastValues[j] -= 2.0;
 		}
 	}
-	std::cout << ".";
 	return 0;
 }
 
