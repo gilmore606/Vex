@@ -16,17 +16,14 @@ static std::string ShaderSourceFromFile(const char* path) {
 	return string_stream.str();
 }
 
-Shader::Shader() : vertex_path(0), fragment_path(0), id(0) {
-
-}
+Shader::Shader() : vertex_path(0), fragment_path(0), id(0) { }
 
 Shader::Shader(const char* vertex_path, const char* fragment_path) : id(0) {
 	this->vertex_path = vertex_path;
 	this->fragment_path = fragment_path;
 }
 
-Shader::~Shader() {
-}
+Shader::~Shader() { }
 
 GLuint Shader::ID() {
 	return id;
@@ -73,10 +70,8 @@ void Shader::Load() {
 		glGetProgramInfoLog(id, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
-
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	std::cout << "Shader loaded" << std::endl;
 }
 
 void Shader::Use() {

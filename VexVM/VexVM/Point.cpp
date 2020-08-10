@@ -10,9 +10,6 @@ Point::Point(float x, float y, float r, float g, float b, float size) {
 	this->g = g;
 	this->b = b;
 	this->size = size;
-
-	this->xd = ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.01f;
-	this->yd = ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.01f;
 }
 
 void Point::pushData(float dataArray[], int* counter) {
@@ -23,9 +20,4 @@ void Point::pushData(float dataArray[], int* counter) {
 	dataArray[*counter + 4] = b;
 	dataArray[*counter + 5] = size;
 	*counter += 6;
-}
-
-void Point::move() {
-	x += xd;
-	y += yd;
 }

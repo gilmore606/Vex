@@ -26,28 +26,22 @@ void GPU::Resize(int w, int h) {
 	makeBuffers();
 }
 
+Point* GPU::addPoint(float x, float y, float r, float g, float b, float size) {
+	points[pointc] = Point(x, y, r, g, b, size);
+	pointc++;
+	return &points[pointc - 1];
+}
+
+Line* GPU::addLine(float x1, float y1, float x2, float y2, float r, float g, float b) {
+	lines[linec] = Line(x1, y1, x2, y2, r, g, b);
+	linec++;
+	return &lines[linec - 1];
+}
+
 void GPU::Reset() {
-	pointc = 800;
-	for (int i = 0; i < pointc; i++) {
-		float x = (randFloat() - 0.5f) * 2.0f;
-		float y = (randFloat() - 0.5f) * 2.0f;
-		float r = randFloat();
-		float g = randFloat();
-		float b = randFloat();
-		float size = randFloat() * 3.5f + 1.0f;
-		points[i] = Point(x, y, r, g, b, size);
-	}
-	linec = 2000;
-	for (int i = 0; i < linec; i++) {
-		float x1 = (randFloat() - 0.5f) * 2.0f;
-		float y1 = (randFloat() - 0.5f) * 2.0f;
-		float x2 = x1 + (randFloat() - 0.5f) * 0.3f;
-		float y2 = y1 + (randFloat() - 0.5f) * 0.3f;
-		float r = randFloat();
-		float g = randFloat();
-		float b = randFloat();
-		lines[i] = Line(x1, y1, x2, y2, r, g, b);
-	}
+	pointc = 0;
+	linec = 0;
+	spritec = 0;
 }
 
 void GPU::makeShaders() {
@@ -72,6 +66,7 @@ void GPU::makeShaders() {
 }
 
 void GPU::makeBuffers() {
+	std::cout << "Allocating framebuffers..." << std::endl;
 	screenBuffer = Framebuffer(w, h);
 	screenBuffer.Create();
 	trailBuffer = Framebuffer(w, h);
@@ -131,15 +126,13 @@ void GPU::Setup() {
 	std::cout << "GPU initialized" << std::endl;
 }
 
-void GPU::Assemble(bool inMotion) {
+void GPU::Assemble() {
 	pointdatac = 0;
 	for (int i = 0; i < pointc; i++) {
-		if (inMotion) points[i].move();
 		points[i].pushData(pointdata, &pointdatac);
 	}
 	linedatac = 0;
 	for (int i = 0; i < linec; i++) {
-		if (inMotion) lines[i].move();
 		lines[i].pushData(linedata, &linedatac);
 	}
 	for (int i = 0; i < spritec; i++) {

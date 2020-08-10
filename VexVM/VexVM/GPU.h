@@ -15,24 +15,27 @@ struct GPU{
 	void Setup();
 	void Resize(int w, int h);
 	void Reset();
-	void Assemble(bool inMotion);
+	void Assemble();
 	void Render();
+
+	Point* addPoint(float x, float y, float r, float g, float b, float size);
+	Line* addLine(float x1, float y1, float x2, float y2, float r, float g, float b);
 
 private:
 	void makeShaders();
 	void makeBuffers();
 	void DrawPrims(float pointBright, float lineBright);
 	void BindTex(GLuint texid, int texunit);
-	float pointdata[10000];
+	float pointdata[20000];
 	int pointdatac = 0;
-	float linedata[100000];
+	float linedata[120000];
 	int linedatac = 0;
 
-	Point* points = new Point[1024];
+	Point* points = new Point[2048];
 	int pointc = 0;
 	Line* lines = new Line[8192];
 	int linec = 0;
-	Sprite* sprites = new Sprite[1024];
+	Sprite* sprites = new Sprite[2048];
 	int spritec = 0;
 
 	int w, h;

@@ -11,9 +11,6 @@ Line::Line(float x1, float y1, float x2, float y2, float r, float g, float b) {
 	this->r = r;
 	this->g = g;
 	this->b = b;
-
-	this->xd = ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.01f;
-	this->yd = ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) - 0.5f) * 0.01f;
 }
 
 void Line::pushData(float dataArray[], int* counter) {
@@ -30,9 +27,3 @@ void Line::pushData(float dataArray[], int* counter) {
 	*counter += 10;
 }
 
-void Line::move() {
-	x1 += xd;
-	y1 += yd;
-	x2 += xd;
-	y2 += yd;
-}
