@@ -8,6 +8,9 @@
 
 #include "util.cpp"
 
+constexpr auto DEMO_POINTS = 10000;
+constexpr auto DEMO_LINES = 2000;
+
 GLFWwindow* window;
 int windowWidth = 1800;
 int windowHeight = 1300;
@@ -15,18 +18,16 @@ GPU gpu;
 APU apu;
 bool inMotion = true;
 
-const static int demoPointC = 1600;
 struct DemoPoint {
 	Point* gpupoint;
 	float dx, dy;
 };
-const static int demoLineC = 2000;
-DemoPoint demoPoints[1600];
+DemoPoint* demoPoints = new DemoPoint[DEMO_POINTS];
 struct DemoLine {
 	Line* gpuline;
 	float dx, dy;
 };
-DemoLine demoLines[2000];
+DemoLine* demoLines = new DemoLine[DEMO_LINES];
 
 
 void makeDemoPrims();
@@ -80,7 +81,7 @@ bool makeWindow(int w, int h) {
 }
 
 void makeDemoPrims() {
-	for (int i = 0; i < demoPointC; i++) {
+	for (int i = 0; i < DEMO_POINTS; i++) {
 		float x = (randFloat() - 0.5f) * 2.0f;
 		float y = (randFloat() - 0.5f) * 2.0f;
 		float r = randFloat();
@@ -91,7 +92,7 @@ void makeDemoPrims() {
 		demoPoints[i].dx = (randFloat() - 0.5f) * 0.5f;
 		demoPoints[i].dy = (randFloat() - 0.5f) * 0.5f;
 	}
-	for (int i = 0; i < demoLineC; i++) {
+	for (int i = 0; i < DEMO_LINES; i++) {
 		float x1 = (randFloat() - 0.5f) * 2.0f;
 		float y1 = (randFloat() - 0.5f) * 2.0f;
 		float x2 = x1 + (randFloat() - 0.5f) * 0.3f;
@@ -106,14 +107,14 @@ void makeDemoPrims() {
 }
 
 void moveDemoPrims(float delta) {
-	for (int i = 0; i < demoPointC; i++) {
+	for (int i = 0; i < DEMO_POINTS; i++) {
 		demoPoints[i].gpupoint->x += demoPoints[i].dx * delta;
 		demoPoints[i].gpupoint->y += demoPoints[i].dy * delta;
 		demoPoints[i].dy -= 0.2f * delta;
 		if (demoPoints[i].gpupoint->y < -0.95f || demoPoints[i].gpupoint->y > 0.95f) demoPoints[i].dy = -demoPoints[i].dy;
 		if (demoPoints[i].gpupoint->x < -0.95f || demoPoints[i].gpupoint->x > 0.95f) demoPoints[i].dx = -demoPoints[i].dx;
 	}
-	for (int i = 0; i < demoLineC; i++) {
+	for (int i = 0; i < DEMO_LINES; i++) {
 		demoLines[i].gpuline->x1 += demoLines[i].dx * delta;
 		demoLines[i].gpuline->x2 += demoLines[i].dx * delta;
 		demoLines[i].gpuline->y1 += demoLines[i].dy * delta;

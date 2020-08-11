@@ -5,7 +5,6 @@
 #include "Framebuffer.h"
 #include "util.cpp"
 
-
 GPU::GPU() : w(0), h(0), window(0) { }
 
 GPU::GPU(int w, int h, GLFWwindow* window) {
@@ -23,12 +22,14 @@ void GPU::Resize(int w, int h) {
 }
 
 Point* GPU::addPoint(float x, float y, float r, float g, float b, float size) {
+	if (pointc >= settings.MAX_POINTS) throw "GPU point memory full!";
 	points[pointc] = Point(x, y, r, g, b, size);
 	pointc++;
 	return &points[pointc - 1];
 }
 
 Line* GPU::addLine(float x1, float y1, float x2, float y2, float r, float g, float b) {
+	if (linec >= settings.MAX_LINES) throw "GPU line memory full!";
 	lines[linec] = Line(x1, y1, x2, y2, r, g, b);
 	linec++;
 	return &lines[linec - 1];
@@ -74,16 +75,16 @@ void GPU::makeBuffers() {
 
 void GPU::makeVBs() {
 	std::cout << "Allocating vertex buffers..." << std::endl;
-	pointsVB = Vertbuffer(GL_POINTS, 24000, GL_STREAM_DRAW);
+	pointsVB = Vertbuffer(GL_POINTS, settings.MAX_POINTS, GL_STREAM_DRAW);
 	pointsVB.addAttrib(2, GL_FLOAT); // pos
 	pointsVB.addAttrib(3, GL_FLOAT); // color
 	pointsVB.addAttrib(1, GL_FLOAT); // size
 	pointsVB.Create();
-	linesVB = Vertbuffer(GL_LINES, 128000, GL_STREAM_DRAW);
+	linesVB = Vertbuffer(GL_LINES, settings.MAX_LINES, GL_STREAM_DRAW);
 	linesVB.addAttrib(2, GL_FLOAT); // pos
 	linesVB.addAttrib(3, GL_FLOAT); // color
 	linesVB.Create();
-	screenVB = Vertbuffer(GL_TRIANGLES, 24, GL_STATIC_DRAW);
+	screenVB = Vertbuffer(GL_TRIANGLES, 2, GL_STATIC_DRAW);
 	screenVB.addAttrib(2, GL_FLOAT); // pos
 	screenVB.addAttrib(2, GL_FLOAT); // uv
 	screenVB.Create();

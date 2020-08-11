@@ -10,6 +10,10 @@
 #include "Sprite.h"
 
 struct GPUsettings {
+	float MAX_POINTS = 16000;
+	float MAX_LINES = 64000;
+	float MAX_SPRITES = 4000;
+
 	float LINE_WIDTH = 0.8f;
 	float GLOW_WIDTH = 2.4f;
 	float POINT_SPREAD = 0.0015f;
@@ -47,11 +51,11 @@ private:
 	void makeVBs();
 	void DrawPrims(float lineThickness, float pointBright, float lineBright);
 
-	Point* points = new Point[2048];
+	Point* points = new Point[settings.MAX_POINTS];
 	int pointc = 0;
-	Line* lines = new Line[8192];
+	Line* lines = new Line[settings.MAX_LINES];
 	int linec = 0;
-	Sprite* sprites = new Sprite[2048];
+	Sprite* sprites = new Sprite[settings.MAX_SPRITES];
 	int spritec = 0;
 
 	int w, h;
@@ -68,5 +72,4 @@ private:
 		1.0f, -1.0f, 1.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 	};
-
 };

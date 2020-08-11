@@ -2,7 +2,11 @@
 
 Vertbuffer::Vertbuffer() { }
 
-Vertbuffer::Vertbuffer(GLuint drawtype, int maxsize, GLuint drawmode) { 
+Vertbuffer::Vertbuffer(GLuint drawtype, int maxprims, GLuint drawmode) { 
+	int maxsize = 0;
+	if (drawtype == GL_POINTS) maxsize = maxprims * 6;
+	if (drawtype == GL_LINES) maxsize = maxprims * 10;
+	if (drawtype == GL_TRIANGLES) maxsize = maxprims * 12;
 	this->drawtype = drawtype;
 	this->maxsize = maxsize;
 	this->drawmode = drawmode;
