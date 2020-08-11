@@ -39,15 +39,6 @@ void Vertbuffer::Create() {
 	glBindVertexArray(0);
 }
 
-void Vertbuffer::Draw() {
-	glBindVertexArray(vao);
-	glDrawArrays(drawtype, 0, vertdatac);
-}
-
-void Vertbuffer::Reset() {
-	vertdatac = 0;
-}
-
 void Vertbuffer::bulkLoad(float data[], int count) {
 	vertdatac = count;
 	for (int i = 0; i < vertdatac; i++) {
@@ -56,8 +47,4 @@ void Vertbuffer::bulkLoad(float data[], int count) {
 	Update();
 }
 
-// Load the completed buffer into the VBO for render
-void Vertbuffer::Update() {
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertdatac * sizeof(float), vertdata, drawmode);
-}
+

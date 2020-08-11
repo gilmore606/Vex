@@ -12,12 +12,4 @@ Point::Point(float x, float y, float r, float g, float b, float size) {
 	this->size = size;
 }
 
-void Point::pushData(float dataArray[], int* counter) {
-	dataArray[*counter] = x;
-	dataArray[*counter + 1] = y;
-	dataArray[*counter + 2] = r;
-	dataArray[*counter + 3] = g;
-	dataArray[*counter + 4] = b;
-	dataArray[*counter + 5] = size;
-	*counter += 6;
-}
+
