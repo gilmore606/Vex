@@ -15,9 +15,25 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 }
 
 void GPU::Resize(int w, int h) {
+	std::cout << "window scaled to " << w << "," << h << std::endl;
 	this->w = w;
 	this->h = h;
-	glViewport(0, 0, w, h);
+	// Calculate the new screen w/h based on aspect ratio
+	screenw = h * settings.ASPECT_RATIO;
+	screenh = h;
+	float scale = std::min((float)w / (float)screenw, (float)h / (float)screenh);
+	screenw = scale * screenw;
+	screenh = scale * screenh;
+	// Resize the screen vertices to match the ratio on the new window size
+	float xscale = (float)screenw / (float)w;
+	float yscale = (float)screenh / (float)h;
+	for (int i = 0; i < 12; i++) {
+		float x = screendata[i];
+		float y = screendata[i + 1];
+		scaledscreen[i * 2] = screendata[i * 2] * xscale;
+		scaledscreen[i * 2 + 1] = screendata[i * 2 + 1] * yscale;
+	}
+	std::cout << "screen scaled to " << screenw << "," << screenh << std::endl;
 	makeBuffers();
 }
 
@@ -70,12 +86,12 @@ void GPU::makeShaders() {
 
 void GPU::makeBuffers() {
 	std::cout << "Allocating framebuffers..." << std::endl;
-	screenBuffer = Framebuffer(w, h);
+	screenBuffer = Framebuffer(screenw, screenh);
 	screenBuffer.Create();
-	trailBuffer = Framebuffer(w, h);
+	trailBuffer = Framebuffer(screenw, screenh);
 	trailBuffer.Create();
 	trailBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-	glowBuffer = Framebuffer(w, h);
+	glowBuffer = Framebuffer(screenw, screenh);
 	glowBuffer.Create();
 }
 
@@ -94,7 +110,10 @@ void GPU::makeVBs() {
 	screenVB.Attribute(2, GL_FLOAT); // pos
 	screenVB.Attribute(2, GL_FLOAT); // uv
 	screenVB.Create();
-	screenVB.BulkLoad(screendata, 24);
+	bufferVB = Vertbuffer(GL_TRIANGLES, 2, GL_STATIC_DRAW);
+	bufferVB.Attribute(2, GL_FLOAT); // pos
+	bufferVB.Attribute(2, GL_FLOAT); // uv
+	bufferVB.Create();
 }
 
 void GPU::Setup() {
@@ -105,7 +124,7 @@ void GPU::Setup() {
 	glDisable(GL_DEPTH_TEST);
 
 	makeShaders();
-	makeBuffers();
+	Resize(w, h);  // this also makes the framebuffers
 	makeVBs();
 
 	Reset();
@@ -128,6 +147,8 @@ void GPU::Assemble() {
 	}
 	pointsVB.Update();
 	linesVB.Update();
+	bufferVB.BulkLoad(screendata, 24);
+	screenVB.BulkLoad(scaledscreen, 24);
 }
 
 void GPU::drawPrims(float lineThickness, float pointBright, float lineBright) {
@@ -155,33 +176,31 @@ void GPU::drawPrims(float lineThickness, float pointBright, float lineBright) {
 }
 
 void GPU::Render() {
-	// Draw to trailbuffer
+	glViewport(0, 0, screenw, screenh);
+
+	// Draw to trailbuffer, then blur it
 	trailBuffer.Target();
 	drawPrims(settings.LINE_WIDTH, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
-
-	// Blur trailbuffer
 	blurShader.Use();
 	trailBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
-	blurShader.Blur(screenVB, w, h, settings.TRAIL_BLUR);
+	blurShader.Blur(bufferVB, screenw, screenh, settings.TRAIL_BLUR);
 
-	// Draw to glowbuffer
+	// Draw to glowbuffer, then blur it
 	glowBuffer.Target();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
 	drawPrims(settings.GLOW_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
-
-	// Blur glowbuffer
 	glowBuffer.Target();
 	blurShader.Use();
 	glowBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
-	blurShader.Blur(screenVB, w, h, 0.5f);
-	blurShader.Blur(screenVB, w, h, 1.0f);
-	blurShader.Blur(screenVB, w, h, 2.0f);
+	blurShader.Blur(bufferVB, screenw, screenh, 0.5f);
+	blurShader.Blur(bufferVB, screenw, screenh, 1.0f);
+	blurShader.Blur(bufferVB, screenw, screenh, 2.0f);
 
 	// Fade trailbuffer
 	trailBuffer.Target();
 	trailBuffer.BindAsTexture(GL_TEXTURE0, fadeShader, "texture", 0);
 	fadeShader.Use("decay", settings.TRAIL_DECAY);
-	trailBuffer.Blit(fadeShader, screenVB);
+	trailBuffer.Blit(fadeShader, bufferVB);
 
 	// Draw to screenbuffer
 	screenBuffer.Target();
@@ -190,6 +209,9 @@ void GPU::Render() {
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, w, h);
 	composeShader.Use();
 	screenBuffer.BindAsTexture(GL_TEXTURE0, composeShader, "screenTex", 0);
 	glowBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);

@@ -74,6 +74,7 @@ void Shader::SetUniform(const std::string& name, float value) {
 }
 
 void Shader::Blur(Vertbuffer vb, float resw, float resh, float radius) {
+	glViewport(0, 0, resw, resh);
 	SetUniform("radius", radius);
 	SetUniform("resolution", resw);
 	SetUniform("dirx", 1.0f);

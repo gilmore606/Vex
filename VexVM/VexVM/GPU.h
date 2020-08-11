@@ -13,6 +13,8 @@ struct GPUsettings {
 	float MAX_POINTS = 16000;
 	float MAX_LINES = 64000;
 
+	double ASPECT_RATIO = 4.0 / 3.0;
+
 	float LINE_WIDTH = 0.8f;
 	float GLOW_WIDTH = 5.0f;
 	float BEAM_SUSTAIN = 0.92f;
@@ -60,11 +62,11 @@ private:
 	Sprite* sprites[1024];
 	int spritec = 0;
 
-	int w, h;
+	int w, h, screenw, screenh;
 	GLFWwindow* window;
 	Shader pointShader, lineShader, blitShader, fadeShader, composeShader, blurShader;
 	Framebuffer trailBuffer, screenBuffer, glowBuffer;
-	Vertbuffer pointsVB, linesVB, screenVB;
+	Vertbuffer pointsVB, linesVB, screenVB, bufferVB;
 
 	float screendata[24] = {
 		-1.0f, 1.0f, 0.0f, 1.0f,
@@ -74,4 +76,6 @@ private:
 		1.0f, -1.0f, 1.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 	};
+
+	float* scaledscreen = new float[24];
 };
