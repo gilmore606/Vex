@@ -46,13 +46,6 @@ void doReset() {
 	makeDemoPrims();
 }
 
-
-
-void handleButton(int input) {
-	if (input == 0) glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-void handleSwitch(int input, bool isDown) { }
-
 void onResize(GLFWwindow* window, int w, int h) {
 	windowWidth = w;
 	windowHeight = h;
@@ -148,6 +141,11 @@ void moveDemoPrims(float delta) {
 void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	input.HandleKey(window, key, scancode, action, mods);
 }
+
+void handleButton(int input) {
+	if (input == 0) glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+void handleSwitch(int input, bool isDown) { }
 
 int main() {
 

@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 
-enum class VEXInputType { SWITCH, BUTTON };
+enum VEXInputType { SWITCH, BUTTON };
 
 struct VEXControl {
 	int id;
