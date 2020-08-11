@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "GPU.h"
 #include "APU.h"
+#include "Input.h"
 
 #include "util.cpp"
 
@@ -12,13 +13,11 @@ constexpr auto DEMO_POINTS = 40;
 constexpr auto DEMO_LINES = 20;
 
 GLFWwindow* window;
-int windowWidth = 1800;
+int windowWidth = 1300;
 int windowHeight = 1300;
 GPU gpu;
 APU apu;
-bool controlLeft = true;
-bool controlRight = false;
-bool controlThrust = false;
+Input input;
 
 struct DemoPoint {
 	Point* gpupoint;
@@ -47,36 +46,12 @@ void doReset() {
 	makeDemoPrims();
 }
 
-void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_TAB) {
-			doReset();
-		}else if (key == GLFW_KEY_ESCAPE) {
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
-		}
-		else if (key == GLFW_KEY_A) {
-			controlLeft = true;
-			controlRight = false;
-		}
-		else if (key == GLFW_KEY_D) {
-			controlRight = true;
-			controlLeft = false;
-		}
-		else if (key == GLFW_KEY_W) {
-			controlThrust = true;
-		}
-	} else if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_A) {
-			controlLeft = false;
-		}
-		else if (key == GLFW_KEY_D) {
-			controlRight = false;
-		}
-		else if (key == GLFW_KEY_W) {
-			controlThrust = false;
-		}
-	}
+
+
+void handleButton(int input) {
+	if (input == 0) glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
+void handleSwitch(int input, bool isDown) { }
 
 void onResize(GLFWwindow* window, int w, int h) {
 	windowWidth = w;
@@ -146,9 +121,9 @@ void makeDemoPrims() {
 
 void moveDemoPrims(float delta) {
 
-	if (controlLeft) demoSprite->rotate(2.5f * delta);
-	if (controlRight) demoSprite->rotate(-2.5f * delta);
-	if (controlThrust) {
+	if (input.isPressed(1)) demoSprite->rotate(2.5f * delta);
+	if (input.isPressed(2)) demoSprite->rotate(-2.5f * delta);
+	if (input.isPressed(3)) {
 		demoShip.xd += std::cos(demoSprite->rot + 1.570796) * delta * 1.0f;
 		demoShip.yd += std::sin(demoSprite->rot + 1.570796) * delta * 1.0f;
 	}
@@ -170,6 +145,9 @@ void moveDemoPrims(float delta) {
 		demoLines[i].gpuline->y2 += demoLines[i].dy * delta;
 	}
 }
+void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	input.HandleKey(window, key, scancode, action, mods);
+}
 
 int main() {
 
@@ -187,8 +165,16 @@ int main() {
 	gpu.Setup();
 	apu = APU();
 	apu.Setup();
+	input = Input();
+	input.Setup(window, handleButton, handleSwitch);
+	glfwSetKeyCallback(window, handleKey);  // proxy callback to class method
 
-	glfwSetKeyCallback(window, handleKey);
+	// Map keys
+	input.Add(0, VEXInputType::BUTTON, GLFW_KEY_ESCAPE);
+	input.Add(1, VEXInputType::SWITCH, GLFW_KEY_A);
+	input.Add(2, VEXInputType::SWITCH, GLFW_KEY_D);
+	input.Add(3, VEXInputType::SWITCH, GLFW_KEY_W);
+	input.Add(4, VEXInputType::BUTTON, GLFW_KEY_SPACE);
 
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);

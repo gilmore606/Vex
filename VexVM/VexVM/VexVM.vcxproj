@@ -150,6 +150,7 @@
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GPU.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Point.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Shader.h" />
