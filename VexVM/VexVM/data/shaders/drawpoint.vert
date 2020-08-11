@@ -9,6 +9,7 @@ uniform float spread;
 uniform float stability;
 uniform float sustain;
 uniform float drop;
+uniform float thickness;
 
 highp float rand(vec2 co)
 {
@@ -37,6 +38,6 @@ void main()
     }
     pointColor = vec4(color.r, color.g, color.b, 1.0f) * flicker;
     gl_Position = vec4(aPos.x + xj, aPos.y + yj, 0.0, 1.0);
-    gl_PointSize = size;
+    gl_PointSize = size * thickness;
 }
 

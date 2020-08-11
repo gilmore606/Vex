@@ -11,9 +11,9 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	this->w = w;
 	this->h = h;
 	this->window = window;
-	drawScreen = false;
-	drawGlow = false;
-	drawTrails = false;
+	drawScreen = true;
+	drawGlow = true;
+	drawTrails = true;
 	std::cout << "GPU created" << std::endl;
 }
 
@@ -154,10 +154,10 @@ void GPU::Assemble() {
 	screenVB.BulkLoad(scaledscreen, 24);
 }
 
-void GPU::drawPrims(float lineThickness, float pointBright, float lineBright) {
+void GPU::drawPrims(float pointThick, float lineThick, float pointBright, float lineBright) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	glLineWidth(lineThickness);
+	glLineWidth(lineThick);
 
 	pointShader.Use("brightness", pointBright);
 	pointShader.SetUniform("time", (float)glfwGetTime());
@@ -165,6 +165,7 @@ void GPU::drawPrims(float lineThickness, float pointBright, float lineBright) {
 	pointShader.SetUniform("stability", settings.POINT_STABILITY);
 	pointShader.SetUniform("sustain", settings.BEAM_SUSTAIN);
 	pointShader.SetUniform("drop", settings.BEAM_DROP);
+	pointShader.SetUniform("thickness", pointThick);
 	pointsVB.Draw();
 
 	lineShader.Use("brightness", lineBright);
@@ -183,7 +184,7 @@ void GPU::Render() {
 
 	// Draw to trailbuffer, then blur it
 	trailBuffer.Target();
-	if (drawTrails) drawPrims(settings.LINE_WIDTH, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
+	if (drawTrails) drawPrims(settings.POINT_THICKNESS, settings.LINE_THICKNESS, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
 	blurShader.Use();
 	trailBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
 	blurShader.Blur(bufferVB, screenw, screenh, settings.TRAIL_BLUR);
@@ -197,7 +198,7 @@ void GPU::Render() {
 	// Draw to glowbuffer, then blur it
 	glowBuffer.Target();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
-	if (drawGlow) drawPrims(settings.GLOW_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
+	if (drawGlow) drawPrims(settings.POINT_GLOW_THICKNESS, settings.LINE_GLOW_THICKNESS, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
 	glowBuffer.Target();
 	blurShader.Use();
 	glowBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
@@ -208,7 +209,7 @@ void GPU::Render() {
 	// Draw to screenbuffer
 	screenBuffer.Target();
 	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-	if (drawScreen) drawPrims(settings.LINE_WIDTH, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
+	if (drawScreen) drawPrims(settings.POINT_THICKNESS, settings.LINE_THICKNESS, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -223,7 +224,7 @@ void GPU::Render() {
 }
 
 void GPU::toggleLayer(int layer) {
-	if (layer == 0) { this->drawScreen = (this->drawScreen ? false : true); }
-	if (layer == 1) { this->drawGlow = (this->drawGlow ? false : true); }
-	if (layer == 2) { this->drawTrails = (this->drawTrails ? false : true); }
+	if (layer == 0) drawScreen = (drawScreen ? false : true);
+	if (layer == 1) drawGlow = (drawGlow ? false : true);
+	if (layer == 2) drawTrails = (drawTrails ? false : true);
 }

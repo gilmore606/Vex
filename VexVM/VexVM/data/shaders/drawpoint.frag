@@ -1,7 +1,7 @@
 #version 330 core
 in vec4 pointColor;
 out vec4 FragColor;
-uniform float brightness = 1.0f;
+uniform float brightness;
 
 void main()
 {

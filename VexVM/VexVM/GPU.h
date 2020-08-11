@@ -15,8 +15,6 @@ struct GPUsettings {
 
 	double ASPECT_RATIO = 4.0 / 4.0;
 
-	float LINE_WIDTH = 0.8f;
-	float GLOW_WIDTH = 5.0f;
 	float BEAM_SUSTAIN = 0.92f;
 	float BEAM_DROP = 0.6f;
 	float POINT_SPREAD = 0.0015f;
@@ -25,6 +23,10 @@ struct GPUsettings {
 	float LINE_STABILITY = 0.996f;
 	float POINT_BRIGHTNESS = 1.5f;
 	float LINE_BRIGHTNESS = 1.5f;
+	float POINT_THICKNESS = 1.0f;
+	float LINE_THICKNESS = 0.8f;
+	float POINT_GLOW_THICKNESS = 2.5f;
+	float LINE_GLOW_THICKNESS = 5.0f;
 	float POINT_GLOW_BRIGHTNESS = 1.0f;
 	float LINE_GLOW_BRIGHTNESS = 0.9f;
 	float POINT_TRAIL_BRIGHTNESS = 0.8f;
@@ -59,7 +61,7 @@ private:
 	void makeShaders();
 	void makeBuffers();
 	void makeVBs();
-	void drawPrims(float lineThickness, float pointBright, float lineBright);
+	void drawPrims(float pointThick, float lineThick, float pointBright, float lineBright);
 
 	Point* points = new Point[settings.MAX_POINTS];
 	int pointc = 0;
