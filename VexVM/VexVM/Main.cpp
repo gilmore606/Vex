@@ -9,8 +9,8 @@
 
 #include "util.cpp"
 
-constexpr auto DEMO_POINTS = 40;
-constexpr auto DEMO_LINES = 20;
+constexpr auto DEMO_POINTS = 500;
+constexpr auto DEMO_LINES = 500;
 
 GLFWwindow* window;
 int windowWidth = 1300;
@@ -138,6 +138,14 @@ void moveDemoPrims(float delta) {
 		demoLines[i].gpuline->y2 += demoLines[i].dy * delta;
 	}
 }
+
+// Proxy callback for APU
+int handleAudio(void* outBuffer, void* inBuffer, unsigned int nFrames,
+	double streamTime, RtAudioStreamStatus status, void* userData) {
+	return apu.genSamples(outBuffer, inBuffer, nFrames, streamTime, status, userData);
+}
+
+// Proxy callback for Input
 void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	input.HandleKey(window, key, scancode, action, mods);
 }
@@ -165,10 +173,9 @@ int main() {
 	gpu = GPU(windowWidth, windowHeight, window);
 	gpu.Setup();
 	apu = APU();
-	apu.Setup();
+	apu.Setup(handleAudio);
 	input = Input();
-	input.Setup(window, handleButton, handleSwitch);
-	glfwSetKeyCallback(window, handleKey);  // proxy callback to class method
+	input.Setup(window, handleKey, handleButton, handleSwitch);
 
 	// Map keys
 	input.Add(0, VEXInputType::BUTTON, GLFW_KEY_ESCAPE);

@@ -4,15 +4,10 @@
 
 APU::APU() { }
 
-void APU::Reset() {
+void APU::Reset() { }
 
-}
-
-int sendSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
+int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
-
-	// TODO: test and implement something
-	return 0;
 
 	unsigned int i, j;
 	double* buffer = (double*)outBuffer;
@@ -30,14 +25,16 @@ int sendSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
-void APU::Setup() {
+// The given proxyCallback func should call APU::genSamples()
+void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
+	double streamTime, RtAudioStreamStatus status, void* userData)) {
 	RtAudio::StreamParameters params;
 	try {
 		adac = new RtAudio();
 		params.deviceId = adac->getDefaultOutputDevice();
 		params.nChannels = 2;
 		params.firstChannel = 0;
-		adac->openStream(&params, NULL, RTAUDIO_FLOAT64, 44100, &bufferSize, sendSamples, (void*)&data);
+		adac->openStream(&params, nullptr, RTAUDIO_FLOAT64, 44100, &bufferSize, proxyCallback, (void*)&data);
 		adac->startStream();
 	}
 	catch (RtAudioError &e) {

@@ -1,10 +1,11 @@
 #include "Input.h"
 
-
-
 Input::Input() { }
 
-void Input::Setup(GLFWwindow* window, void buttonCallback (int), void switchCallback (int, bool)) {
+void Input::Setup(GLFWwindow* window, 
+	void (*proxyCallback)(GLFWwindow* window, int key, int scancode, int action, int mods), 
+	void buttonCallback (int), void switchCallback (int, bool)) {
+	glfwSetKeyCallback(window, proxyCallback);
 	this->buttonCallback = buttonCallback;
 	this->switchCallback = switchCallback;
 }

@@ -11,9 +11,6 @@ GPU::GPU(int w, int h, GLFWwindow* window) {
 	this->w = w;
 	this->h = h;
 	this->window = window;
-	drawScreen = true;
-	drawGlow = true;
-	drawTrails = true;
 	std::cout << "GPU created" << std::endl;
 }
 
@@ -184,7 +181,7 @@ void GPU::Render() {
 
 	// Draw to trailbuffer, then blur it
 	trailBuffer.Target();
-	if (drawTrails) drawPrims(settings.POINT_THICKNESS, settings.LINE_THICKNESS, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
+	if (settings.DRAW_TRAILS) drawPrims(settings.POINT_THICKNESS, settings.LINE_THICKNESS, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
 	blurShader.Use();
 	trailBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
 	blurShader.Blur(bufferVB, screenw, screenh, settings.TRAIL_BLUR);
@@ -198,7 +195,7 @@ void GPU::Render() {
 	// Draw to glowbuffer, then blur it
 	glowBuffer.Target();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
-	if (drawGlow) drawPrims(settings.POINT_GLOW_THICKNESS, settings.LINE_GLOW_THICKNESS, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
+	if (settings.DRAW_GLOW) drawPrims(settings.POINT_GLOW_THICKNESS, settings.LINE_GLOW_THICKNESS, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
 	glowBuffer.Target();
 	blurShader.Use();
 	glowBuffer.BindAsTexture(GL_TEXTURE0, blurShader, "texture", 0);
@@ -209,11 +206,11 @@ void GPU::Render() {
 	// Draw to screenbuffer
 	screenBuffer.Target();
 	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-	if (drawScreen) drawPrims(settings.POINT_THICKNESS, settings.LINE_THICKNESS, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
+	if (settings.DRAW_SCREEN) drawPrims(settings.POINT_THICKNESS, settings.LINE_THICKNESS, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // letterbox
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, w, h);
 	composeShader.Use();
@@ -224,7 +221,7 @@ void GPU::Render() {
 }
 
 void GPU::toggleLayer(int layer) {
-	if (layer == 0) drawScreen = (drawScreen ? false : true);
-	if (layer == 1) drawGlow = (drawGlow ? false : true);
-	if (layer == 2) drawTrails = (drawTrails ? false : true);
+	if (layer == 0) settings.DRAW_SCREEN = (settings.DRAW_SCREEN ? false : true);
+	if (layer == 1) settings.DRAW_GLOW = (settings.DRAW_GLOW ? false : true);
+	if (layer == 2) settings.DRAW_TRAILS = (settings.DRAW_TRAILS ? false : true);
 }

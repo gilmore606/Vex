@@ -14,6 +14,9 @@ struct GPUsettings {
 	float MAX_LINES = 64000;
 
 	double ASPECT_RATIO = 4.0 / 4.0;
+	bool DRAW_SCREEN = true;
+	bool DRAW_GLOW = true;
+	bool DRAW_TRAILS = true;
 
 	float BEAM_SUSTAIN = 0.92f;
 	float BEAM_DROP = 0.6f;
@@ -53,9 +56,6 @@ public:
 	void toggleLayer(int layer);
 
 	GPUsettings settings;
-	bool drawScreen;
-	bool drawGlow;
-	bool drawTrails;
 
 private:
 	void makeShaders();

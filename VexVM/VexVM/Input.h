@@ -17,7 +17,10 @@ class Input
 public:
 	Input();
 
-	void Setup(GLFWwindow* window, void buttonCallback (int), void switchCallback (int, bool));
+	void Setup(GLFWwindow* window, 
+		void (*proxyCallback)(GLFWwindow* window, int key, int scancode, int action, int mods),
+		void buttonCallback (int), 
+		void switchCallback (int, bool));
 	void Add(int id, VEXInputType type, GLuint defaultKey);
 	void HandleKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 	bool isPressed(int id);
