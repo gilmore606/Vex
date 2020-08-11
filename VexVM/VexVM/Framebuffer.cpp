@@ -47,5 +47,5 @@ void Framebuffer::Target() {
 void Framebuffer::BindAsTexture(GLuint texunit, Shader shader, const std::string& attribName, int attribId) {
 	glActiveTexture(texunit);
 	glBindTexture(GL_TEXTURE_2D, texid);
-	shader.setInt(attribName, attribId);
+	shader.SetUniform(attribName, attribId);
 }

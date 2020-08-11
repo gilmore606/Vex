@@ -11,8 +11,8 @@ struct Shader {
 	void Load();
 	void Use();
 	void Use(const std::string& name, float paramValue);
-	void setInt(const std::string& name, int value);
-	void setFloat(const std::string& name, float value);
+	void SetUniform(const std::string& name, int value);
+	void SetUniform(const std::string& name, float value);
 	void Blur(Vertbuffer vb, float resw, float resh, float radius);
 
 private:

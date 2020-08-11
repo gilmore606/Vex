@@ -8,15 +8,17 @@
 
 #include "util.cpp"
 
-constexpr auto DEMO_POINTS = 500;
-constexpr auto DEMO_LINES = 500;
+constexpr auto DEMO_POINTS = 40;
+constexpr auto DEMO_LINES = 20;
 
 GLFWwindow* window;
 int windowWidth = 1800;
 int windowHeight = 1300;
 GPU gpu;
 APU apu;
-bool inMotion = true;
+bool controlLeft = true;
+bool controlRight = false;
+bool controlThrust = false;
 
 struct DemoPoint {
 	Point* gpupoint;
@@ -28,6 +30,15 @@ struct DemoLine {
 	float dx, dy;
 };
 DemoLine* demoLines = new DemoLine[DEMO_LINES];
+Sprite* demoSprite = new Sprite();
+struct DemoShip {
+	float x = 0.0f;
+	float y = 0.0f;
+	float xd = 0.0f;
+	float yd = 0.0f;
+};
+DemoShip demoShip;
+
 
 
 void makeDemoPrims();
@@ -37,13 +48,33 @@ void doReset() {
 }
 
 void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (action != GLFW_PRESS) return;
-	if (key == GLFW_KEY_TAB) {
-		doReset();
-	} else if (key == GLFW_KEY_SPACE) {
-		inMotion = !inMotion;
-	} else if (key == GLFW_KEY_ESCAPE) {
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	if (action == GLFW_PRESS) {
+		if (key == GLFW_KEY_TAB) {
+			doReset();
+		}else if (key == GLFW_KEY_ESCAPE) {
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
+		}
+		else if (key == GLFW_KEY_A) {
+			controlLeft = true;
+			controlRight = false;
+		}
+		else if (key == GLFW_KEY_D) {
+			controlRight = true;
+			controlLeft = false;
+		}
+		else if (key == GLFW_KEY_W) {
+			controlThrust = true;
+		}
+	} else if (action == GLFW_RELEASE) {
+		if (key == GLFW_KEY_A) {
+			controlLeft = false;
+		}
+		else if (key == GLFW_KEY_D) {
+			controlRight = false;
+		}
+		else if (key == GLFW_KEY_W) {
+			controlThrust = false;
+		}
 	}
 }
 
@@ -81,6 +112,13 @@ bool makeWindow(int w, int h) {
 }
 
 void makeDemoPrims() {
+	demoSprite->add(0.0f, 0.1f, 0.05f, -0.05f, 0.3f, 0.7f, 1.0f);
+	demoSprite->add(0.05f, -0.05f, 0.0f, -0.02f, 0.7f, 0.3f, 0.0f);
+	demoSprite->add(0.0f, -0.02f, -0.05f, -0.05f, 0.7f, 0.3f, 0.0f);
+	demoSprite->add(-0.05f, -0.05f, 0.0f, 0.1f, 0.3f, 0.7f, 1.0f);
+	demoSprite->xs = 0.35f;
+	demoSprite->ys = 0.35f;
+
 	for (int i = 0; i < DEMO_POINTS; i++) {
 		float x = (randFloat() - 0.5f) * 2.0f;
 		float y = (randFloat() - 0.5f) * 2.0f;
@@ -107,6 +145,17 @@ void makeDemoPrims() {
 }
 
 void moveDemoPrims(float delta) {
+
+	if (controlLeft) demoSprite->rotate(2.5f * delta);
+	if (controlRight) demoSprite->rotate(-2.5f * delta);
+	if (controlThrust) {
+		demoShip.xd += std::cos(demoSprite->rot + 1.570796) * delta * 1.0f;
+		demoShip.yd += std::sin(demoSprite->rot + 1.570796) * delta * 1.0f;
+	}
+	demoShip.x += demoShip.xd * delta;
+	demoShip.y += demoShip.yd * delta;
+	demoSprite->moveTo(demoShip.x, demoShip.y);
+
 	for (int i = 0; i < DEMO_POINTS; i++) {
 		demoPoints[i].gpupoint->x += demoPoints[i].dx * delta;
 		demoPoints[i].gpupoint->y += demoPoints[i].dy * delta;
@@ -142,6 +191,7 @@ int main() {
 	glfwSetKeyCallback(window, handleKey);
 
 	makeDemoPrims();
+	gpu.addSprite(demoSprite);
 
 	// MAIN LOOP
 
@@ -150,7 +200,7 @@ int main() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		if (inMotion) moveDemoPrims(deltaTime);
+		moveDemoPrims(deltaTime);
 
 		gpu.Assemble();
 		gpu.Render();

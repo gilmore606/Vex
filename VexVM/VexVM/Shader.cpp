@@ -65,22 +65,22 @@ void Shader::Use(const std::string& name, float paramValue) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), paramValue);
 }
 
-void Shader::setInt(const std::string& name, int value) {
+void Shader::SetUniform(const std::string& name, int value) {
 	glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string& name, float value) {
+void Shader::SetUniform(const std::string& name, float value) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
 
 void Shader::Blur(Vertbuffer vb, float resw, float resh, float radius) {
-	setFloat("radius", radius);
-	setFloat("resolution", resw);
-	setFloat("dirx", 1.0f);
-	setFloat("diry", 0.0f);
+	SetUniform("radius", radius);
+	SetUniform("resolution", resw);
+	SetUniform("dirx", 1.0f);
+	SetUniform("diry", 0.0f);
 	vb.Draw();
-	setFloat("resolution", resh);
-	setFloat("dirx", 0.0f);
-	setFloat("diry", 1.0f);
+	SetUniform("resolution", resh);
+	SetUniform("dirx", 0.0f);
+	SetUniform("diry", 1.0f);
 	vb.Draw();
 }

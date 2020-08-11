@@ -8,6 +8,10 @@ uniform float decay;
 
 void main()
 {
-    vec3 color = texture(inTexture, TexCoords).rgb;
-    FragColor = vec4(color * decay, 1.0);
+    float thresh = 0.007f;
+    vec3 color = texture(inTexture, TexCoords).rgb * decay;
+    FragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    if (color.r > thresh) FragColor.r = color.r;
+    if (color.g > thresh) FragColor.g = color.g;
+    if (color.b > thresh) FragColor.b = color.b;
 }

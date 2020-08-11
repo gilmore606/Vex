@@ -13,7 +13,7 @@ Vertbuffer::Vertbuffer(GLuint drawtype, int maxprims, GLuint drawmode) {
 	vertdata = new float[maxsize];
 }
 
-void Vertbuffer::addAttrib(int size, GLuint type) {
+void Vertbuffer::Attribute(int size, GLuint type) {
 	attributes[attribc].size = size;
 	attributes[attribc].type = type;
 	int bytes = 0;
@@ -43,7 +43,7 @@ void Vertbuffer::Create() {
 	glBindVertexArray(0);
 }
 
-void Vertbuffer::bulkLoad(float data[], int count) {
+void Vertbuffer::BulkLoad(float data[], int count) {
 	vertdatac = count;
 	for (int i = 0; i < vertdatac; i++) {
 		vertdata[i] = data[i];

@@ -35,6 +35,11 @@ Line* GPU::addLine(float x1, float y1, float x2, float y2, float r, float g, flo
 	return &lines[linec - 1];
 }
 
+void GPU::addSprite(Sprite* sprite) {
+	sprites[spritec] = sprite;
+	spritec++;
+}
+
 // Remove all prims from draw lists
 void GPU::Reset() {
 	pointc = 0;
@@ -50,17 +55,17 @@ void GPU::makeShaders() {
 	lineShader.Load();
 	blitShader = Shader("./data/shaders/blit.vert", "./data/shaders/blit.frag");
 	blitShader.Load();
-	blitShader.setInt("screenTexture", 0);
+	blitShader.SetUniform("screenTexture", 0);
 	fadeShader = Shader("./data/shaders/fade.vert", "./data/shaders/fade.frag");
 	fadeShader.Load();
-	fadeShader.setInt("inTexture", 0);
+	fadeShader.SetUniform("inTexture", 0);
 	composeShader = Shader("./data/shaders/compose.vert", "./data/shaders/compose.frag");
 	composeShader.Load();
-	composeShader.setInt("screenTex", 0);
-	composeShader.setInt("glowTex", 1);
+	composeShader.SetUniform("screenTex", 0);
+	composeShader.SetUniform("glowTex", 1);
 	blurShader = Shader("./data/shaders/blur.vert", "./data/shaders/blur.frag");
 	blurShader.Load();
-	blurShader.setInt("texture", 0);
+	blurShader.SetUniform("texture", 0);
 }
 
 void GPU::makeBuffers() {
@@ -77,19 +82,19 @@ void GPU::makeBuffers() {
 void GPU::makeVBs() {
 	std::cout << "Allocating vertex buffers..." << std::endl;
 	pointsVB = Vertbuffer(GL_POINTS, settings.MAX_POINTS, GL_STREAM_DRAW);
-	pointsVB.addAttrib(2, GL_FLOAT); // pos
-	pointsVB.addAttrib(3, GL_FLOAT); // color
-	pointsVB.addAttrib(1, GL_FLOAT); // size
+	pointsVB.Attribute(2, GL_FLOAT); // pos
+	pointsVB.Attribute(3, GL_FLOAT); // color
+	pointsVB.Attribute(1, GL_FLOAT); // size
 	pointsVB.Create();
 	linesVB = Vertbuffer(GL_LINES, settings.MAX_LINES, GL_STREAM_DRAW);
-	linesVB.addAttrib(2, GL_FLOAT); // pos
-	linesVB.addAttrib(3, GL_FLOAT); // color
+	linesVB.Attribute(2, GL_FLOAT); // pos
+	linesVB.Attribute(3, GL_FLOAT); // color
 	linesVB.Create();
 	screenVB = Vertbuffer(GL_TRIANGLES, 2, GL_STATIC_DRAW);
-	screenVB.addAttrib(2, GL_FLOAT); // pos
-	screenVB.addAttrib(2, GL_FLOAT); // uv
+	screenVB.Attribute(2, GL_FLOAT); // pos
+	screenVB.Attribute(2, GL_FLOAT); // uv
 	screenVB.Create();
-	screenVB.bulkLoad(screendata, 24);
+	screenVB.BulkLoad(screendata, 24);
 }
 
 void GPU::Setup() {
@@ -112,37 +117,38 @@ void GPU::Assemble() {
 	pointsVB.Reset();
 	linesVB.Reset();
 	for (int i = 0; i < pointc; i++) {
-		points[i].pushData(pointsVB.vertdata, &pointsVB.vertdatac);  // internals exposed for speed
+		points[i].PushData(pointsVB.vertdata, &pointsVB.vertdatac);  // internals exposed for speed
 	}
 	for (int i = 0; i < linec; i++) {
-		lines[i].pushData(linesVB.vertdata, &linesVB.vertdatac);
+		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac);
 	}
 	for (int i = 0; i < spritec; i++) {
-		sprites[i].pushData(linesVB.vertdata, &linesVB.vertdatac);
+		Sprite* s = sprites[i];
+		s->PushData(linesVB.vertdata, &linesVB.vertdatac);
 	}
 	pointsVB.Update();
 	linesVB.Update();
 }
 
-void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
+void GPU::drawPrims(float lineThickness, float pointBright, float lineBright) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glLineWidth(lineThickness);
 
 	pointShader.Use("brightness", pointBright);
-	pointShader.setFloat("time", glfwGetTime());
-	pointShader.setFloat("spread", settings.POINT_SPREAD);
-	pointShader.setFloat("stability", settings.POINT_STABILITY);
-	pointShader.setFloat("sustain", settings.BEAM_SUSTAIN);
-	pointShader.setFloat("drop", settings.BEAM_DROP);
+	pointShader.SetUniform("time", (float)glfwGetTime());
+	pointShader.SetUniform("spread", settings.POINT_SPREAD);
+	pointShader.SetUniform("stability", settings.POINT_STABILITY);
+	pointShader.SetUniform("sustain", settings.BEAM_SUSTAIN);
+	pointShader.SetUniform("drop", settings.BEAM_DROP);
 	pointsVB.Draw();
 
 	lineShader.Use("brightness", lineBright);
-	lineShader.setFloat("time", glfwGetTime());
-	lineShader.setFloat("spread", settings.LINE_SPREAD);
-	lineShader.setFloat("stability", settings.LINE_STABILITY);
-	lineShader.setFloat("sustain", settings.BEAM_SUSTAIN);
-	lineShader.setFloat("drop", settings.BEAM_DROP);
+	lineShader.SetUniform("time", (float)glfwGetTime());
+	lineShader.SetUniform("spread", settings.LINE_SPREAD);
+	lineShader.SetUniform("stability", settings.LINE_STABILITY);
+	lineShader.SetUniform("sustain", settings.BEAM_SUSTAIN);
+	lineShader.SetUniform("drop", settings.BEAM_DROP);
 	linesVB.Draw();
 
 	glDisable(GL_BLEND);
@@ -151,7 +157,7 @@ void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 void GPU::Render() {
 	// Draw to trailbuffer
 	trailBuffer.Target();
-	DrawPrims(settings.LINE_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
+	drawPrims(settings.LINE_WIDTH, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
 
 	// Blur trailbuffer
 	blurShader.Use();
@@ -161,7 +167,7 @@ void GPU::Render() {
 	// Draw to glowbuffer
 	glowBuffer.Target();
 	glowBuffer.Clear(0.0f, 0.0f, 0.0f, 0.0f);
-	DrawPrims(settings.GLOW_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
+	drawPrims(settings.GLOW_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
 
 	// Blur glowbuffer
 	glowBuffer.Target();
@@ -180,7 +186,7 @@ void GPU::Render() {
 	// Draw to screenbuffer
 	screenBuffer.Target();
 	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-	DrawPrims(settings.LINE_WIDTH, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
+	drawPrims(settings.LINE_WIDTH, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

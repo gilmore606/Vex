@@ -8,13 +8,13 @@ public:
 	Line();
 	Line(float x1, float y1, float x2, float y2, float r, float g, float b);
 
-	void pushData(float dataArray[], int* counter);
+	void PushData(float dataArray[], int* counter);
 
 	float x1, y1, x2, y2;
 	float r, g, b;
 };
 
-inline void Line::pushData(float dataArray[], int* counter) {
+inline void Line::PushData(float dataArray[], int* counter) {
 	dataArray[*counter] = x1;
 	dataArray[*counter + 1] = y1;
 	dataArray[*counter + 2] = r;

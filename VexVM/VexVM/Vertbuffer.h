@@ -14,10 +14,10 @@ public:
 	Vertbuffer();
 	Vertbuffer(GLuint drawtype, int maxsize, GLuint drawmode);
 
-	void addAttrib(int size, GLuint type);
+	void Attribute(int size, GLuint type);
 	void Create();
 	void Reset();
-	void bulkLoad(float data[], int count);
+	void BulkLoad(float data[], int count);
 	void Update();
 	void Draw();
 
