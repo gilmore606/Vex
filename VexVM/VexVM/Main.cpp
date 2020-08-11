@@ -144,6 +144,9 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 
 void handleButton(int input) {
 	if (input == 0) glfwSetWindowShouldClose(window, GLFW_TRUE);
+	if (input == 11) gpu.toggleLayer(0);
+	if (input == 12) gpu.toggleLayer(1);
+	if (input == 13) gpu.toggleLayer(2);
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -173,6 +176,9 @@ int main() {
 	input.Add(2, VEXInputType::SWITCH, GLFW_KEY_D);
 	input.Add(3, VEXInputType::SWITCH, GLFW_KEY_W);
 	input.Add(4, VEXInputType::BUTTON, GLFW_KEY_SPACE);
+	input.Add(11, VEXInputType::BUTTON, GLFW_KEY_1);
+	input.Add(12, VEXInputType::BUTTON, GLFW_KEY_2);
+	input.Add(13, VEXInputType::BUTTON, GLFW_KEY_3);
 
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);

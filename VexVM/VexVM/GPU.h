@@ -13,7 +13,7 @@ struct GPUsettings {
 	float MAX_POINTS = 16000;
 	float MAX_LINES = 64000;
 
-	double ASPECT_RATIO = 4.0 / 3.0;
+	double ASPECT_RATIO = 4.0 / 4.0;
 
 	float LINE_WIDTH = 0.8f;
 	float GLOW_WIDTH = 5.0f;
@@ -33,7 +33,8 @@ struct GPUsettings {
 	float TRAIL_BLUR = 0.4f;
 };
 
-struct GPU{
+class GPU{
+public:
 	GPU();
 	GPU(int w, int h, GLFWwindow* window);
 
@@ -47,7 +48,12 @@ struct GPU{
 	Line* addLine(float x1, float y1, float x2, float y2, float r, float g, float b);
 	void addSprite(Sprite* sprite);
 
+	void toggleLayer(int layer);
+
 	GPUsettings settings;
+	bool drawScreen;
+	bool drawGlow;
+	bool drawTrails;
 
 private:
 	void makeShaders();
