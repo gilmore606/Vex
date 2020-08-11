@@ -146,7 +146,7 @@ int main() {
 	// MAIN LOOP
 
 	while (!glfwWindowShouldClose(window)) {
-		float currentFrame = glfwGetTime();
+		currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 

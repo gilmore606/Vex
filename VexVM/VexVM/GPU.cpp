@@ -133,12 +133,16 @@ void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 	pointShader.setFloat("time", glfwGetTime());
 	pointShader.setFloat("spread", settings.POINT_SPREAD);
 	pointShader.setFloat("stability", settings.POINT_STABILITY);
+	pointShader.setFloat("sustain", settings.BEAM_SUSTAIN);
+	pointShader.setFloat("drop", settings.BEAM_DROP);
 	pointsVB.Draw();
 
 	lineShader.Use("brightness", lineBright);
 	lineShader.setFloat("time", glfwGetTime());
 	lineShader.setFloat("spread", settings.LINE_SPREAD);
 	lineShader.setFloat("stability", settings.LINE_STABILITY);
+	lineShader.setFloat("sustain", settings.BEAM_SUSTAIN);
+	lineShader.setFloat("drop", settings.BEAM_DROP);
 	linesVB.Draw();
 
 	glDisable(GL_BLEND);

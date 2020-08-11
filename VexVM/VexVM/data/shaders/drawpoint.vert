@@ -7,6 +7,8 @@ out vec4 pointColor;
 uniform float time;
 uniform float spread;
 uniform float stability;
+uniform float sustain;
+uniform float drop;
 
 highp float rand(vec2 co)
 {
@@ -28,7 +30,12 @@ void main()
     }
     float xj = rand(seed1) * deviance;
     float yj = rand(seed2) * deviance;
-    pointColor = vec4(color.r, color.g, color.b, 1.0f);
+
+    float flicker = 1.0f;
+    if (rand(seed1 + 17.3) > sustain) {
+        flicker = drop;
+    }
+    pointColor = vec4(color.r, color.g, color.b, 1.0f) * flicker;
     gl_Position = vec4(aPos.x + xj, aPos.y + yj, 0.0, 1.0);
     gl_PointSize = size;
 }
