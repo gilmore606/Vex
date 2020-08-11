@@ -69,6 +69,7 @@ void GPU::makeBuffers() {
 	screenBuffer.Create();
 	trailBuffer = Framebuffer(w, h);
 	trailBuffer.Create();
+	trailBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
 	glowBuffer = Framebuffer(w, h);
 	glowBuffer.Create();
 }
@@ -146,7 +147,7 @@ void GPU::DrawPrims(float lineThickness, float pointBright, float lineBright) {
 void GPU::Render() {
 	// Draw to trailbuffer
 	trailBuffer.Target();
-	DrawPrims(settings.GLOW_WIDTH * 1.5f, settings.POINT_TRAIL_BRIGHTNESS, settings.LINE_TRAIL_BRIGHTNESS);
+	DrawPrims(settings.LINE_WIDTH, settings.POINT_GLOW_BRIGHTNESS, settings.LINE_GLOW_BRIGHTNESS);
 
 	// Blur trailbuffer
 	blurShader.Use();
@@ -172,13 +173,9 @@ void GPU::Render() {
 	fadeShader.Use("decay", settings.TRAIL_DECAY);
 	trailBuffer.Blit(fadeShader, screenVB);
 
-	// Blit trailbuffer to screenbuffer
-	screenBuffer.Target();
-	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-	trailBuffer.Blit(blitShader, screenVB);
-
 	// Draw to screenbuffer
 	screenBuffer.Target();
+	screenBuffer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
 	DrawPrims(settings.LINE_WIDTH, settings.POINT_BRIGHTNESS, settings.LINE_BRIGHTNESS);
 
 	// Compose to screen
@@ -186,5 +183,6 @@ void GPU::Render() {
 	composeShader.Use();
 	screenBuffer.BindAsTexture(GL_TEXTURE0, composeShader, "screenTex", 0);
 	glowBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);
+	trailBuffer.BindAsTexture(GL_TEXTURE2, composeShader, "trailTex", 2);
 	screenVB.Draw();
 }

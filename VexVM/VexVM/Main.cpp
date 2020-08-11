@@ -8,8 +8,8 @@
 
 #include "util.cpp"
 
-constexpr auto DEMO_POINTS = 10000;
-constexpr auto DEMO_LINES = 2000;
+constexpr auto DEMO_POINTS = 500;
+constexpr auto DEMO_LINES = 500;
 
 GLFWwindow* window;
 int windowWidth = 1800;

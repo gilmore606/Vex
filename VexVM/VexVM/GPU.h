@@ -15,17 +15,15 @@ struct GPUsettings {
 	float MAX_SPRITES = 4000;
 
 	float LINE_WIDTH = 0.8f;
-	float GLOW_WIDTH = 2.4f;
+	float GLOW_WIDTH = 6.0f;
 	float POINT_SPREAD = 0.0015f;
 	float LINE_SPREAD = 0.0025f;
 	float POINT_STABILITY = 0.990f;
 	float LINE_STABILITY = 0.996f;
-	float POINT_TRAIL_BRIGHTNESS = 1.1f;
-	float LINE_TRAIL_BRIGHTNESS = 0.3f;
-	float POINT_GLOW_BRIGHTNESS = 1.0f;
-	float LINE_GLOW_BRIGHTNESS = 0.6f;
 	float POINT_BRIGHTNESS = 1.5f;
 	float LINE_BRIGHTNESS = 1.5f;
+	float POINT_GLOW_BRIGHTNESS = 1.0f;
+	float LINE_GLOW_BRIGHTNESS = 0.8f;
 	float TRAIL_DECAY = 0.89f;
 	float TRAIL_BLUR = 0.4f;
 };
