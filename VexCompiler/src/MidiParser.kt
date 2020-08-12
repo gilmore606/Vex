@@ -6,8 +6,8 @@ enum class TuneMsgType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_
 class TuneMsg(
         val type: TuneMsgType,
         var channel: Int,
-        val data1: Byte,
-        val data2: Byte,
+        val data1: UByte,
+        val data2: UByte,
         val time: Long
 ) {
     fun print() {
@@ -24,18 +24,29 @@ class TuneMsg(
         println("  " + time.toInt() + ": " + channel + "  " + typestr + " (" + data1.toInt() + ", " + data2.toInt() + ")")
     }
 
-    fun write(): String {
-        val typeint = when (type) {
-            TuneMsgType.NOTE_OFF ->       0
-            TuneMsgType.NOTE_ON ->        1
-            TuneMsgType.POLY_AFTER ->     2
-            TuneMsgType.CONTROL_CHANGE -> 3
-            TuneMsgType.PROGRAM_CHANGE -> 4
-            TuneMsgType.CHANNEL_AFTER ->  5
-            TuneMsgType.BEND_RANGE ->     6
-            TuneMsgType.SYSEX ->          255
+    fun write(bytes: ArrayList<UByte>) {
+        val typebyte: UByte = when (type) {
+            TuneMsgType.NOTE_OFF ->       0.toUByte()
+            TuneMsgType.NOTE_ON ->        1.toUByte()
+            TuneMsgType.POLY_AFTER ->     2.toUByte()
+            TuneMsgType.CONTROL_CHANGE -> 3.toUByte()
+            TuneMsgType.PROGRAM_CHANGE -> 4.toUByte()
+            TuneMsgType.CHANNEL_AFTER ->  5.toUByte()
+            TuneMsgType.BEND_RANGE ->     6.toUByte()
+            TuneMsgType.SYSEX ->          255.toUByte()
         }
-        return time.toString() + "," + channel.toString() + "," + typeint.toString() + "," + data1.toString() + "," + data2.toString()
+        val timebyte0 = (time % 256)
+        val time1 = (time - timebyte0) / 256
+        val time2 = (time - (timebyte0 + time1 * 256)) / 65536
+        bytes.add(timebyte0.toUByte())
+        bytes.add(time1.toUByte())
+        bytes.add(time2.toUByte())
+        bytes.add(channel.toUByte())
+        bytes.add(typebyte)
+        bytes.add(data1)
+        bytes.add(data2)
+        println(timebyte0.toUByte().toString() + "," + time1.toUByte().toString() + "," + time2.toUByte().toString() + ", " + channel.toUByte()
+            + ", " + typebyte.toString() + ", " + data1.toString() + "," + data2.toString())
     }
 }
 
@@ -54,10 +65,10 @@ class MidiParser {
                 val len = track.get(i).message.length
                 val time = track.get(i).tick
                 val status = message[0] + 256
-                var data1: Byte = 0
-                var data2: Byte = 0
-                if (len > 1) data1 = message[1]
-                if (len > 2) data2 = message[2]
+                var data1: UByte = 0.toUByte()
+                var data2: UByte = 0.toUByte()
+                if (len > 1) data1 = message[1].toUByte()
+                if (len > 2) data2 = message[2].toUByte()
                 val tuneMsg = when (status) {
                     in 128..143 -> TuneMsg(TuneMsgType.NOTE_OFF, status-128, data1, data2, time)
                     in 144..159 -> TuneMsg(TuneMsgType.NOTE_ON, status-144, data1, data2, time)
@@ -88,13 +99,14 @@ class MidiParser {
             it.channel = channelMap[it.channel]!!
         }
 
-        var outString = events.size.toString() + "\n"
+        // Generate byte stream
+        val outBytes = ArrayList<UByte>()
         events.forEach {
             //it.print()
-            outString += it.write() + "\n"
+            it.write(outBytes)
         }
-        File("data/moonpatrol.vexm").writeText(outString)
-        println(outString)
+
+        File("data/moon_patrol.vexm").writeBytes(outBytes.toUByteArray().toByteArray())
     }
 
 }
