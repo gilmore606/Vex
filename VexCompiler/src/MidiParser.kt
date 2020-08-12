@@ -101,6 +101,15 @@ class MidiParser {
 
         // Generate byte stream
         val outBytes = ArrayList<UByte>()
+
+        val count = events.size
+        val count0 = (count % 256)
+        val count1 = (count - count0) / 256
+        val count2 = (count - (count0 + count1 * 256)) / 65536
+        outBytes.add(count0.toUByte())
+        outBytes.add(count1.toUByte())
+        outBytes.add(count2.toUByte())
+        println("writing " + events.size + " events")
         events.forEach {
             //it.print()
             it.write(outBytes)

@@ -159,6 +159,7 @@
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Vertbuffer.cpp" />
+    <ClCompile Include="VEXSong.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APU.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Vertbuffer.h" />
+    <ClInclude Include="VEXSong.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\shaders\blit.frag" />

@@ -6,6 +6,7 @@
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
+#include "VEXSong.h"
 
 #include "util.cpp"
 
@@ -174,6 +175,7 @@ int main() {
 	apu.voices[1].osc2->phase = 0.1;
 	apu.voices[1].setADSR(0.0, 1.6, 0.0, 0.0);
 
+	VEXSong* testsong = new VEXSong("data/moon_patrol.vexm");
 
 	// MAIN LOOP
 
@@ -183,6 +185,7 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
+		apu.Process(deltaTime);
 
 		gpu.Assemble();
 		gpu.Render();

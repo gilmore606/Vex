@@ -57,6 +57,9 @@
     <ClCompile Include="APUVoice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VEXSong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -90,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="APUVoice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VEXSong.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

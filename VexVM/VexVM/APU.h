@@ -12,6 +12,7 @@ struct APU{
 	void Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData));
 	void Reset();
+	void Process(float delta);
 	void Stop();
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);

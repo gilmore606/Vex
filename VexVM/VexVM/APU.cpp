@@ -44,6 +44,11 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
+// Process the passage of time -- advance songs, etc.
+void APU::Process(float delta) {
+
+}
+
 // The given proxyCallback func should call APU::genSamples()
 void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData)) {
