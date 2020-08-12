@@ -152,7 +152,7 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 }
 
 void fireDemoShot() {
-	apu.voices[1].Trigger();
+	apu.voices[1].Trigger(440);
 }
 
 void handleButton(int input) {
@@ -206,8 +206,10 @@ int main() {
 	apu.voices[0].volume = 1.0;
 
 	apu.voices[1].pan = 0.5;          // demo shooty sound
-	apu.voices[1].envMain->a = 0.03;
-	apu.voices[1].envMain->d = 0.3;
+	apu.voices[1].volume = 1.0;
+	apu.voices[1].osc1->waveform = TRIANGLE;
+	apu.voices[1].envMain->a = 0.001;
+	apu.voices[1].envMain->d = 0.6;
 	apu.voices[1].envMain->s = 0.0;
 	apu.voices[1].envMain->r = 0.0;
 

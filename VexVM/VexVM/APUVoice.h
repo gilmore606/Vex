@@ -2,22 +2,62 @@
 
 #include <iostream>
 
-enum Waveform { TRIANGLE, SAWTOOTH, PULSE };
+enum Waveform { TRIANGLE, SAWTOOTH, PULSE, NOISE };
 
 inline static double noise() {
 	return static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+}
+
+class OSC {
+public:
+	Waveform waveform = TRIANGLE;
+	void setFreq(double freq);
+	double* nextSample();
+
+private:
+	double freq;
+	double level = 0.0;
+	double step;
+};
+
+inline void OSC::setFreq(double freq) {
+	this->freq = freq;
+	this->step = ((2.0 * freq) / 44100.0);
+}
+
+inline double* OSC::nextSample() {
+	if (waveform == NOISE) {
+		level = noise();
+	} else if (waveform == TRIANGLE) {
+		level += step;
+		if (level >= 1.0) {
+			level = 1.0;
+			step = -step;
+		} else if (level <= -1.0) {
+			level = -1.0;
+			step = -step;
+		}
+	} else if (waveform == SAWTOOTH) {
+		level += step;
+		if (level >= 1.0) {
+			level = -1.0;
+		}
+	} else if (waveform == PULSE) {
+
+	}
+	return &level;
 }
 
 class ADSR {
 public:
 	bool active;
 	double a, d, s, r;
-	double astep, dstep, rstep;
 	void Trigger();
 	void Release();
 	double* nextLevel();
 
 private:
+	double astep, dstep, rstep;
 	double level;
 	unsigned int stage;
 };
@@ -67,13 +107,14 @@ public:
 	double* nextSample();
 	void Reset();
 	void Trigger();
+	void Trigger(double freq);
 	void Release();
 
 	bool enabled;
 	double volume;    // 0.0 to 1.0
 	double pan;       // 0.0 to 1.0, 0.5 = center
 	ADSR* envMain;
-	Waveform waveMain;
+	OSC* osc1;
 
 	bool testTone;
 
@@ -88,13 +129,16 @@ inline double* APUVoice::nextSample() {
 		return &samplebuf;
 	}
 	// synthesis stuff happens here
-	samplebuf = noise();
+	
+	samplebuf = *osc1->nextSample();
 	samplebuf *= *(*envMain).nextLevel();
-
 
 	return &samplebuf;
 }
-
+inline void APUVoice::Trigger(double freq) {
+	osc1->setFreq(freq);
+	Trigger();
+}
 inline void APUVoice::Trigger() {
 	envMain->Trigger();
 }

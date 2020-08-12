@@ -6,6 +6,7 @@ APUVoice::APUVoice() {
 	enabled = true;
 	testTone = false;
 	envMain = new ADSR();
+	osc1 = new OSC();
 }
 
 void APUVoice::Reset() {
