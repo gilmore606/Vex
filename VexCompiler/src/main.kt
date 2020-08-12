@@ -6,6 +6,9 @@ class main {
         @JvmStatic fun main(args: Array<String>) {
             println("SHALL WE COMPILE A GAME?")
             println("")
+            val midi = MidiParser()
+            midi.parse()
+            return
 
             val inStream = File("data/asteroids.vexc").inputStream()
 
