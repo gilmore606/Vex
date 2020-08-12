@@ -7,10 +7,9 @@
 
 GPU::GPU() { }
 
-GPU::GPU(int w, int h, GLFWwindow* window) {
+GPU::GPU(int w, int h) {
 	this->w = w;
 	this->h = h;
-	this->window = window;
 	std::cout << "GPU created" << std::endl;
 }
 
@@ -116,7 +115,31 @@ void GPU::makeVBs() {
 	bufferVB.Create();
 }
 
-void GPU::Setup() {
+GLFWwindow* GPU::Setup(void (*onResize)(GLFWwindow* window, int neww, int newh)) {
+	std::cout << "GPU: GLFW initializing" << std::endl;
+	glfwInit();
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+	window = glfwCreateWindow(w, h, "VEX", NULL, NULL);
+	if (window == NULL) {
+		glfwTerminate();
+		std::cout << "GPU: GLFW init failed!" << std::endl;
+		throw "GLFW init failed!";
+	}
+	glfwMakeContextCurrent(window);
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "GPU: Failed to initialize GLAD" << std::endl;
+		throw "GLFW init failed!";
+	}
+	glfwSetFramebufferSizeCallback(window, onResize);
+	std::cout << "GPU: GLFW window initialized" << std::endl;
+
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -129,6 +152,11 @@ void GPU::Setup() {
 
 	Reset();
 	std::cout << "GPU initialized" << std::endl;
+	return window;
+}
+
+void GPU::Stop() {
+	glfwTerminate();
 }
 
 // Copy all our abstract prims into vertex buffers, to prep for render
@@ -218,6 +246,10 @@ void GPU::Render() {
 	glowBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);
 	trailBuffer.BindAsTexture(GL_TEXTURE2, composeShader, "trailTex", 2);
 	screenVB.Draw();
+
+	// Finish the frame
+	glfwSwapBuffers(window);
+	glfwPollEvents();
 }
 
 void GPU::toggleLayer(int layer) {

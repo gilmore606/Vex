@@ -41,13 +41,14 @@ struct GPUsettings {
 class GPU{
 public:
 	GPU();
-	GPU(int w, int h, GLFWwindow* window);
+	GPU(int w, int h);
 
-	void Setup();
+	GLFWwindow* Setup(void (*onResize)(GLFWwindow* window, int neww, int newh));
 	void Resize(int w, int h);
 	void Reset();
 	void Assemble();
 	void Render();
+	void Stop();
 
 	Point* addPoint(float x, float y, float r, float g, float b, float size);
 	Line* addLine(float x1, float y1, float x2, float y2, float r, float g, float b);

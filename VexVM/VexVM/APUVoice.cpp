@@ -10,6 +10,7 @@ APUVoice::APUVoice() {
 	osc2 = new OSC();
 	osc1->enabled = true;
 	osc2->enabled = true;
+
 }
 
 void APUVoice::Reset() {

@@ -41,43 +41,10 @@ DemoShip demoShip;
 
 
 
-void makeDemoPrims();
-void doReset() {
-	gpu.Reset();
-	makeDemoPrims();
-}
-
 void onResize(GLFWwindow* window, int w, int h) {
 	windowWidth = w;
 	windowHeight = h;
 	gpu.Resize(w, h);
-}
-
-bool makeWindow(int w, int h) {
-	std::cout << "GLFW initializing" << std::endl;
-	glfwInit();
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-	glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
-	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-
-	window = glfwCreateWindow(w, h, "VEX", NULL, NULL);
-	if (window == NULL) {
-		glfwTerminate();
-		return false;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, onResize);
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return false;
-	}
-	std::cout << "GLFW window initialized" << std::endl;
-	return true;
 }
 
 void makeDemoPrims() {
@@ -172,15 +139,9 @@ int main() {
 	float currentFrame, lastFrame, deltaTime;
 	lastFrame = glfwGetTime();
 
-	// Setup window
-	if (!makeWindow(windowWidth, windowHeight)) {
-		glfwTerminate();
-		return 0;
-	}
-
 	// Setup output
-	gpu = GPU(windowWidth, windowHeight, window);
-	gpu.Setup();
+	gpu = GPU(windowWidth, windowHeight);
+	window = gpu.Setup(onResize);
 	apu = APU();
 	apu.Setup(handleAudio);
 
@@ -207,9 +168,10 @@ int main() {
 
 	apu.voices[1].pan = 0.5;          // demo shooty sound
 	apu.voices[1].volume = 1.0;
-	apu.voices[1].osc1->waveform = SAWTOOTH;
+	apu.voices[1].osc1->waveform = NOISE;
 	apu.voices[1].osc2->waveform = SAWTOOTH;
-	apu.voices[1].osc2->detune = 4.5;
+	apu.voices[1].osc2->detune = 0.3;
+	apu.voices[1].osc2->phase = 0.1;
 	apu.voices[1].setADSR(0.0, 1.6, 0.0, 0.0);
 
 
@@ -224,12 +186,9 @@ int main() {
 
 		gpu.Assemble();
 		gpu.Render();
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	apu.Stop();
-	glfwTerminate();
+	gpu.Stop();
 	return 0;
 }

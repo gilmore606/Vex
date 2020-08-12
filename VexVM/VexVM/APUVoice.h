@@ -13,6 +13,7 @@ public:
 	bool enabled;
 	Waveform waveform = TRIANGLE;
 	double detune;
+	double phase;
 	void setFreq(double freq);
 	double* nextSample();
 
@@ -25,6 +26,7 @@ private:
 inline void OSC::setFreq(double freq) {
 	this->freq = freq + detune;
 	this->step = (this->freq / 44100.0);
+	this->level = 0.0 + phase;
 }
 
 inline double* OSC::nextSample() {
