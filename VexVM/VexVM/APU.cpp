@@ -27,7 +27,7 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	for (i = 0; i < nFrames; i++) {
 		for (v = 0; v < MAX_VOICES; v++) {
 			voicedata[v] = 0.0;
-			if (voices[v].enabled) voicedata[v] = voices[v].nextSample();
+			if (voices[v].enabled) voicedata[v] = *voices[v].nextSample();
 		}
 		for (j = 0; j < 2; j++) {
 			sample = 0.0;
@@ -53,7 +53,7 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		params.deviceId = adac->getDefaultOutputDevice();
 		params.nChannels = 2;
 		params.firstChannel = 0;
-		adac->openStream(&params, nullptr, RTAUDIO_FLOAT64, 44100, &bufferSize, proxyCallback, nullptr);
+		adac->openStream(&params, nullptr, RTAUDIO_FLOAT64, SAMPLE_RATE, &bufferSize, proxyCallback, nullptr);
 		adac->startStream();
 	}
 	catch (RtAudioError &e) {

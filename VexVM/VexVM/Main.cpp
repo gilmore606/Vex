@@ -9,6 +9,7 @@
 
 #include "util.cpp"
 
+
 constexpr auto DEMO_POINTS = 500;
 constexpr auto DEMO_LINES = 500;
 
@@ -150,13 +151,21 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 	input.HandleKey(window, key, scancode, action, mods);
 }
 
+void fireDemoShot() {
+	apu.voices[1].Trigger();
+}
+
 void handleButton(int input) {
 	if (input == 0) glfwSetWindowShouldClose(window, GLFW_TRUE);
+	if (input == 4) fireDemoShot();
 	if (input == 11) gpu.toggleLayer(0);
 	if (input == 12) gpu.toggleLayer(1);
 	if (input == 13) gpu.toggleLayer(2);
+	if (input == 14) apu.voices[0].testTone = !apu.voices[0].testTone;
 }
 void handleSwitch(int input, bool isDown) { }
+
+
 
 int main() {
 
@@ -169,11 +178,13 @@ int main() {
 		return 0;
 	}
 
-	// Setup devices
+	// Setup output
 	gpu = GPU(windowWidth, windowHeight, window);
 	gpu.Setup();
 	apu = APU();
 	apu.Setup(handleAudio);
+
+	// Setup input
 	input = Input();
 	input.Add(0, VEXInputType::BUTTON, GLFW_KEY_ESCAPE);
 	input.Add(1, VEXInputType::SWITCH, GLFW_KEY_A);
@@ -183,10 +194,23 @@ int main() {
 	input.Add(11, VEXInputType::BUTTON, GLFW_KEY_1);
 	input.Add(12, VEXInputType::BUTTON, GLFW_KEY_2);
 	input.Add(13, VEXInputType::BUTTON, GLFW_KEY_3);
+	input.Add(14, VEXInputType::BUTTON, GLFW_KEY_4);
 	input.Setup(window, handleKey, handleButton, handleSwitch);
 
+
+	// Make demo shit
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);
+
+	apu.voices[0].pan = 0.2;
+	apu.voices[0].volume = 1.0;
+
+	apu.voices[1].pan = 0.5;          // demo shooty sound
+	apu.voices[1].envMain->a = 0.03;
+	apu.voices[1].envMain->d = 0.3;
+	apu.voices[1].envMain->s = 0.0;
+	apu.voices[1].envMain->r = 0.0;
+
 
 	// MAIN LOOP
 

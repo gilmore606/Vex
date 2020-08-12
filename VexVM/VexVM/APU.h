@@ -1,9 +1,10 @@
 #pragma once
 
+constexpr auto SAMPLE_RATE = 44100;
+constexpr auto MAX_VOICES = 6;
+
 #include "RtAudio.h"
 #include "APUVoice.h"
-
-constexpr auto MAX_VOICES = 6;
 
 struct APU{
 	APU();
@@ -15,12 +16,13 @@ struct APU{
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);
 
+	APUVoice* voices;
+
 private:
 	bool started;
 	RtAudio* adac;
 	unsigned int bufferSize = 512;
 
-	APUVoice* voices;
 
 	double* voicedata;
 };
