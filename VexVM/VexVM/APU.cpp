@@ -2,7 +2,10 @@
 #include "RtAudio.h"
 #include <iostream>
 
-APU::APU() { }
+APU::APU() { 
+	started = false;
+	data = new double[2];
+}
 
 void APU::Reset() { }
 
@@ -12,9 +15,9 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	unsigned int i, j;
 	double* buffer = (double*)outBuffer;
 	double* lastValues = (double*)userData;
-	if (status) std::cout << "Stream underflow detected!" << std::endl;
+	if (status) std::cout << "APU stream underflow detected" << std::endl;
 
-	// Write test sawtooths.  this doesn't work, dunno why.
+	// Write test sawtooths.
 	for (i = 0; i < nFrames; i++) {
 		for (j = 0; j < 2; j++) {
 			*buffer++ = lastValues[j];
@@ -42,11 +45,15 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		std::cout << "ERROR: APU failed" << std::endl;
 		return;
 	}
+	started = true;
 	std::cout << "APU initialized" << std::endl;
 }
 
 void APU::Stop() {
+	if (!started) return;
 	adac->stopStream();
 	adac->closeStream();
+	started = false;
+	std::cout << "APU shutdown" << std::endl;
 }
 

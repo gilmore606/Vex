@@ -173,11 +173,8 @@ int main() {
 	gpu = GPU(windowWidth, windowHeight, window);
 	gpu.Setup();
 	apu = APU();
-	apu.Setup(handleAudio);
+	//apu.Setup(handleAudio);
 	input = Input();
-	input.Setup(window, handleKey, handleButton, handleSwitch);
-
-	// Map keys
 	input.Add(0, VEXInputType::BUTTON, GLFW_KEY_ESCAPE);
 	input.Add(1, VEXInputType::SWITCH, GLFW_KEY_A);
 	input.Add(2, VEXInputType::SWITCH, GLFW_KEY_D);
@@ -186,6 +183,7 @@ int main() {
 	input.Add(11, VEXInputType::BUTTON, GLFW_KEY_1);
 	input.Add(12, VEXInputType::BUTTON, GLFW_KEY_2);
 	input.Add(13, VEXInputType::BUTTON, GLFW_KEY_3);
+	input.Setup(window, handleKey, handleButton, handleSwitch);
 
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);
@@ -206,6 +204,7 @@ int main() {
 		glfwPollEvents();
 	}
 
+	apu.Stop();
 	glfwTerminate();
 	return 0;
 }

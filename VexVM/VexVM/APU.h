@@ -13,9 +13,9 @@ struct APU{
 		double streamTime, RtAudioStreamStatus status, void* userData);
 
 private:
+	bool started;
 	RtAudio* adac;
 	unsigned int bufferSize = 256;
 
-	double data[2];
-
+	double* data;
 };

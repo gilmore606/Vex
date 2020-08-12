@@ -1,6 +1,8 @@
 #include "Input.h"
 
-Input::Input() { }
+Input::Input() { 
+	controls = new VEXControl[64];
+}
 
 void Input::Setup(GLFWwindow* window, 
 	void (*proxyCallback)(GLFWwindow* window, int key, int scancode, int action, int mods), 
@@ -35,5 +37,5 @@ void Input::HandleKey(GLFWwindow* window, int key, int scancode, int action, int
 }
 
 bool Input::isPressed(int id) {
-	return controls[id].isPressed;
+	return controls[id].isPressed ? true : false;
 }

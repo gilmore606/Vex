@@ -5,7 +5,7 @@
 
 enum VEXInputType { SWITCH, BUTTON };
 
-struct VEXControl {
+typedef struct VEXControl {
 	int id;
 	VEXInputType type;
 	GLuint key = GLFW_KEY_UNKNOWN;
@@ -26,7 +26,7 @@ public:
 	bool isPressed(int id);
 
 private:
-	VEXControl* controls = new VEXControl[64];
+	VEXControl* controls;
 
 	void (*buttonCallback)(int);
 	void (*switchCallback)(int, bool);
