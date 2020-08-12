@@ -22,5 +22,5 @@ private:
 
 	APUVoice* voices;
 
-	double* data;
+	double* voicedata;
 };

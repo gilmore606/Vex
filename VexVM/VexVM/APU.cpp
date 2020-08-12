@@ -6,11 +6,8 @@
 APU::APU() { 
 	started = false;
 
-	data = new double[2];
-	data[0] = 0.0;
-	data[1] = 0.0;
-
 	voices = new APUVoice[MAX_VOICES];
+	voicedata = new double[MAX_VOICES];
 }
 
 void APU::Reset() { 
@@ -28,10 +25,17 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double sample;
 
 	for (i = 0; i < nFrames; i++) {
-		sample = 0.0;
+		for (v = 0; v < MAX_VOICES; v++) {
+			voicedata[v] = 0.0;
+			if (voices[v].enabled) voicedata[v] = voices[v].nextSample();
+		}
 		for (j = 0; j < 2; j++) {
+			sample = 0.0;
 			for (v = 0; v < MAX_VOICES; v++) {
-				sample += voices[v].nextSample(j);
+				if (voices[v].enabled) {
+					if (j == 0) sample += voicedata[v] * (1.0 - voices[v].pan) * voices[v].volume;
+					else sample += voicedata[v] * voices[v].pan * voices[v].volume;
+				}
 			}
 			*buffer++ = sample;
 		}

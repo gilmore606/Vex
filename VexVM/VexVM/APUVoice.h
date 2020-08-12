@@ -5,7 +5,7 @@ class APUVoice {
 public:
 	APUVoice();
 
-	double nextSample(int channel);
+	double nextSample();
 	void Reset();
 
 	bool enabled;
@@ -16,15 +16,10 @@ private:
 	double lastSample;
 };
 
-inline double APUVoice::nextSample(int channel) {
+inline double APUVoice::nextSample() {
 	double sample = 0.0;
-	if (!enabled) return sample;
-
 	// synthesis stuff happens here
 
 	lastSample = sample;
-
-	if (channel == 0) sample *= (1.0 - pan);
-	if (channel == 1) sample *= pan;
-	return sample * volume;
+	return sample;
 }
