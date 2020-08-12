@@ -207,11 +207,10 @@ int main() {
 
 	apu.voices[1].pan = 0.5;          // demo shooty sound
 	apu.voices[1].volume = 1.0;
-	apu.voices[1].osc1->waveform = TRIANGLE;
-	apu.voices[1].envMain->a = 0.001;
-	apu.voices[1].envMain->d = 0.6;
-	apu.voices[1].envMain->s = 0.0;
-	apu.voices[1].envMain->r = 0.0;
+	apu.voices[1].osc1->waveform = SAWTOOTH;
+	apu.voices[1].osc2->waveform = SAWTOOTH;
+	apu.voices[1].osc2->detune = 4.5;
+	apu.voices[1].setADSR(0.0, 1.6, 0.0, 0.0);
 
 
 	// MAIN LOOP

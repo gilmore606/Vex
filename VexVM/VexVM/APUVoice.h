@@ -10,7 +10,9 @@ inline static double noise() {
 
 class OSC {
 public:
+	bool enabled;
 	Waveform waveform = TRIANGLE;
+	double detune;
 	void setFreq(double freq);
 	double* nextSample();
 
@@ -21,8 +23,8 @@ private:
 };
 
 inline void OSC::setFreq(double freq) {
-	this->freq = freq;
-	this->step = ((2.0 * freq) / 44100.0);
+	this->freq = freq + detune;
+	this->step = (this->freq / 44100.0);
 }
 
 inline double* OSC::nextSample() {
@@ -109,12 +111,14 @@ public:
 	void Trigger();
 	void Trigger(double freq);
 	void Release();
+	void setADSR(double a, double d, double s, double r);
 
 	bool enabled;
 	double volume;    // 0.0 to 1.0
 	double pan;       // 0.0 to 1.0, 0.5 = center
-	ADSR* envMain;
+	ADSR* adsrMain;
 	OSC* osc1;
+	OSC* osc2;
 
 	bool testTone;
 
@@ -123,25 +127,28 @@ private:
 };
 
 inline double* APUVoice::nextSample() {
-	samplebuf = 0.0;
 	if (testTone) {
 		samplebuf = noise();
 		return &samplebuf;
 	}
-	// synthesis stuff happens here
 	
-	samplebuf = *osc1->nextSample();
-	samplebuf *= *(*envMain).nextLevel();
+	if (osc1->enabled && !osc2->enabled) samplebuf = *osc1->nextSample();
+	else if (osc2->enabled && !osc1->enabled) samplebuf = *osc2->nextSample();
+	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
+	else samplebuf = (*osc1->nextSample() + *osc2->nextSample()) / 2.0;
+
+	samplebuf *= *(*adsrMain).nextLevel();
 
 	return &samplebuf;
 }
 inline void APUVoice::Trigger(double freq) {
 	osc1->setFreq(freq);
+	osc2->setFreq(freq);
 	Trigger();
 }
 inline void APUVoice::Trigger() {
-	envMain->Trigger();
+	adsrMain->Trigger();
 }
 inline void APUVoice::Release() {
-	envMain->Release();
+	adsrMain->Release();
 }
