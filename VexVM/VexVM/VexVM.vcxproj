@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="APU.cpp" />
+    <ClCompile Include="APUVoice.cpp" />
     <ClCompile Include="dependencies\rtaudio-5.1.0\RtAudio.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APU.h" />
+    <ClInclude Include="APUVoice.h" />
     <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />

@@ -1,30 +1,42 @@
 #include "APU.h"
 #include "RtAudio.h"
 #include <iostream>
+#include "util.cpp"
 
 APU::APU() { 
 	started = false;
+
 	data = new double[2];
+	data[0] = 0.0;
+	data[1] = 0.0;
+
+	voices = new APUVoice[MAX_VOICES];
 }
 
-void APU::Reset() { }
+void APU::Reset() { 
+	for (int i = 0; i < MAX_VOICES; i++) {
+		voices[i].Reset();
+	}
+}
 
 int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
 
-	unsigned int i, j;
+	unsigned int i, j, v;
 	double* buffer = (double*)outBuffer;
-	double* lastValues = (double*)userData;
 	if (status) std::cout << "APU stream underflow detected" << std::endl;
+	double sample;
 
-	// Write test sawtooths.
 	for (i = 0; i < nFrames; i++) {
+		sample = 0.0;
 		for (j = 0; j < 2; j++) {
-			*buffer++ = lastValues[j];
-			lastValues[j] += 0.005 * (j + 1.0 + (j * 0.1));
-			if (lastValues[j] >= 1.0) lastValues[j] -= 2.0;
+			for (v = 0; v < MAX_VOICES; v++) {
+				sample += voices[v].nextSample(j);
+			}
+			*buffer++ = sample;
 		}
 	}
+
 	return 0;
 }
 
@@ -37,7 +49,7 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		params.deviceId = adac->getDefaultOutputDevice();
 		params.nChannels = 2;
 		params.firstChannel = 0;
-		adac->openStream(&params, nullptr, RTAUDIO_FLOAT64, 44100, &bufferSize, proxyCallback, (void*)&data);
+		adac->openStream(&params, nullptr, RTAUDIO_FLOAT64, 44100, &bufferSize, proxyCallback, nullptr);
 		adac->startStream();
 	}
 	catch (RtAudioError &e) {
@@ -56,4 +68,3 @@ void APU::Stop() {
 	started = false;
 	std::cout << "APU shutdown" << std::endl;
 }
-

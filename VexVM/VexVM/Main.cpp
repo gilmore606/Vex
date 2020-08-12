@@ -173,7 +173,7 @@ int main() {
 	gpu = GPU(windowWidth, windowHeight, window);
 	gpu.Setup();
 	apu = APU();
-	//apu.Setup(handleAudio);
+	apu.Setup(handleAudio);
 	input = Input();
 	input.Add(0, VEXInputType::BUTTON, GLFW_KEY_ESCAPE);
 	input.Add(1, VEXInputType::SWITCH, GLFW_KEY_A);

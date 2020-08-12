@@ -1,6 +1,9 @@
 #pragma once
 
 #include "RtAudio.h"
+#include "APUVoice.h"
+
+constexpr auto MAX_VOICES = 6;
 
 struct APU{
 	APU();
@@ -15,7 +18,9 @@ struct APU{
 private:
 	bool started;
 	RtAudio* adac;
-	unsigned int bufferSize = 256;
+	unsigned int bufferSize = 512;
+
+	APUVoice* voices;
 
 	double* data;
 };
