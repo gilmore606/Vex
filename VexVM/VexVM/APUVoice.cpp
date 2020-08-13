@@ -20,6 +20,8 @@ APUVoice::APUVoice() {
 	ccMod = 0.0;
 	ccVol = 1.0;
 	ccExp = 0.0;
+
+	filtermem = 0.0;
 }
 
 void APUVoice::Reset() {

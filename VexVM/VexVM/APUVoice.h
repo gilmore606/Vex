@@ -146,6 +146,7 @@ public:
 
 private:
 	double samplebuf;
+	double filtermem;
 	double velocity;
 };
 
@@ -161,7 +162,8 @@ inline double* APUVoice::nextSample() {
 	else samplebuf = (*osc1->nextSample() + *osc2->nextSample()) / 2.0;
 
 	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume * 0.1;
-
+	samplebuf = (samplebuf + filtermem) / 2.0;
+	filtermem = samplebuf;
 	return &samplebuf;
 }
 inline void APUVoice::Trigger(double freq, int vel) {
