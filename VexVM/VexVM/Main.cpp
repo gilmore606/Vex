@@ -11,8 +11,6 @@
 #include "util.cpp"
 
 
-constexpr auto DEMO_POINTS = 2000;
-constexpr auto DEMO_LINES = 50;
 
 GLFWwindow* window;
 int windowWidth = 1300;
@@ -20,6 +18,11 @@ int windowHeight = 1300;
 GPU gpu;
 APU apu;
 Input input;
+
+
+
+constexpr auto DEMO_POINTS = 200;
+constexpr auto DEMO_LINES = 50;
 
 struct DemoPoint {
 	Point* gpupoint;
