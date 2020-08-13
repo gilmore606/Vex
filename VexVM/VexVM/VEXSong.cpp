@@ -28,7 +28,7 @@ VEXSong::VEXSong(const char* filepath) {
 			case 3: notes[i].type = CONTROL_CHANGE; break;
 			case 4: notes[i].type = PROGRAM_CHANGE; break;
 			case 5: notes[i].type = CHANNEL_AFTER; break;
-			case 6: notes[i].type = BEND_RANGE; break;
+			case 6: notes[i].type = PITCH_BEND; break;
 			case 7: notes[i].type = TEMPO; break;
 			default: notes[i].type = SYSEX; break;
 		}
@@ -49,12 +49,12 @@ void VEXSong::Reset() {
 
 void VEXSong::setTempo(int tempo) {
 	this->tempo = tempo;
-	ticksPerSecond = ((double)tempo / 1000.0) * resolution * 2.6;
+	ticksPerSecond = ((double)tempo / 1000.0) * resolution * 3.0;
 }
 
 // Advance our ticks
-void VEXSong::advanceTime(float sec) {
-	tick += sec * ticksPerSecond;
+void VEXSong::advanceTime(double sec) {
+	tick += (sec * ticksPerSecond);
 }
 
 VEXNote* VEXSong::getNote() {

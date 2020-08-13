@@ -164,29 +164,15 @@ int main() {
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);
 
-	apu.voices[0].pan = 0.5;          // demo shooty sound
-	apu.voices[0].volume = 1.0;
-	apu.voices[0].osc1->waveform = TRIANGLE;
-	apu.voices[0].osc2->waveform = SAWTOOTH;
-	apu.voices[0].osc2->detune = 0.3;
-	apu.voices[0].osc2->phase = 0.1;
-	apu.voices[0].setADSR(0.0, 1.6, 0.0, 0.0);
-	apu.voices[1].pan = 0.5;          // demo shooty sound
-	apu.voices[1].volume = 1.0;
-	apu.voices[1].osc1->waveform = TRIANGLE;
-	apu.voices[1].osc2->waveform = SAWTOOTH;
-	apu.voices[1].osc2->detune = 0.3;
-	apu.voices[1].osc2->phase = 0.1;
-	apu.voices[1].setADSR(0.0, 1.6, 0.0, 0.0);
-	apu.voices[2].pan = 0.5;          // demo shooty sound
-	apu.voices[2].volume = 1.0;
-	apu.voices[2].osc1->waveform = TRIANGLE;
-	apu.voices[2].osc2->waveform = SAWTOOTH;
-	apu.voices[2].osc2->detune = 0.3;
-	apu.voices[2].osc2->phase = 0.1;
-	apu.voices[2].setADSR(0.0, 1.6, 0.0, 0.0);
+	apu.voices[0].Patch(0.5, 1.0, 0.02, 1.2, 0.4, 0.05, TRIANGLE, SAWTOOTH, 0.3, 0.1);
+	apu.voices[1].Patch(0.5, 1.0, 0.04, 1.2, 0.4, 0.01, TRIANGLE, SAWTOOTH, 0.3, 0.1);
+	apu.voices[2].Patch(0.5, 1.0, 0.04, 1.2, 0.4, 0.01, TRIANGLE, SAWTOOTH, 0.3, 0.1);
+	apu.voices[3].Patch(0.5, 1.0, 0.0, 0.05, 0.4, 0.0, NOISE, NOISE, 0.3, 0.1);
+	apu.voices[4].Patch(0.5, 1.0, 0.03, 0.7, 0.4, 0.01, TRIANGLE, NOISE, 0.3, 0.1);
+	apu.voices[5].Patch(0.5, 1.0, 0.04, 1.2, 0.4, 0.01, TRIANGLE, SAWTOOTH, 0.3, 0.1);
 
-	VEXSong* testsong = new VEXSong("data/moon_patrol.vexm");
+	VEXSong* testsong = new VEXSong("data/gyruss.vexm");
+	testsong->loop = true;
 	apu.PlaySong(testsong);
 
 	// MAIN LOOP
@@ -197,7 +183,6 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
-		apu.Process(deltaTime);
 
 		gpu.Assemble();
 		gpu.Render();

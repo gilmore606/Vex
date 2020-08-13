@@ -2,12 +2,14 @@
 #include "RtAudio.h"
 #include <iostream>
 #include "util.cpp"
+#include <GLFW\glfw3.h>
 
 APU::APU() { 
 	started = false;
 	song = nullptr;
 	voices = new APUVoice[MAX_VOICES];
 	voicedata = new double[MAX_VOICES];
+	lastTime = glfwGetTime();
 }
 
 void APU::Reset() { 
@@ -33,14 +35,14 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 			sample = 0.0;
 			for (v = 0; v < MAX_VOICES; v++) {
 				if (voices[v].enabled) {
-					if (j == 0) sample += voicedata[v] * (1.0 - voices[v].pan) * voices[v].volume;
-					else sample += voicedata[v] * voices[v].pan * voices[v].volume;
+					if (j == 0) sample += voicedata[v] * (1.0 - voices[v].pan) * voices[v].volume * 0.2;
+					else sample += voicedata[v] * voices[v].pan * voices[v].volume * 0.2;
 				}
 			}
 			*buffer++ = sample;
 		}
 	}
-
+	processTime();
 	return 0;
 }
 
@@ -50,18 +52,24 @@ void APU::PlaySong(VEXSong* song) {
 }
 
 void APU::PlayNote(VEXNote* note) {
+	if (note->channel >= MAX_VOICES) return;
 	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
-		voices[note->channel].Trigger(notefreqs[note->data1] * 2.0f);
+		voices[note->channel].Trigger(notefreqs[note->data1] * 2.0f);  // TODO: this 2.0 correction means osc sux
 	} else if (note->type == NOTE_OFF) {
 		voices[note->channel].Release();
+	} else if (note->type == PITCH_BEND) {
+		voices[note->channel].PitchBend(note->data1 + note->data2 * 128);
 	}
 }
 
 // Process the passage of time -- advance songs, etc.
-void APU::Process(float delta) {
+void APU::processTime() {
+	time = glfwGetTime();
+	deltaTime = time - lastTime;
+	lastTime = time;
 	if (song != nullptr) {
-		song->advanceTime(delta);
+		song->advanceTime(deltaTime);
 		VEXNote* note = song->getNote();
 		while (note != nullptr) {
 			PlayNote(note);

@@ -14,7 +14,9 @@ public:
 	Waveform waveform = TRIANGLE;
 	double detune;
 	double phase;
+	double bendFactor;
 	void setFreq(double freq);
+	void setBend(double bend);
 	double* nextSample();
 
 private:
@@ -24,9 +26,14 @@ private:
 };
 
 inline void OSC::setFreq(double freq) {
-	this->freq = freq + detune;
-	this->step = (this->freq / 44100.0);
+	this->freq = freq * bendFactor + detune;
+	this->step = (this->freq * bendFactor) / 44100.0;
 	this->level = 0.0 + phase;
+}
+
+inline void OSC::setBend(double bend) {
+	bendFactor = bend;
+	this->step = (this->freq * bend) / 44100.0;
 }
 
 inline double* OSC::nextSample() {
@@ -114,10 +121,13 @@ public:
 	void Trigger(double freq);
 	void Release();
 	void setADSR(double a, double d, double s, double r);
+	void Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase);
+	void PitchBend(int bend);
 
 	bool enabled;
 	double volume;    // 0.0 to 1.0
 	double pan;       // 0.0 to 1.0, 0.5 = center
+	int pitchBend;    // 0 to 16384, 8192 = on-pitch
 	ADSR* adsrMain;
 	OSC* osc1;
 	OSC* osc2;

@@ -5,11 +5,11 @@
 #include <string>
 
 
-enum VEXNoteType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, BEND_RANGE, TEMPO, SYSEX };
+enum VEXNoteType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, PITCH_BEND, TEMPO, SYSEX };
 
 class VEXNote {
 public:
-	double tick;
+	long tick;
 	int channel;
 	VEXNoteType type;
 	int data1;
@@ -27,17 +27,18 @@ private:
 
 class VEXSong {
 public:
-	VEXNote* notes;
+	bool loop;
 	long notecount;
 	int resolution;
 
 	VEXSong(const char* filepath);
 	void Reset();
 	void setTempo(int tempo);
-	void advanceTime(float delta);
+	void advanceTime(double delta);
 	VEXNote* getNote();
 
 private:
+	VEXNote* notes;
 	long tick;
 	long notecursor;
 	int tempo;

@@ -1,7 +1,7 @@
 import javax.sound.midi.MidiSystem
 import java.io.File
 
-enum class TuneMsgType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, BEND_RANGE, SYSEX, TEMPO }
+enum class TuneMsgType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, PITCH_BEND, SYSEX, TEMPO }
 class TuneMsg(
         var type: TuneMsgType,
         var channel: Int,
@@ -17,7 +17,7 @@ class TuneMsg(
             TuneMsgType.CONTROL_CHANGE -> "CC              "
             TuneMsgType.PROGRAM_CHANGE -> "PC              "
             TuneMsgType.CHANNEL_AFTER ->  "Aftertouch      "
-            TuneMsgType.BEND_RANGE ->     "Pitchbend range "
+            TuneMsgType.PITCH_BEND ->     "Pitch bend      "
             TuneMsgType.SYSEX ->          "SYSEX           "
             TuneMsgType.TEMPO ->          "TEMPO           "
         }
@@ -32,7 +32,7 @@ class TuneMsg(
             TuneMsgType.CONTROL_CHANGE -> 3.toUByte()
             TuneMsgType.PROGRAM_CHANGE -> 4.toUByte()
             TuneMsgType.CHANNEL_AFTER ->  5.toUByte()
-            TuneMsgType.BEND_RANGE ->     6.toUByte()
+            TuneMsgType.PITCH_BEND ->     6.toUByte()
             TuneMsgType.TEMPO ->          7.toUByte()
             TuneMsgType.SYSEX ->          255.toUByte()
         }
@@ -56,7 +56,7 @@ class MidiParser {
 
     fun parse() {
 
-        val sequence = MidiSystem.getSequence(File("data/MoonPatrol.mid"))
+        val sequence = MidiSystem.getSequence(File("data/sotndra1.mid"))
         val events = ArrayList<TuneMsg>()
         for (track in sequence.getTracks()) {
             println("track size: " + track.size())
@@ -76,7 +76,7 @@ class MidiParser {
                     in 176..191 -> TuneMsg(TuneMsgType.CONTROL_CHANGE, status-176, data1, data2, time)
                     in 192..207 -> TuneMsg(TuneMsgType.PROGRAM_CHANGE, status-192, data1, data2, time)
                     in 208..223 -> TuneMsg(TuneMsgType.CHANNEL_AFTER, status-208, data1, data2, time)
-                    in 224..239 -> TuneMsg(TuneMsgType.BEND_RANGE, status-224, data1, data2, time)
+                    in 224..239 -> TuneMsg(TuneMsgType.PITCH_BEND, status-224, data1, data2, time)
                     else -> TuneMsg(TuneMsgType.SYSEX, status, data1, data2, time)
                 }
                 if ((tuneMsg.type == TuneMsgType.SYSEX) && (tuneMsg.data1 == 81.toUByte()) && (tuneMsg.data2 == 3.toUByte())) {
@@ -131,7 +131,7 @@ class MidiParser {
             it.write(outBytes)
         }
 
-        File("data/moon_patrol.vexm").writeBytes(outBytes.toUByteArray().toByteArray())
+        File("data/sotndra1.vexm").writeBytes(outBytes.toUByteArray().toByteArray())
     }
 
 }
