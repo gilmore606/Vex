@@ -1,4 +1,4 @@
-class Semantor(
+class Meaner (
         val ast: ArrayList<Node>
 ) {
 

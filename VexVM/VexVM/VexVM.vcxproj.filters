@@ -60,6 +60,9 @@
     <ClCompile Include="VEXSong.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ROMReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -96,6 +99,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VEXSong.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ROMReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

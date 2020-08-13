@@ -1,6 +1,6 @@
 import TokenType.*
 
-class Lexer {
+class Lexer(val fVerbose: Boolean) {
 
     var inType: TokenType? = null
     var inBuf: String = ""

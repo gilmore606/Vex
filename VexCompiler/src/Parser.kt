@@ -3,7 +3,8 @@ import java.lang.RuntimeException
 
 class Parser(
     var tokens: ArrayList<Token>,
-    var methodNames: ArrayList<MethodSpec>
+    var methodNames: ArrayList<MethodSpec>,
+    val fVerbose: Boolean
 ) {
     val ast = ArrayList<Node>()
 
@@ -45,7 +46,6 @@ class Parser(
             blocks.add(parseTop())
         }
         ast.add(Node.PROGRAM(blocks))
-        println("AST generated!")
     }
 
     fun parseTop(): Node.BLOCK {

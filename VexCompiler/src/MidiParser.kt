@@ -24,7 +24,7 @@ class TuneMsg(
         println("  " + time.toInt() + ": " + channel + "  " + typestr + " (" + data1.toInt() + ", " + data2.toInt() + ")")
     }
 
-    fun write(bytes: ArrayList<UByte>) {
+    fun write(bytes: ArrayList<UByte>, fVerbose: Boolean) {
         val typebyte: UByte = when (type) {
             TuneMsgType.NOTE_OFF ->       0.toUByte()
             TuneMsgType.NOTE_ON ->        1.toUByte()
@@ -46,20 +46,22 @@ class TuneMsg(
         bytes.add(typebyte)
         bytes.add(data1)
         bytes.add(data2)
-        println(timebyte0.toUByte().toString() + "," + time1.toUByte().toString() + "," + time2.toUByte().toString() + ", " + channel.toUByte()
+        if (fVerbose) println(timebyte0.toUByte().toString() + "," + time1.toUByte().toString() + "," + time2.toUByte().toString() + ", " + channel.toUByte()
             + ", " + typebyte.toString() + ", " + data1.toString() + "," + data2.toString())
     }
 }
 
-class MidiParser {
+class MidiParser(val inFilename: String, val fVerbose: Boolean) {
 
+    val outBytes = ArrayList<UByte>()
 
     fun parse() {
 
-        val sequence = MidiSystem.getSequence(File("data/acs-2.mid"))
+        val sequence = MidiSystem.getSequence(File("data/" + inFilename))
+
         val events = ArrayList<TuneMsg>()
         for (track in sequence.getTracks()) {
-            println("track size: " + track.size())
+            if (fVerbose) println("  MIDI track size: " + track.size())
             for (i in 0..track.size()-1) {
                 val message = track.get(i).message.message
                 val len = track.get(i).message.length
@@ -106,8 +108,6 @@ class MidiParser {
             it.channel = channelMap[it.channel]!!
         }
 
-        // Generate byte stream
-        val outBytes = ArrayList<UByte>()
 
         // Write event count as 3 bytes
         val count = events.size
@@ -125,13 +125,17 @@ class MidiParser {
         outBytes.add(res0.toUByte())
         outBytes.add(res1.toUByte())
 
-        println("writing " + events.size + " events")
         events.forEach {
             //it.print()
-            it.write(outBytes)
+            it.write(outBytes, fVerbose)
         }
 
-        File("data/acs.vexm").writeBytes(outBytes.toUByteArray().toByteArray())
+        println("  " + inFilename + ": " + events.size + " notes on " + channelMap.keys.size + " channels at " + resolution + " tpq")
     }
 
+    fun writeToFile(outFile: OutFile) {
+        outFile.writeMarker("SONG")
+        outFile.writeMarker(inFilename)
+        outFile.writeBytes(outBytes)
+    }
 }

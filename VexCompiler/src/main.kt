@@ -1,53 +1,35 @@
 import java.io.File
+import java.lang.System.currentTimeMillis
 
 class main {
 
+
     companion object {
+
+        val fVerbose = false
+        val romName = "game"
+
+        var startTime: Long = 0
+
         @JvmStatic fun main(args: Array<String>) {
+
             println("SHALL WE COMPILE A GAME?")
             println("")
-            val midi = MidiParser()
+            startTime = currentTimeMillis()
+
+            val outFile = OutFile(romName)
+            outFile.open()
+
+            val midi = MidiParser("archon.mid", fVerbose)
             midi.parse()
-            return
+            midi.writeToFile(outFile)
 
-            val inStream = File("data/asteroids.vexc").inputStream()
+            val compiler = Compiler("asteroids.vexc", fVerbose)
+            compiler.compile()
+            compiler.writeToFile(outFile)
 
-            // Stream source to lexer
-            val lexer = Lexer()
-            var nextChar = inStream.read()
-            while (nextChar > -1) {
-                val c = nextChar.toChar()
-                try {
-                    lexer.process(c)
-                } catch (e: LexException) {
-                    println("Syntax error at line " + e.lexer.linePos + "," + e.lexer.charPos + ": ")
-                    println("  " + e.m)
-                }
-                nextChar = inStream.read()
-            }
-
-            // Let peeper find method names
-            val peeper = Peeper(lexer.outBuffer)
-            peeper.peep()
-            peeper.dump()
-
-            // Send lexer tokens to parser
-            val parser = Parser(lexer.outBuffer, peeper.methods)
-            try {
-                parser.parse()
-            } catch (e: ParseException) {
-                println("")
-                println("Syntax error at line " + e.parser.linePos() + "," + e.parser.charPos() + ": ")
-                println("  " + e.m)
-            }
-            parser.dumpTree()
-
-            // Fill in symbols and types
-            val semantor = Semantor(parser.ast)
+            outFile.close()
+            println("Compiled " + romName + ".vexo in " + (currentTimeMillis() - startTime) + "ms.")
         }
     }
 }
-
-class LexException(val lexer: Lexer, val m: String): Exception(m)
-
-class ParseException(val parser: Parser, val m: String): Exception(m)

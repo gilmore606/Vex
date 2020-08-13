@@ -155,6 +155,7 @@
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="ROMReader.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="ROMReader.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Vertbuffer.h" />

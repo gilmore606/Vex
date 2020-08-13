@@ -6,7 +6,7 @@ class MethodSpec(
 )
 
 class Peeper(
-        var tokens: ArrayList<Token>
+        var tokens: ArrayList<Token>, val fVerbose: Boolean
 ) {
     enum class State {
         WATCHING, GOT_TO, GOT_NAME
@@ -17,7 +17,7 @@ class Peeper(
 
     fun dump() {
         methods.forEach {
-            println("peeper saw: " + it.name + " (" + it.args.joinToString(" ") + ")")
+            println("  peeper saw: " + it.name + " (" + it.args.joinToString(" ") + ")")
         }
     }
 
@@ -51,7 +51,7 @@ class Peeper(
             }
         }
 
-
+        if (fVerbose) dump()
     }
 
     fun finishFunction() {

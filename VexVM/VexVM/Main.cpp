@@ -7,7 +7,7 @@
 #include "APU.h"
 #include "Input.h"
 #include "VEXSong.h"
-
+#include "ROMReader.h"
 #include "util.cpp"
 
 
@@ -172,6 +172,9 @@ void handleSwitch(int input, bool isDown) { }
 
 
 int main() {
+
+	ROMReader reader = ROMReader("game.vexo");
+	//reader.Read();
 
 	float currentFrame, lastFrame, deltaTime;
 	lastFrame = glfwGetTime();
