@@ -164,18 +164,30 @@ int main() {
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);
 
-	apu.voices[0].pan = 0.2;
+	apu.voices[0].pan = 0.5;          // demo shooty sound
 	apu.voices[0].volume = 1.0;
-
+	apu.voices[0].osc1->waveform = TRIANGLE;
+	apu.voices[0].osc2->waveform = SAWTOOTH;
+	apu.voices[0].osc2->detune = 0.3;
+	apu.voices[0].osc2->phase = 0.1;
+	apu.voices[0].setADSR(0.0, 1.6, 0.0, 0.0);
 	apu.voices[1].pan = 0.5;          // demo shooty sound
 	apu.voices[1].volume = 1.0;
-	apu.voices[1].osc1->waveform = NOISE;
+	apu.voices[1].osc1->waveform = TRIANGLE;
 	apu.voices[1].osc2->waveform = SAWTOOTH;
 	apu.voices[1].osc2->detune = 0.3;
 	apu.voices[1].osc2->phase = 0.1;
 	apu.voices[1].setADSR(0.0, 1.6, 0.0, 0.0);
+	apu.voices[2].pan = 0.5;          // demo shooty sound
+	apu.voices[2].volume = 1.0;
+	apu.voices[2].osc1->waveform = TRIANGLE;
+	apu.voices[2].osc2->waveform = SAWTOOTH;
+	apu.voices[2].osc2->detune = 0.3;
+	apu.voices[2].osc2->phase = 0.1;
+	apu.voices[2].setADSR(0.0, 1.6, 0.0, 0.0);
 
 	VEXSong* testsong = new VEXSong("data/moon_patrol.vexm");
+	apu.PlaySong(testsong);
 
 	// MAIN LOOP
 

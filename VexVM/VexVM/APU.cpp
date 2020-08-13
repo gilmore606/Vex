@@ -5,7 +5,7 @@
 
 APU::APU() { 
 	started = false;
-
+	song = nullptr;
 	voices = new APUVoice[MAX_VOICES];
 	voicedata = new double[MAX_VOICES];
 }
@@ -46,12 +46,28 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 
 void APU::PlaySong(VEXSong* song) {
 	this->song = song;
-	song->cursor = 0;
+	song->Reset();
+}
+
+void APU::PlayNote(VEXNote* note) {
+	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
+	if (note->type == NOTE_ON) {
+		voices[note->channel].Trigger(notefreqs[note->data1] * 2.0f);
+	} else if (note->type == NOTE_OFF) {
+		voices[note->channel].Release();
+	}
 }
 
 // Process the passage of time -- advance songs, etc.
 void APU::Process(float delta) {
-
+	if (song != nullptr) {
+		song->advanceTime(delta);
+		VEXNote* note = song->getNote();
+		while (note != nullptr) {
+			PlayNote(note);
+			note = song->getNote();
+		}
+	}
 }
 
 // The given proxyCallback func should call APU::genSamples()
