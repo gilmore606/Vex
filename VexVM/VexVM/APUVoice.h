@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-enum Waveform { TRIANGLE, SAWTOOTH, PULSE, NOISE };
+enum Waveform { TRIANGLE, SAWTOOTH, PULSE, SINE, NOISE };
 
 inline static double noise() {
 	return static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
@@ -11,7 +11,7 @@ inline static double noise() {
 class OSC {
 public:
 	bool enabled;
-	Waveform waveform = TRIANGLE;
+	Waveform waveform;
 	double detune;
 	double phase;
 	double bendFactor;
@@ -23,38 +23,47 @@ private:
 	double freq;
 	double level = 0.0;
 	double step;
+	double progress = 0.0;
+	void setStep();
 };
 
 inline void OSC::setFreq(double freq) {
-	this->freq = freq * bendFactor + detune;
-	this->step = (this->freq * bendFactor) / 44100.0;
-	this->level = 0.0 + phase;
+	this->freq = freq;
+	level = phase;
+	setStep();
 }
 
 inline void OSC::setBend(double bend) {
 	bendFactor = bend;
-	this->step = (this->freq * bend) / 44100.0;
+	setStep();
+}
+
+inline void OSC::setStep() {
+	this->step = ((this->freq * bendFactor) + detune) / 44100.0;
 }
 
 inline double* OSC::nextSample() {
+	progress += step;
+	if (progress > 1.0) progress -= 1.0;
 	if (waveform == NOISE) {
 		level = noise();
-	} else if (waveform == TRIANGLE) {
-		level += step;
-		if (level >= 1.0) {
-			level = 1.0;
-			step = -step;
-		} else if (level <= -1.0) {
-			level = -1.0;
-			step = -step;
+	}
+	else if (waveform == TRIANGLE) {
+		if (progress < 0.5) {
+			level = (progress * 4.0) - 1.0;
+		} else {
+			level = ((1.0 - progress) * 4.0) - 1.0;
 		}
 	} else if (waveform == SAWTOOTH) {
-		level += step;
-		if (level >= 1.0) {
+		level = (progress * 2.0) - 1.0;
+	} else if (waveform == PULSE) {
+		if (progress > 0.5) {
+			level = 1.0;
+		} else {
 			level = -1.0;
 		}
-	} else if (waveform == PULSE) {
-
+	} else if (waveform == SINE) {
+		level = std::sin(progress * 6.28318);
 	}
 	return &level;
 }
@@ -118,7 +127,7 @@ public:
 	double* nextSample();
 	void Reset();
 	void Trigger();
-	void Trigger(double freq);
+	void Trigger(double freq, int vel);
 	void Release();
 	void setADSR(double a, double d, double s, double r);
 	void Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase);
@@ -128,6 +137,7 @@ public:
 	double volume;    // 0.0 to 1.0
 	double pan;       // 0.0 to 1.0, 0.5 = center
 	int pitchBend;    // 0 to 16384, 8192 = on-pitch
+	double ccMod, ccVol, ccPan, ccExp;
 	ADSR* adsrMain;
 	OSC* osc1;
 	OSC* osc2;
@@ -136,6 +146,7 @@ public:
 
 private:
 	double samplebuf;
+	double velocity;
 };
 
 inline double* APUVoice::nextSample() {
@@ -149,13 +160,14 @@ inline double* APUVoice::nextSample() {
 	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
 	else samplebuf = (*osc1->nextSample() + *osc2->nextSample()) / 2.0;
 
-	samplebuf *= *(*adsrMain).nextLevel();
+	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume * 0.1;
 
 	return &samplebuf;
 }
-inline void APUVoice::Trigger(double freq) {
+inline void APUVoice::Trigger(double freq, int vel) {
 	osc1->setFreq(freq);
 	osc2->setFreq(freq);
+	velocity = (double)(vel + 158) / 285.0;
 	Trigger();
 }
 inline void APUVoice::Trigger() {

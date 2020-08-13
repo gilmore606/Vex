@@ -56,7 +56,7 @@ class MidiParser {
 
     fun parse() {
 
-        val sequence = MidiSystem.getSequence(File("data/sotndra1.mid"))
+        val sequence = MidiSystem.getSequence(File("data/acs-2.mid"))
         val events = ArrayList<TuneMsg>()
         for (track in sequence.getTracks()) {
             println("track size: " + track.size())
@@ -131,7 +131,7 @@ class MidiParser {
             it.write(outBytes)
         }
 
-        File("data/sotndra1.vexm").writeBytes(outBytes.toUByteArray().toByteArray())
+        File("data/acs.vexm").writeBytes(outBytes.toUByteArray().toByteArray())
     }
 
 }

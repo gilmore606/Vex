@@ -11,9 +11,15 @@ APUVoice::APUVoice() {
 	osc2 = new OSC();
 	osc1->enabled = true;
 	osc2->enabled = true;
+	osc1->waveform = TRIANGLE;
+	osc2->waveform = TRIANGLE;
 	pitchBend = 8192;
 	osc1->setBend(1.0);
 	osc2->setBend(1.0);
+	ccPan = 0.5;
+	ccMod = 0.0;
+	ccVol = 1.0;
+	ccExp = 0.0;
 }
 
 void APUVoice::Reset() {

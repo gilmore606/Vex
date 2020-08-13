@@ -120,7 +120,7 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 }
 
 void fireDemoShot() {
-	apu.voices[1].Trigger(440);
+	apu.voices[1].Trigger(440, 127);
 }
 
 void handleButton(int input) {
@@ -164,15 +164,16 @@ int main() {
 	makeDemoPrims();
 	gpu.addSprite(demoSprite);
 
-	apu.voices[0].Patch(0.5, 1.0, 0.02, 1.2, 0.4, 0.05, TRIANGLE, SAWTOOTH, 0.3, 0.1);
-	apu.voices[1].Patch(0.5, 1.0, 0.04, 1.2, 0.4, 0.01, TRIANGLE, SAWTOOTH, 0.3, 0.1);
-	apu.voices[2].Patch(0.5, 1.0, 0.04, 1.2, 0.4, 0.01, TRIANGLE, SAWTOOTH, 0.3, 0.1);
-	apu.voices[3].Patch(0.5, 1.0, 0.0, 0.05, 0.4, 0.0, NOISE, NOISE, 0.3, 0.1);
-	apu.voices[4].Patch(0.5, 1.0, 0.03, 0.7, 0.4, 0.01, TRIANGLE, NOISE, 0.3, 0.1);
-	apu.voices[5].Patch(0.5, 1.0, 0.04, 1.2, 0.4, 0.01, TRIANGLE, SAWTOOTH, 0.3, 0.1);
+	apu.voices[0].Patch(0.5, 0.5, 0.001, 0.1, 0.5, 0.5, SAWTOOTH, SAWTOOTH, 2.5, 0.0);
+	apu.voices[1].Patch(0.5, 0.4, 0.04, 1.2, 0.3, 0.1, PULSE, PULSE, 1.1, 0.01);
+	apu.voices[2].Patch(0.4, 0.6, 0.04, 1.2, 0.7, 0.3, TRIANGLE, SINE, 0.3, 0.1);
+	apu.voices[3].Patch(0.5, 0.3, 0.02, 0.1, 1.0, 0.1, SINE, PULSE, 0.3, 0.1);
+	apu.voices[4].Patch(0.5, 1.0, 0.1, 0.05, 1.0, 0.6, TRIANGLE, TRIANGLE, 1.4, 0.0);
+	apu.voices[5].Patch(0.5, 1.0, 0.04, 1.2, 0.3, 0.01, TRIANGLE, SAWTOOTH, 0.0, 0.0);
 
-	VEXSong* testsong = new VEXSong("data/gyruss.vexm");
+	VEXSong* testsong = new VEXSong("data/aerith.vexm");
 	testsong->loop = true;
+	testsong->speed = 5.0;
 	apu.PlaySong(testsong);
 
 	// MAIN LOOP

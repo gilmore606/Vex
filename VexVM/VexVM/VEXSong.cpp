@@ -49,7 +49,7 @@ void VEXSong::Reset() {
 
 void VEXSong::setTempo(int tempo) {
 	this->tempo = tempo;
-	ticksPerSecond = ((double)tempo / 1000.0) * resolution * 3.0;
+	ticksPerSecond = ((double)tempo / 1000.0) * resolution * speed;
 }
 
 // Advance our ticks

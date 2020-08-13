@@ -28,6 +28,7 @@ private:
 class VEXSong {
 public:
 	bool loop;
+	double speed;
 	long notecount;
 	int resolution;
 

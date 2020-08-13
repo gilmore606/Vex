@@ -35,8 +35,8 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 			sample = 0.0;
 			for (v = 0; v < MAX_VOICES; v++) {
 				if (voices[v].enabled) {
-					if (j == 0) sample += voicedata[v] * (1.0 - voices[v].pan) * voices[v].volume * 0.2;
-					else sample += voicedata[v] * voices[v].pan * voices[v].volume * 0.2;
+					if (j == 0) sample += voicedata[v] * (1.0 - voices[v].pan) * voices[v].ccPan;
+					else sample += voicedata[v] * voices[v].pan * voices[v].ccPan;
 				}
 			}
 			*buffer++ = sample;
@@ -55,11 +55,21 @@ void APU::PlayNote(VEXNote* note) {
 	if (note->channel >= MAX_VOICES) return;
 	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
-		voices[note->channel].Trigger(notefreqs[note->data1] * 2.0f);  // TODO: this 2.0 correction means osc sux
+		voices[note->channel].Trigger(notefreqs[note->data1], notefreqs[note->data2]);
 	} else if (note->type == NOTE_OFF) {
 		voices[note->channel].Release();
 	} else if (note->type == PITCH_BEND) {
 		voices[note->channel].PitchBend(note->data1 + note->data2 * 128);
+	} else if (note->type == CONTROL_CHANGE) {
+		if (note->data1 == 1) {
+			voices[note->channel].ccMod = (double)note->data2 / 127.0;
+		} else if (note->data1 == 7) {
+			voices[note->channel].ccVol = (double)note->data2 / 127.0;
+		} else if (note->data1 == 10) {
+			voices[note->channel].ccPan = (double)note->data2 / 127.0;
+		} else if (note->data1 == 11) {
+			voices[note->channel].ccExp = (double)note->data2 / 127.0;
+		}
 	}
 }
 
