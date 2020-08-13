@@ -95,7 +95,7 @@ void main()
 {
     vec2 sourceCoord = TexCoords;
     vec2 sampleCoord = sourceCoord;
-    vec4 screenColor = sampleRGBVignette(screenTex, sampleCoord, sourceCoord, 0.05, 1.3);
+    vec4 screenColor = sampleRGBVignette(screenTex, sampleCoord, sourceCoord, 0.03, 1.3);
     vec3 abb = applyVignette(screenColor, sourceCoord, 1.4, 2.0, 2.7).rgb;
     vec3 source = texture(screenTex, TexCoords).rgb;
     vec3 screen = source + vec3(abb.r * 0.5, abb.g * 0.5, abb.b * 0.5);

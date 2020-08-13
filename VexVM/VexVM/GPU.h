@@ -22,7 +22,7 @@ struct GPUsettings {
 	float BEAM_DROP = 0.6f;
 	float POINT_SPREAD = 0.0015f;
 	float LINE_SPREAD = 0.0025f;
-	float POINT_STABILITY = 0.990f;
+	float POINT_STABILITY = 0.980f;
 	float LINE_STABILITY = 0.996f;
 	float POINT_BRIGHTNESS = 1.5f;
 	float LINE_BRIGHTNESS = 1.5f;

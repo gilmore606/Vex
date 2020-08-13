@@ -78,6 +78,7 @@ void GPU::makeShaders() {
 	composeShader.Load();
 	composeShader.SetUniform("screenTex", 0);
 	composeShader.SetUniform("glowTex", 1);
+	composeShader.SetUniform("trailTex", 2);
 	blurShader = Shader("./data/shaders/blur.vert", "./data/shaders/blur.frag");
 	blurShader.Load();
 	blurShader.SetUniform("texture", 0);
