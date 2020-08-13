@@ -6,7 +6,7 @@
 
 
 
-enum VEXNoteType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, BEND_RANGE, SYSEX };
+enum VEXNoteType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, BEND_RANGE, TEMPO, SYSEX };
 
 class VEXNote {
 public:
@@ -29,6 +29,11 @@ private:
 class VEXSong {
 public:
 	VEXNote* notes;
+	long notecount;
+	int resolution;
+
+	long cursor;
+	int tempo;
 
 	int cint(unsigned char c) {
 		return (int)c;
@@ -40,7 +45,10 @@ public:
 		infile >> std::noskipws >> b1;
 		infile >> std::noskipws >> b2;
 		infile >> std::noskipws >> b3;
-		int notecount = b1 + (b2 * 256) + (b3 * 65536);
+		infile >> std::noskipws >> b4;
+		infile >> std::noskipws >> b5;
+		notecount = b1 + (b2 * 256) + (b3 * 65536);
+		resolution = b4 + (b5 * 256);
 		notes = new VEXNote[notecount];
 		for (int i = 0; i < notecount; i++) {
 			infile >> std::noskipws >> b1;
@@ -60,6 +68,7 @@ public:
 				case 4: notes[i].type = PROGRAM_CHANGE; break;
 				case 5: notes[i].type = CHANNEL_AFTER; break;
 				case 6: notes[i].type = BEND_RANGE; break;
+				case 7: notes[i].type = TEMPO; break;
 				default: notes[i].type = SYSEX; break;
 			}
 			notes[i].data1 = b6;
@@ -68,6 +77,7 @@ public:
 		}
 		infile.close();
 		std::cout << "APU read song " << filepath << " (" << notecount << " notes)" << std::endl;
+		cursor = 0;
 	}
 private:
 };

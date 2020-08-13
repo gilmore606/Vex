@@ -44,6 +44,11 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
+void APU::PlaySong(VEXSong* song) {
+	this->song = song;
+	song->cursor = 0;
+}
+
 // Process the passage of time -- advance songs, etc.
 void APU::Process(float delta) {
 

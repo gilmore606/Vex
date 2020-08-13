@@ -1,14 +1,13 @@
 import javax.sound.midi.MidiSystem
 import java.io.File
-import java.lang.RuntimeException
 
-enum class TuneMsgType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, BEND_RANGE, SYSEX }
+enum class TuneMsgType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, BEND_RANGE, SYSEX, TEMPO }
 class TuneMsg(
-        val type: TuneMsgType,
+        var type: TuneMsgType,
         var channel: Int,
-        val data1: UByte,
-        val data2: UByte,
-        val time: Long
+        var data1: UByte,
+        var data2: UByte,
+        var time: Long
 ) {
     fun print() {
         val typestr = when (type) {
@@ -20,6 +19,7 @@ class TuneMsg(
             TuneMsgType.CHANNEL_AFTER ->  "Aftertouch      "
             TuneMsgType.BEND_RANGE ->     "Pitchbend range "
             TuneMsgType.SYSEX ->          "SYSEX           "
+            TuneMsgType.TEMPO ->          "TEMPO           "
         }
         println("  " + time.toInt() + ": " + channel + "  " + typestr + " (" + data1.toInt() + ", " + data2.toInt() + ")")
     }
@@ -33,6 +33,7 @@ class TuneMsg(
             TuneMsgType.PROGRAM_CHANGE -> 4.toUByte()
             TuneMsgType.CHANNEL_AFTER ->  5.toUByte()
             TuneMsgType.BEND_RANGE ->     6.toUByte()
+            TuneMsgType.TEMPO ->          7.toUByte()
             TuneMsgType.SYSEX ->          255.toUByte()
         }
         val timebyte0 = (time % 256)
@@ -56,8 +57,7 @@ class MidiParser {
     fun parse() {
 
         val sequence = MidiSystem.getSequence(File("data/MoonPatrol.mid"))
-        val events = ArrayList<TuneMsg>();
-
+        val events = ArrayList<TuneMsg>()
         for (track in sequence.getTracks()) {
             println("track size: " + track.size())
             for (i in 0..track.size()-1) {
@@ -78,6 +78,13 @@ class MidiParser {
                     in 208..223 -> TuneMsg(TuneMsgType.CHANNEL_AFTER, status-208, data1, data2, time)
                     in 224..239 -> TuneMsg(TuneMsgType.BEND_RANGE, status-224, data1, data2, time)
                     else -> TuneMsg(TuneMsgType.SYSEX, status, data1, data2, time)
+                }
+                if ((tuneMsg.type == TuneMsgType.SYSEX) && (tuneMsg.data1 == 81.toUByte()) && (tuneMsg.data2 == 3.toUByte())) {
+                    tuneMsg.type = TuneMsgType.TEMPO
+                    var tempo = message[3].toInt() * 65536 + message[4].toInt() * 256 + message[5];
+                    tempo = tempo / 1000;
+                    tuneMsg.data1 = (tempo / 256).toUByte()
+                    tuneMsg.data2 = (tempo - tuneMsg.data1.toInt() * 256).toUByte()
                 }
                 events.add(tuneMsg)
             }
@@ -102,6 +109,7 @@ class MidiParser {
         // Generate byte stream
         val outBytes = ArrayList<UByte>()
 
+        // Write event count as 3 bytes
         val count = events.size
         val count0 = (count % 256)
         val count1 = (count - count0) / 256
@@ -109,6 +117,14 @@ class MidiParser {
         outBytes.add(count0.toUByte())
         outBytes.add(count1.toUByte())
         outBytes.add(count2.toUByte())
+
+        // Write ticks-per-beat as 2 bytes
+        val resolution = sequence.resolution
+        val res0 = (resolution % 256)
+        val res1 = (resolution - res0) / 256
+        outBytes.add(res0.toUByte())
+        outBytes.add(res1.toUByte())
+
         println("writing " + events.size + " events")
         events.forEach {
             //it.print()
