@@ -10,51 +10,40 @@ ROMReader::ROMReader(const char* filename) {
 void ROMReader::Read(std::vector<Sprite> sprites, std::vector<VEXSong> songs, Input input) {
 	std::cout << "reading ROM " << filename << std::endl;
 
-	std::streampos fileSize = 0;
-	PLARGE_INTEGER fs = 0;
-	HANDLE hFile = CreateFile(LPCWSTR(filename), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
-	GetFileSizeEx(hFile, fs);
-	CloseHandle(hFile);
-	fileSize = fs->QuadPart;
-
-
-	std::ifstream file(filename, std::ios_base::binary);
-	file.seekg(0, std::ios::beg);
-	std::cout << fileSize << " bytes to read";
-	std::vector<BYTE> fileData(fileSize);
-	file.read((char*)&data[0], fileSize);
+	std::basic_ifstream<BYTE> file(filename, std::ios::binary);
+	data = std::vector<BYTE>((std::istreambuf_iterator<BYTE>(file)), std::istreambuf_iterator<BYTE>());
+	std::cout << "read " << data.size() << " bytes" << std::endl;
 	file.close();
-	data = fileData;
-	data.begin();
-	std::cout << fileSize << " bytes read";
-
 
 	if (!expectMarker("VEXO")) throw "file format error";
+	std::cout << "got header" << std::endl;
 	std::string gameName = getMarker();
-	std::cout << gameName << std::endl;
+	std::cout << "reading game " << gameName << std::endl;
 
 	bool eof = false;
 	while (!eof) {
 		std::string marker = getMarker();
-		std::cout << "MARKER " << marker << std::endl;
-		std::string resourceName = nullptr;
-		if (marker.compare("EOF")) {
+		std::string resourceName = "";
+		if (marker.compare("EOF") == 0) {
 			eof = true;
 		} else {
 			resourceName = getMarker();
+			std::cout << "read segment " << marker << ":" << resourceName << std::endl;
 		}
-		if (marker.compare("SONG")) {
+		if (marker.compare("SONG") == 0) {
 			readSong(songs);
-		} else if (marker.compare("CODE")) {
+		} else if (marker.compare("CODE") == 0) {
 			readCode();
-		} else if (marker.compare("CONTROLS")) {
+		} else if (marker.compare("CONTROLS") == 0) {
 			readControls(input);
-		} else if (marker.compare("SPRITE")) {
+		} else if (marker.compare("SPRITE") == 0) {
 			readSprite(sprites);
-		} else if (marker.compare("DATA")) {
+		} else if (marker.compare("DATA") == 0) {
 			readData();
 		}
 	}
+	std::cout << "ROMReader parsed " << data.size() << " bytes from " << filename << std::endl;
+	delete &data;
 }
 
 BYTE ROMReader::next() {
@@ -65,8 +54,7 @@ BYTE ROMReader::next() {
 
 bool ROMReader::expectMarker(std::string expected) {
 	std::string marker = getMarker();
-	bool match = marker.compare(expected);
-	std::cout << marker << std::endl;
+	bool match = marker.compare(expected) == 0;
 	return match;
 }
 
@@ -76,8 +64,6 @@ std::string ROMReader::getMarker() {
 	marker = "";
 	b1 = next();
 	b2 = next();
-	std::cout << "looks like " << (int)b1 << std::endl;
-	throw "FUCK";
 	if (b1 != 255) std::cout << "file format error";
 	while (b2 != 255) {
 		marker.push_back(b2);
@@ -87,25 +73,25 @@ std::string ROMReader::getMarker() {
 }
 
 void ROMReader::readSong(std::vector<VEXSong> songs) {
-	std::cout << "reading song...";
+	std::cout << "reading song..." << std::endl;
 }
 
 void ROMReader::readCode() {
-	std::cout << "reading code...";
+	std::cout << "reading code..." << std::endl;
 }
 
 void ROMReader::readControls(Input input) {
-	std::cout << "reading controls...";
+	std::cout << "reading controls..." << std::endl;
 }
 
 void ROMReader::readInstr() {
-	std::cout << "reading instr...";
+	std::cout << "reading instr..." << std::endl;
 }
 
 void ROMReader::readSprite(std::vector<Sprite> sprites) {
-	std::cout << "reading sprite...";
+	std::cout << "reading sprite..." << std::endl;
 }
 
 void ROMReader::readData() {
-	std::cout << "reading data...";
+	std::cout << "reading data..." << std::endl;
 }
