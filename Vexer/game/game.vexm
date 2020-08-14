@@ -1,0 +1,20 @@
+{
+	"title": "game",
+	"author": "Gilmore",
+	"releaseDate": "2020-10-01",
+	"song": {
+		"name": "maintheme",
+		"file": "Arkanoid.mid",
+		"voices": {
+			"0": {
+
+			},
+			"1": {
+
+			},
+			"2": {
+
+			}
+		}
+	}
+}
