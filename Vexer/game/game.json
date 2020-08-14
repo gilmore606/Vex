@@ -1,0 +1,38 @@
+{
+	"title": "Amazing Game",
+	"author": "Gilmore",
+	"releaseDate": "2020-10-01",
+	"code": "asteroids.vexc",
+    "sprites": [
+
+    ],
+	"instruments": [
+            {
+                "name": "pulselead",
+                "waves": [ "PULSE", "PULSE" ],
+                "adsr": [ 3, 0, 100, 3 ],
+                "detune": 15
+            },
+            {
+                "name": "softpad",
+                "waves": [ "TRIANGLE", "SINE" ],
+                "adsr": [ 40, 15, 70, 60 ],
+                "detune": 5,
+                "phase": 15
+            },
+            {
+                "name": "drum",
+                "waves": [ "NOISE", "NOISE" ],
+                "adsr": [ 0, 8, 0, 0 ]
+            }
+	    ],
+	"songs": [
+            {
+                "name": "maintheme",
+                "file": "Arkanoid.mid",
+                "voices": [ "softpad", "pulselead", "pulselead", "drum" ],
+                "volumes": [ 255, 180, 180, 255 ],
+                "pans": [ 128, 60, 190, 128 ]
+            }
+        ]
+}

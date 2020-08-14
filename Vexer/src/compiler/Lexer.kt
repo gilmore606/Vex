@@ -1,4 +1,6 @@
-import TokenType.*
+package compiler
+
+import compiler.TokenType.*
 
 class Lexer(val fVerbose: Boolean) {
 
@@ -18,13 +20,25 @@ class Lexer(val fVerbose: Boolean) {
         if (inType != null) {
             when (inType) {
                 ASSIGN ->
-                    if (c == '=') emit(Token(EQUALS)) else finish(Token(ASSIGN), c)
+                    if (c == '=') emit(Token(EQUALS)) else finish(
+                        Token(
+                            ASSIGN
+                        ), c)
                 NOTEQUALS ->
-                    if (c == '=') emit(Token(NOTEQUALS)) else finish(Token(BANG), c)
+                    if (c == '=') emit(Token(NOTEQUALS)) else finish(
+                        Token(
+                            BANG
+                        ), c)
                 GREATER_THAN ->
-                    if (c == '=') emit(Token(GREATER_EQUAL)) else finish(Token(GREATER_THAN), c)
+                    if (c == '=') emit(Token(GREATER_EQUAL)) else finish(
+                        Token(
+                            GREATER_THAN
+                        ), c)
                 LESS_THAN ->
-                    if (c == '=') emit(Token(LESS_EQUAL)) else finish(Token(LESS_THAN), c)
+                    if (c == '=') emit(Token(LESS_EQUAL)) else finish(
+                        Token(
+                            LESS_THAN
+                        ), c)
                 ADD -> when (c) {
                     '=' -> emit(Token(ADD_ASSIGN))
                     '+' -> emit(Token(INCREMENT))
@@ -38,9 +52,15 @@ class Lexer(val fVerbose: Boolean) {
                 DIVIDE ->
                     if (c == '/') inType = COMMENT else finish(Token(DIVIDE), c)
                 LOGIC_OR ->
-                    if (c == '|') emit(Token(LOGIC_OR)) else throw LexException(this, "expected ||")
+                    if (c == '|') emit(Token(LOGIC_OR)) else throw LexException(
+                        this,
+                        "expected ||"
+                    )
                 LOGIC_AND ->
-                    if (c == '&') emit(Token(LOGIC_AND)) else throw LexException(this, "expected &&")
+                    if (c == '&') emit(Token(LOGIC_AND)) else throw LexException(
+                        this,
+                        "expected &&"
+                    )
                 STRING ->
                     if (c == '"') emit(Token(STRING)) else inBuf += c
                 COMMENT ->

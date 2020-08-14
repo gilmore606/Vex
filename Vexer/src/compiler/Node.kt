@@ -1,3 +1,5 @@
+package compiler
+
 sealed class Node {
 
     var linePos = 0

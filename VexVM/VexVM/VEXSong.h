@@ -31,6 +31,7 @@ public:
 	double speed;
 	long notecount;
 	int resolution;
+	int voicecount;
 
 	VEXSong(const char* filepath);
 	void Reset();

@@ -1,4 +1,6 @@
-import TokenType.*
+package compiler
+
+import compiler.TokenType.*
 
 class MethodSpec(
         val name: String,
@@ -6,7 +8,7 @@ class MethodSpec(
 )
 
 class Peeper(
-        var tokens: ArrayList<Token>, val fVerbose: Boolean
+    var tokens: ArrayList<Token>, val fVerbose: Boolean
 ) {
     enum class State {
         WATCHING, GOT_TO, GOT_NAME

@@ -1,3 +1,5 @@
+package compiler
+
 enum class TokenType {
     PAREN_OPEN,
     PAREN_CLOSE,

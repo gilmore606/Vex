@@ -8,42 +8,42 @@ void ROMReader::Read() {
 	std::cout << "reading ROM " << filename << std::endl;
 	file = std::ifstream(filename, std::ios_base::binary);
 
-	if (!expectTag("VEXO")) throw "file format error";
-	std::string gameName = getTag();
+	if (!expectMarker("VEXO")) throw "file format error";
+	std::string gameName = getMarker();
 
 	bool eof = false;
 	while (!eof) {
-		std::string tag = getTag();
+		std::string marker = getMarker();
 		std::string resourceName = nullptr;
-		if (tag.compare("EOF")) {
+		if (marker.compare("EOF")) {
 			eof = true;
 		} else {
-			resourceName = getTag();
+			resourceName = getMarker();
 		}
-		if (tag.compare("SONG")) readSong();
-		if (tag.compare("CODE")) readCode();
-		if (tag.compare("INSTR")) readInstr();
-		if (tag.compare("SPRITE")) readSprite();
-		if (tag.compare("DATA")) readData();
+		if (marker.compare("SONG")) readSong();
+		if (marker.compare("CODE")) readCode();
+		if (marker.compare("INSTR")) readInstr();
+		if (marker.compare("SPRITE")) readSprite();
+		if (marker.compare("DATA")) readData();
 	}
 }
 
-bool ROMReader::expectTag(std::string tag) {
-	return getTag().compare(tag);
+bool ROMReader::expectMarker(std::string marker) {
+	return getMarker().compare(marker);
 }
 
-std::string ROMReader::getTag() {
+std::string ROMReader::getMarker() {
 	unsigned char b;
-	std::string tag = std::string();
+	std::string marker = std::string();
 	file >> std::noskipws >> b;
 	if (b != 255) throw "file format error";
 	file >> std::noskipws >> b;
 	while (b != 255) {
 		//std::cout << b;
-		tag.push_back(b);
+		marker.push_back(b);
 		file >> std::noskipws >> b;
 	}
-	return tag;
+	return marker;
 }
 
 void ROMReader::readSong() {

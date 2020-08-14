@@ -1,6 +1,6 @@
 import java.io.File
 
-class OutFile(val filename: String) {
+class OutFile(val filename: String, val gameTitle: String) {
 
     lateinit var file: File
     val outBytes = ArrayList<UByte>()
@@ -8,7 +8,7 @@ class OutFile(val filename: String) {
     fun open() {
         file = File(filename + ".vexo")
         writeMarker("VEXO")
-        writeMarker(filename)
+        writeMarker(gameTitle)
         println("opened " + filename + " for writing")
     }
 

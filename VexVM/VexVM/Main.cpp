@@ -212,9 +212,9 @@ int main() {
 	apu.voices[4].Patch(0.5, 1.0, 0.1, 0.05, 1.0, 0.6, TRIANGLE, TRIANGLE, 1.4, 0.0);
 	apu.voices[5].Patch(0.5, 1.0, 0.04, 1.2, 0.3, 0.01, TRIANGLE, SAWTOOTH, 0.0, 0.0);
 
-	VEXSong* testsong = new VEXSong("data/aerith.vexm");
+	VEXSong* testsong = new VEXSong("data/moon_patrol.vexm");
 	testsong->loop = true;
-	testsong->speed = 5.0;
+	testsong->speed = 3.0;
 	apu.PlaySong(testsong);
 
 	// MAIN LOOP

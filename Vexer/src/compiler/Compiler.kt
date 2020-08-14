@@ -1,12 +1,17 @@
+package compiler
+
+import OutFile
 import java.io.File
 
-class Compiler(val inFilename: String, val fVerbose: Boolean) {
+class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolean) {
+
+    val outBytes = ArrayList<UByte>()
 
     fun compile() {
 
-        val inStream = File("data/" + inFilename).inputStream();
+        val inStream = File(filepath).inputStream();
 
-        // Lexer breaks source text into tokens
+        // compiler.Lexer breaks source text into tokens
         val lexer = Lexer(fVerbose)
         var nextChar = inStream.read()
         while (nextChar > -1) {
@@ -36,12 +41,13 @@ class Compiler(val inFilename: String, val fVerbose: Boolean) {
         if (fVerbose) parser.dumpTree()
 
         // Fill in symbols and types
-        val semantor = Meaner(parser.ast)
+        val meaner = Meaner(parser.ast)
     }
 
     fun writeToFile(outFile: OutFile) {
         outFile.writeMarker("CODE")
-        outFile.writeMarker(inFilename)
+        outFile.writeMarker(chunkName)
+        println("  wrote code " + chunkName)
     }
 }
 

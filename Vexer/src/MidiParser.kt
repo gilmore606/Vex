@@ -1,3 +1,5 @@
+import model.OutInstrument
+import model.Song
 import javax.sound.midi.MidiSystem
 import java.io.File
 
@@ -51,13 +53,13 @@ class TuneMsg(
     }
 }
 
-class MidiParser(val inFilename: String, val fVerbose: Boolean) {
+class MidiParser(val filepath: String, val fVerbose: Boolean) {
 
     val outBytes = ArrayList<UByte>()
 
     fun parse() {
 
-        val sequence = MidiSystem.getSequence(File("data/" + inFilename))
+        val sequence = MidiSystem.getSequence(File(filepath))
 
         val events = ArrayList<TuneMsg>()
         for (track in sequence.getTracks()) {
@@ -125,17 +127,26 @@ class MidiParser(val inFilename: String, val fVerbose: Boolean) {
         outBytes.add(res0.toUByte())
         outBytes.add(res1.toUByte())
 
+        // Write instrument count as 1 byte
+        val instrumentCount = channelMap.keys.size
+        outBytes.add(instrumentCount.toUByte())
+
         events.forEach {
-            //it.print()
+            if (fVerbose) it.print()
             it.write(outBytes, fVerbose)
         }
 
-        println("  " + inFilename + ": " + events.size + " notes on " + channelMap.keys.size + " channels at " + resolution + " tpq")
+        println("    " + filepath + ": " + events.size + " notes on " + channelMap.keys.size + " channels at " + resolution + " tpq")
     }
 
-    fun writeToFile(outFile: OutFile) {
+    fun writeToFile(outFile: OutFile, songConfig: Song, instruments: HashMap<String,OutInstrument>) {
         outFile.writeMarker("SONG")
-        outFile.writeMarker(inFilename)
+        outFile.writeMarker(songConfig.name)
         outFile.writeBytes(outBytes)
+        println("  wrote song " + songConfig.name)
+        songConfig.voices.forEachIndexed { i, instrument ->
+            val outInstrument = instruments[instrument] ?: throw RuntimeException("song uses undefined instrument")
+            outInstrument.writeToFile(outFile, songConfig.volumes[i], songConfig.pans[i])
+        }
     }
 }

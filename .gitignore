@@ -2,3 +2,6 @@ VexVM/VexVM/.vs/
 VexVM/VexVM/x64/
 VexCompiler/out/
 VexCompiler/.idea/
+VexCompiler/build/
+Vexer/.idea/
+Vexer/out/

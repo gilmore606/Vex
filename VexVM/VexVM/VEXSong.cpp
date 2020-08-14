@@ -8,8 +8,10 @@ VEXSong::VEXSong(const char* filepath) {
 	infile >> std::noskipws >> b3;
 	infile >> std::noskipws >> b4;
 	infile >> std::noskipws >> b5;
+	infile >> std::noskipws >> b6;
 	notecount = b1 + (b2 * 256) + (b3 * 65536);
 	resolution = b4 + (b5 * 256);
+	voicecount = b6;
 	notes = new VEXNote[notecount];
 	for (int i = 0; i < notecount; i++) {
 		infile >> std::noskipws >> b1;

@@ -12,8 +12,8 @@ public:
 	void Read();
 
 private:
-	bool expectTag(std::string tag);
-	std::string getTag();
+	bool expectMarker(std::string marker);
+	std::string getMarker();
 	void readSong();
 	void readCode();
 	void readInstr();

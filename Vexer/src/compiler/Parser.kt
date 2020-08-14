@@ -1,4 +1,6 @@
-import TokenType.*
+package compiler
+
+import compiler.TokenType.*
 import java.lang.RuntimeException
 
 class Parser(
@@ -18,7 +20,7 @@ class Parser(
     fun charPos() = if (tokens.isEmpty()) 0 else tokens[0].charPos
 
 
-    // Token lookahead functions
+    // compiler.Token lookahead functions
 
     fun getToken() = tokens.removeAt(0)
     fun tossNextToken() = getToken()
@@ -27,7 +29,9 @@ class Parser(
         if (t.type != type) throw ParseException(this, failMessage)
         return t
     }
-    fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(EOP) else tokens[skip]
+    fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(
+        EOP
+    ) else tokens[skip]
     fun nextTokenIs(type: TokenType) = nextToken().type == type
     fun nextTokensAre(vararg types: TokenType): Boolean {
         types.forEachIndexed { i, type ->
@@ -52,7 +56,10 @@ class Parser(
         val token = getToken()
         if (token.string.equals("to")) {
             val handler = getToken()
-            if (getToken().type != COLON) throw ParseException(this, "expected : after method declaration")
+            if (getToken().type != COLON) throw ParseException(
+                this,
+                "expected : after method declaration"
+            )
             return Node.FUNCTION(handler.string, Node.CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
         } else if (nextToken().type == COLON) {
             tossNextToken()
@@ -61,7 +68,10 @@ class Parser(
                 token.string.equals("controls") -> Node.CONTROLS(parseControls())
                 else -> throw ParseException(this, "unknown top-level block type")
             }
-        } else throw ParseException(this, "only top-level block declarations are allowed at top level")
+        } else throw ParseException(
+            this,
+            "only top-level block declarations are allowed at top level"
+        )
     }
 
     fun parseControls(): List<Node.CONTROLDEF> {
@@ -74,7 +84,10 @@ class Parser(
     }
     fun parseControlDef(): Node.CONTROLDEF {
         val name = expectToken(IDENTIFIER, "expected control name")
-        if (getToken().type != PAREN_OPEN) throw ParseException(this, "expected ( to begin control definition")
+        if (getToken().type != PAREN_OPEN) throw ParseException(
+            this,
+            "expected ( to begin control definition"
+        )
         val params = ArrayList<Node.CONTROLPARAM>()
         while (nextToken().type != PAREN_CLOSE) {
             val token = expectToken(IDENTIFIER, "expected control modifier")
@@ -96,7 +109,10 @@ class Parser(
         val assigns = ArrayList<Node.ASSIGN>()
         while (true) {
             val nextAssign = parseStatement(1) ?: return assigns
-            if (nextAssign !is Node.ASSIGN) throw ParseException(this, "only assignments allowed in settings block")
+            if (nextAssign !is Node.ASSIGN) throw ParseException(
+                this,
+                "only assignments allowed in settings block"
+            )
             assigns.add(nextAssign)
         }
     }
@@ -122,17 +138,29 @@ class Parser(
 
     fun parseAssign(): Node.ASSIGN? {
         if (!nextTokenIs(IDENTIFIER)) return null
-        val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
-        if (identifier !is Node.VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
+        val identifier = parseIdentifier() ?: throw ParseException(
+            this,
+            "not a valid statement"
+        )
+        if (identifier !is Node.VARREF) throw ParseException(
+            this,
+            "left side of assignment must be a variable or propref"
+        )
         tossNextToken()
-        val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
+        val expression = parseExpression() ?: throw ParseException(
+            this,
+            "expected expression on right side of assignment"
+        )
         return Node.ASSIGN(identifier, expression).also { it.tag(this) }
     }
 
     fun parseRepeat(depth: Int): Node.REPEAT? {
         if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("repeat"))) return null
         tossNextToken()
-        val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
+        val count = parseExpression() ?: throw ParseException(
+            this,
+            "expected count expression for repeat block"
+        )
         expectToken(COLON, "expected colon after repeat count expression")
         val code = parseCodeblock(depth + 1)
         return Node.REPEAT(count, Node.CODEBLOCK(code)).also { it.tag(this) }
@@ -141,8 +169,14 @@ class Parser(
     fun parseEach(depth: Int): Node.EACH? {
         if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("each"))) return null
         tossNextToken()
-        val iterator = parseValue() ?: throw ParseException(this, "expected iterator name for each loop")
-        if (!(iterator is Node.VARIABLE)) throw ParseException(this, "cannot each-iterate anything but a variable name")
+        val iterator = parseValue() ?: throw ParseException(
+            this,
+            "expected iterator name for each loop"
+        )
+        if (!(iterator is Node.VARIABLE)) throw ParseException(
+            this,
+            "cannot each-iterate anything but a variable name"
+        )
         expectToken(COLON, "expected colon after each iterator name")
         val code = parseCodeblock(depth + 1)
         return Node.EACH(iterator, Node.CODEBLOCK(code)).also { it.tag(this) }
@@ -237,7 +271,10 @@ class Parser(
     fun parseUnary(): Node.EXPRESSION? {
         if (nextTokenOneOf(BANG, SUBTRACT)) {
             val operator = getToken()
-            val rightExpr = parseUnary() ?: throw ParseException(this, "expected value after unary operator")
+            val rightExpr = parseUnary() ?: throw ParseException(
+                this,
+                "expected value after unary operator"
+            )
             return if (operator.type == BANG) Node.INVERSE(rightExpr).also { it.tag(this) }
                 else Node.NEGATE(rightExpr).also { it.tag(this) }
         }
@@ -251,8 +288,14 @@ class Parser(
         if (nextTokenIs(FLOAT)) return Node.FLOAT(getToken().float).also { it.tag(this) }
         if (nextTokenIs(PAREN_OPEN)) {
             tossNextToken()
-            val expr = parseExpression() ?: throw ParseException(this, "expected expression inside parens")
-            if (getToken().type != PAREN_CLOSE) throw ParseException(this, "missing close paren")
+            val expr = parseExpression() ?: throw ParseException(
+                this,
+                "expected expression inside parens"
+            )
+            if (getToken().type != PAREN_CLOSE) throw ParseException(
+                this,
+                "missing close paren"
+            )
             return expr
         }
         return null
