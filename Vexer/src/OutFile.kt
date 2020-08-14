@@ -26,7 +26,17 @@ class OutFile(val filename: String, val gameTitle: String) {
         outBytes.addAll(buf)
     }
 
+    fun writeByte(b: UByte) {
+        outBytes.add(b)
+    }
     fun writeBytes(b: ArrayList<UByte>) {
         outBytes.addAll(b)
+    }
+
+    fun write2ByteInt(i: Int) {
+        val b0 = (i % 256)
+        val b1 = (i - b0) / 256
+        outBytes.add(b0.toUByte())
+        outBytes.add(b1.toUByte())
     }
 }

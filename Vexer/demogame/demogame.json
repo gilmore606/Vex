@@ -1,8 +1,17 @@
 {
-	"title": "Amazing Game",
-	"author": "Gilmore",
+	"title": "Demo Game",
+	"author": "gilmore606",
 	"releaseDate": "2020-10-01",
-	"code": "asteroids.vexc",
+	"code": "demogame.vexc",
+    "aspectRatio": [4,3],
+    "controls": [
+            { "name": "left", "key": "a", "type": "switch" },
+            { "name": "right", "key": "d", "type": "switch" },
+            { "name": "thrust", "key": "w", "type": "switch" },
+            { "name": "fire", "key": " ", "type": "button", "debounce": 200 },
+            { "name": "start", "key": "enter", "type": "button" },
+            { "name": "hyperspace", "key": "tab", "type": "button", "debounce": 1000 }
+    ],
     "sprites": [
 
     ],
@@ -29,7 +38,7 @@
 	"songs": [
             {
                 "name": "maintheme",
-                "file": "Arkanoid.mid",
+                "file": "towns4.mid",
                 "voices": [ "softpad", "pulselead", "pulselead", "drum" ],
                 "volumes": [ 255, 180, 180, 255 ],
                 "pans": [ 128, 60, 190, 128 ]

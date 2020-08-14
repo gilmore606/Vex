@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 #include <iostream>
+#include <vector>
 
 #include "Shader.h"
 #include "GPU.h"
@@ -173,17 +174,23 @@ void handleSwitch(int input, bool isDown) { }
 
 int main() {
 
-	ROMReader reader = ROMReader("game.vexo");
-	//reader.Read();
-
+	std::vector<Sprite> sprites;
+	std::vector<VEXSong> songs;
+	
 	float currentFrame, lastFrame, deltaTime;
 	lastFrame = glfwGetTime();
 
-	// Setup output
+
+	// Setup devices
 	gpu = GPU(windowWidth, windowHeight);
 	window = gpu.Setup(onResize);
 	apu = APU();
 	apu.Setup(handleAudio);
+	input = Input();
+
+
+	ROMReader reader = ROMReader("demogame.vexo");
+	reader.Read(sprites, songs, input);
 
 	// Setup input
 	input = Input();

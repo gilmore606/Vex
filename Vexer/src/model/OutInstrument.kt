@@ -39,6 +39,6 @@ class OutInstrument() {
 
         outFile.writeMarker("INSTR")
         outFile.writeBytes(outBytes)
-        println("  wrote voice " + name)
+        println("    wrote voice " + name)
     }
 }

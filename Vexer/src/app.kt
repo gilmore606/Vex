@@ -10,36 +10,60 @@ fun main() {
     println("")
 
     val startTime = System.currentTimeMillis()
-    val romName = "game"
+    val romName = "demogame"
     val fVerbose = false
     val sourceDir = romName
+
+    // Parse the manifest
 
     val gameConfig: Game = Klaxon().parse<Game>(File(sourceDir + "/" + romName + ".json"))
         ?: throw RuntimeException("invalid json in manifest")
 
     println("Compiling " + gameConfig.title + " from " + sourceDir + "/" + romName + ".json")
 
-    val outFile = OutFile(romName + ".vexo", gameConfig.title)
+    val outFile = OutFile(romName, gameConfig.title)
     outFile.open()
+
+
+    // Compile the main code block
 
     val compiler = Compiler(sourceDir + "/" + gameConfig.code, "MAIN", fVerbose)
     compiler.compile()
     compiler.writeToFile(outFile)
 
+
+    // Write controls
+
+    outFile.writeMarker("CONTROLS")
+    outFile.writeByte(gameConfig.controls.size.toUByte())
+    gameConfig.controls.forEach { it.writeToFile(outFile) }
+    println("  wrote controls")
+
+    // Write sprites
+
     gameConfig.sprites.forEach { sprite ->
 
     }
+
+
+    // Compile instruments and map for insertion into songs
 
     val outInstruments = HashMap<String,OutInstrument>()
     gameConfig.instruments.forEach { instrument ->
         outInstruments[instrument.name] = OutInstrument().compile(instrument)
     }
 
+
+    // Write songs, replacing voice names with compiled instruments
+
     gameConfig.songs.forEach { song ->
         val midi = MidiParser(sourceDir + "/" + song.file, fVerbose)
         midi.parse()
         midi.writeToFile(outFile, song, outInstruments)
     }
+
+
+    // Finish
 
     outFile.close()
     println("Compiled " + romName + ".vexo in " + (System.currentTimeMillis() - startTime) + "ms.")
