@@ -1,10 +1,20 @@
 # Vex
 
 Vex is a fantasy console from an alternate history 1980s where vector graphics remained supreme.  It includes a COBOL-esque programming language (vex)
-which compiles to a VM bytecode which drives a virtual vector-based graphics chip.  The project goal is "to compile Asteroids in less than 200 lines", or more
-generally, to provide a platform for very easy and rapid development of vector arcade games.
+which compiles to a VM bytecode which drives a virtual vector-based graphics chip (and a virtual FM synthesis audio chip).  The project goal is "to 
+compile Asteroids in less than 200 lines", or more generally, to provide a platform for very easy and rapid development of vector arcade games.
 
 The compiler is currently being written in Kotlin.  The VM is being written in C++ with GLFW.
+
+DISCLAIMER FOR CONTRIBUTORS: I don't actually know C++!  My C++ code is terrible and probably insults the compiler.  Please help me learn better C++!
+
+
+# Updates
+
+8/14: The speculative code below partially compiles (to an AST)!  The GPU and APU exist and mostly work!  The binary .vexo format exists and can be written and (partly) read!
+
+
+# Sample code
 
 Speculative asteroids.vexc :
 
