@@ -53,7 +53,7 @@ class TuneMsg(
     }
 }
 
-class MidiParser(val filepath: String, val fVerbose: Boolean) {
+class MidiParser(val filepath: String, val instrumentCount: Int, val fVerbose: Boolean) {
 
     val outBytes = ArrayList<UByte>()
 
@@ -128,7 +128,6 @@ class MidiParser(val filepath: String, val fVerbose: Boolean) {
         outBytes.add(res1.toUByte())
 
         // Write instrument count as 1 byte
-        val instrumentCount = channelMap.keys.size
         outBytes.add(instrumentCount.toUByte())
 
         events.forEach {
@@ -140,10 +139,11 @@ class MidiParser(val filepath: String, val fVerbose: Boolean) {
     }
 
     fun writeToFile(outFile: OutFile, songConfig: Song, instruments: HashMap<String,OutInstrument>) {
-        outFile.writeMarker("SONG")
+        outFile.writeMarker("SNG")
         outFile.writeMarker(songConfig.name)
         outFile.writeBytes(outBytes)
         println("  wrote song " + songConfig.name)
+        outFile.writeMarker("INS")
         songConfig.voices.forEachIndexed { i, instrument ->
             val outInstrument = instruments[instrument] ?: throw RuntimeException("song uses undefined instrument")
             outInstrument.writeToFile(outFile, songConfig.volumes[i], songConfig.pans[i])

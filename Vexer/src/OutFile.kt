@@ -1,19 +1,24 @@
 import java.io.File
 
-class OutFile(val filename: String, val gameTitle: String) {
+class OutFile(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
 
     lateinit var file: File
     val outBytes = ArrayList<UByte>()
 
     fun open() {
         file = File(filename + ".vexo")
-        writeMarker("VEXO")
+        writeMarker("VEX")
         writeMarker(gameTitle)
+        writeByte(aspectRatio[0].toUByte())
+        writeByte(aspectRatio[1].toUByte())
         println("opened " + filename + " for writing")
     }
 
     fun close() {
         writeMarker("EOF")
+        writeByte(255.toUByte())
+        writeByte(255.toUByte())
+        writeByte(255.toUByte())
         file.writeBytes(outBytes.toUByteArray().toByteArray())
         println("closed " + filename)
     }

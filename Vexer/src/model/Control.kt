@@ -9,7 +9,6 @@ data class Control(
     val debounce: Int = 0
 ) {
     fun writeToFile(outFile: OutFile) {
-        outFile.writeMarker(name)
         outFile.write2ByteInt(keyToGL(key))
         outFile.writeByte(when (type) {
             "switch" -> 0
@@ -58,7 +57,7 @@ data class Control(
         "tab" -> 258
         else -> {
             if (k.length > 1) throw RuntimeException("invalid key spec")
-            (k.get(0).toInt())
+            (k.get(0).toInt() - 32)
         }
     }
 }

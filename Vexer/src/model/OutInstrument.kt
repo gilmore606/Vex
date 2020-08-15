@@ -33,12 +33,13 @@ class OutInstrument() {
 
     fun writeToFile(outFile: OutFile, volume: Int?, pan: Int?) {
         if (volume == null || pan == null) throw RuntimeException("unspecified voice parameter")
-        // 2 bytes for volume + pan
-        outBytes.add(volume.toUByte())
-        outBytes.add(pan.toUByte())
 
-        outFile.writeMarker("INSTR")
         outFile.writeBytes(outBytes)
+
+        // 2 bytes for volume and pan
+        outFile.writeByte(volume.toUByte())
+        outFile.writeByte(pan.toUByte())
+
         println("    wrote voice " + name)
     }
 }

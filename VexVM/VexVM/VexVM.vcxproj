@@ -119,6 +119,10 @@
       <PreprocessorDefinitions>__WINDOWS_WASAPI__;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\githome\Vex\VexVM\VexVM\dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,6 +140,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,6 +166,8 @@
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Vertbuffer.cpp" />
+    <ClCompile Include="VEXInstrument.cpp" />
+    <ClCompile Include="VEXNote.cpp" />
     <ClCompile Include="VEXSong.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +183,8 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Vertbuffer.h" />
+    <ClInclude Include="VEXInstrument.h" />
+    <ClInclude Include="VEXNote.h" />
     <ClInclude Include="VEXSong.h" />
   </ItemGroup>
   <ItemGroup>

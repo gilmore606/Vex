@@ -63,6 +63,12 @@
     <ClCompile Include="ROMReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VEXNote.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VEXInstrument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -102,6 +108,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ROMReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VEXNote.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VEXInstrument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

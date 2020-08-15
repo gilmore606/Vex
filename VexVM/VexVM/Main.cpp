@@ -102,13 +102,31 @@ void makeDemoClutter() {
 		demoLines[i].dx = (randFloat() - 0.5f) * 0.5f;
 		demoLines[i].dy = (randFloat() - 0.5f) * 0.5f;
 	}
+	demoLines[0].dx = 0.0f;
+	demoLines[0].dy = 0.0f;
+	demoLines[0].gpuline->r = 0.2f;
+	demoLines[0].gpuline->g = 0.2f;
+	demoLines[0].gpuline->b = 0.6f;
+	demoLines[0].gpuline->x1 = -0.5f;
+	demoLines[0].gpuline->x2 = -0.5f;
+	demoLines[0].gpuline->y1 = -0.5f;
+	demoLines[0].gpuline->y2 = 0.5f;
+	demoLines[1].dx = 0.0f;
+	demoLines[1].dy = 0.0f;
+	demoLines[1].gpuline->r = 0.2f;
+	demoLines[1].gpuline->g = 0.2f;
+	demoLines[1].gpuline->b = 0.6f;
+	demoLines[1].gpuline->x1 = 0.5f;
+	demoLines[1].gpuline->x2 = 0.5f;
+	demoLines[1].gpuline->y1 = -0.5f;
+	demoLines[1].gpuline->y2 = 0.5f;
 }
 
 void moveDemoPrims(float delta) {
 
-	if (input.isPressed(1)) shipSprite->rotate(2.5f * delta);
-	if (input.isPressed(2)) shipSprite->rotate(-2.5f * delta);
-	if (input.isPressed(3)) {
+	if (input.isPressed(0)) shipSprite->rotate(2.5f * delta);
+	if (input.isPressed(1)) shipSprite->rotate(-2.5f * delta);
+	if (input.isPressed(2)) {
 		demoShip.xd += std::cos(shipSprite->rot + 1.570796) * delta * 1.0f;
 		demoShip.yd += std::sin(shipSprite->rot + 1.570796) * delta * 1.0f;
 	}
@@ -161,12 +179,14 @@ void fireDemoShot() {
 }
 
 void handleButton(int input) {
-	if (input == 0) glfwSetWindowShouldClose(window, GLFW_TRUE);
-	if (input == 4) fireDemoShot();
-	if (input == 11) gpu.toggleLayer(0);
-	if (input == 12) gpu.toggleLayer(1);
-	if (input == 13) gpu.toggleLayer(2);
-	if (input == 14) apu.voices[0].testTone = !apu.voices[0].testTone;
+
+	if (input == 3) fireDemoShot();
+
+	if (input == 50) glfwSetWindowShouldClose(window, GLFW_TRUE);
+	if (input == 51) gpu.toggleLayer(0);
+	if (input == 52) gpu.toggleLayer(1);
+	if (input == 53) gpu.toggleLayer(2);
+	if (input == 54) apu.voices[0].testTone = !apu.voices[0].testTone;
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -187,26 +207,21 @@ int main() {
 	apu = APU();
 	apu.Setup(handleAudio);
 	input = Input();
-
-
-	ROMReader reader = ROMReader("demogame.vexo");
-	reader.Read(sprites, songs, input);
-
-	// Setup input
-	input = Input();
-	input.Add(0, VEXInputType::BUTTON, GLFW_KEY_ESCAPE);
-	input.Add(1, VEXInputType::SWITCH, GLFW_KEY_A);
-	input.Add(2, VEXInputType::SWITCH, GLFW_KEY_D);
-	input.Add(3, VEXInputType::SWITCH, GLFW_KEY_W);
-	input.Add(4, VEXInputType::BUTTON, GLFW_KEY_SPACE);
-	input.Add(11, VEXInputType::BUTTON, GLFW_KEY_1);
-	input.Add(12, VEXInputType::BUTTON, GLFW_KEY_2);
-	input.Add(13, VEXInputType::BUTTON, GLFW_KEY_3);
-	input.Add(14, VEXInputType::BUTTON, GLFW_KEY_4);
 	input.Setup(window, handleKey, handleButton, handleSwitch);
+	input.Add(50, BUTTON, GLFW_KEY_ESCAPE);
+	input.Add(51, BUTTON, GLFW_KEY_F1);
+	input.Add(52, BUTTON, GLFW_KEY_F2);
+	input.Add(53, BUTTON, GLFW_KEY_F3);
+	input.Add(54, BUTTON, GLFW_KEY_F4);
 
 
+	// Read ROM file
+	ROMReader reader = ROMReader("data/demogame.vexo");
+	reader.Read(sprites, songs, &input);
+
+	
 	// Make demo shit
+	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
 	makeDemoClutter();
 	gpu.addSprite(shipSprite);
@@ -218,11 +233,8 @@ int main() {
 	apu.voices[3].Patch(0.5, 0.3, 0.02, 0.1, 1.0, 0.1, SINE, PULSE, 0.3, 0.1);
 	apu.voices[4].Patch(0.5, 1.0, 0.1, 0.05, 1.0, 0.6, TRIANGLE, TRIANGLE, 1.4, 0.0);
 	apu.voices[5].Patch(0.5, 1.0, 0.04, 1.2, 0.3, 0.01, TRIANGLE, SAWTOOTH, 0.0, 0.0);
-
-	VEXSong* testsong = new VEXSong("data/moon_patrol.vexm");
-	testsong->loop = true;
-	testsong->speed = 3.0;
-	apu.PlaySong(testsong);
+	
+	//apu.PlaySong(testsong);
 
 	// MAIN LOOP
 

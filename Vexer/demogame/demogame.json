@@ -8,9 +8,9 @@
             { "name": "left", "key": "a", "type": "switch" },
             { "name": "right", "key": "d", "type": "switch" },
             { "name": "thrust", "key": "w", "type": "switch" },
-            { "name": "fire", "key": " ", "type": "button", "debounce": 200 },
-            { "name": "start", "key": "enter", "type": "button" },
-            { "name": "hyperspace", "key": "tab", "type": "button", "debounce": 1000 }
+            { "name": "fire", "key": " ", "debounce": 200 },
+            { "name": "start", "key": "enter" },
+            { "name": "hyperspace", "key": "tab", "debounce": 1000 }
     ],
     "sprites": [
 

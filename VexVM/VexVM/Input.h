@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 
-enum VEXInputType { SWITCH, BUTTON };
+enum VEXInputType { BUTTON, SWITCH };
 
 typedef struct VEXControl {
 	int id;
@@ -27,6 +27,7 @@ public:
 
 private:
 	VEXControl* controls;
+	bool* status;
 
 	void (*buttonCallback)(int);
 	void (*switchCallback)(int, bool);

@@ -21,7 +21,7 @@ fun main() {
 
     println("Compiling " + gameConfig.title + " from " + sourceDir + "/" + romName + ".json")
 
-    val outFile = OutFile(romName, gameConfig.title)
+    val outFile = OutFile(romName, gameConfig.title, gameConfig.aspectRatio)
     outFile.open()
 
 
@@ -34,7 +34,8 @@ fun main() {
 
     // Write controls
 
-    outFile.writeMarker("CONTROLS")
+    outFile.writeMarker("CTR")
+    outFile.writeMarker("x")
     outFile.writeByte(gameConfig.controls.size.toUByte())
     gameConfig.controls.forEach { it.writeToFile(outFile) }
     println("  wrote controls")
@@ -57,7 +58,7 @@ fun main() {
     // Write songs, replacing voice names with compiled instruments
 
     gameConfig.songs.forEach { song ->
-        val midi = MidiParser(sourceDir + "/" + song.file, fVerbose)
+        val midi = MidiParser(sourceDir + "/" + song.file, song.voices.size, fVerbose)
         midi.parse()
         midi.writeToFile(outFile, song, outInstruments)
     }

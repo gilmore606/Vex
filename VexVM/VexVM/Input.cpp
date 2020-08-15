@@ -1,12 +1,21 @@
 #include "Input.h"
+#include <iostream>
 
 Input::Input() { 
 	controls = new VEXControl[64];
+	status = new bool[64];
 }
 
 void Input::Setup(GLFWwindow* window, 
 	void (*proxyCallback)(GLFWwindow* window, int key, int scancode, int action, int mods), 
 	void buttonCallback (int), void switchCallback (int, bool)) {
+
+	for (int i = 0; i < 64; i++) { 
+		status[i] = false;
+		controls[i].id = 0;
+		controls[i].type = BUTTON;
+		controls[i].key = GLFW_KEY_UNKNOWN;
+	}
 	glfwSetKeyCallback(window, proxyCallback);
 	this->buttonCallback = buttonCallback;
 	this->switchCallback = switchCallback;
@@ -23,13 +32,13 @@ void Input::HandleKey(GLFWwindow* window, int key, int scancode, int action, int
 	for (int i = 0; i < 64; i++) {
 		if (controls[i].key == key) {
 			if (action == GLFW_PRESS) {
-				controls[i].isPressed = true;
-				if (controls[i].type == VEXInputType::BUTTON) {
+				status[controls[i].id] = true;
+				if (controls[i].type == BUTTON) {
 					buttonCallback(controls[i].id);
 				}
 			}
-			if (action == GLFW_RELEASE) controls[i].isPressed = false;
-			if (controls[i].type == VEXInputType::SWITCH) {
+			if (action == GLFW_RELEASE) status[controls[i].id] = false;
+			if (controls[i].type == SWITCH) {
 				switchCallback(controls[i].id, controls[i].isPressed);
 			}
 		}
@@ -37,5 +46,5 @@ void Input::HandleKey(GLFWwindow* window, int key, int scancode, int action, int
 }
 
 bool Input::isPressed(int id) {
-	return controls[id].isPressed ? true : false;
+	return status[id];
 }
