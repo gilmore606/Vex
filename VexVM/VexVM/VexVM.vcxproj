@@ -169,9 +169,9 @@
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Vertbuffer.cpp" />
-    <ClCompile Include="VEXInstrument.cpp" />
-    <ClCompile Include="VEXNote.cpp" />
-    <ClCompile Include="VEXSong.cpp" />
+    <ClCompile Include="Instrument.cpp" />
+    <ClCompile Include="Note.cpp" />
+    <ClCompile Include="Song.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APU.h" />
@@ -189,9 +189,9 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Vertbuffer.h" />
-    <ClInclude Include="VEXInstrument.h" />
-    <ClInclude Include="VEXNote.h" />
-    <ClInclude Include="VEXSong.h" />
+    <ClInclude Include="Instrument.h" />
+    <ClInclude Include="Note.h" />
+    <ClInclude Include="Song.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\shaders\blit.frag" />

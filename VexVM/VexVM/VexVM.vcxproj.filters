@@ -57,16 +57,7 @@
     <ClCompile Include="APUVoice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VEXSong.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ROMReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VEXNote.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VEXInstrument.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
@@ -76,6 +67,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Note.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Instrument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Song.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,16 +113,7 @@
     <ClInclude Include="APUVoice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VEXSong.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ROMReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VEXNote.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VEXInstrument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
@@ -132,6 +123,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Note.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrument.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Song.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

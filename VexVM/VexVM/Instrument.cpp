@@ -1,7 +1,7 @@
-#include "VEXInstrument.h"
+#include "Instrument.h"
 #include <iostream>
 
-VEXInstrument::VEXInstrument(int wave1, int wave2, int a, int d, int s, int r, int detune, int phase, int volume, int pan) {
+Instrument::Instrument(int wave1, int wave2, int a, int d, int s, int r, int detune, int phase, int volume, int pan) {
 	this->wave1 = intToWave(wave1);
 	this->wave2 = intToWave(wave2);
 	this->a = intToDouble(a, 1.0);
@@ -14,7 +14,7 @@ VEXInstrument::VEXInstrument(int wave1, int wave2, int a, int d, int s, int r, i
 	this->pan = intToDouble(pan, 1.0);
 }
 
-Waveform VEXInstrument::intToWave(int wavei) {
+Waveform Instrument::intToWave(int wavei) {
 	if (wavei == 0) return TRIANGLE;
 	if (wavei == 1) return SAWTOOTH;
 	if (wavei == 2) return PULSE;
@@ -23,6 +23,6 @@ Waveform VEXInstrument::intToWave(int wavei) {
 	throw "illegal waveform";
 }
 
-double VEXInstrument::intToDouble(int b, double max) {
+double Instrument::intToDouble(int b, double max) {
 	return ((double)b / 255.0) * max;
 }

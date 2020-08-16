@@ -99,8 +99,8 @@ std::string ROMReader::getMarker() {
 	return marker;
 }
 
-VEXSong* ROMReader::readSong() {
-	VEXSong* song = new VEXSong();
+Song* ROMReader::readSong() {
+	Song* song = new Song();
 	song->Read(this);
 	return song;
 }

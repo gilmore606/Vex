@@ -46,11 +46,11 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
-void APU::LoadSong(VEXSong* song) {
+void APU::LoadSong(Song* song) {
 	songs.push_back(*song);
 }
 
-void APU::Patch(int channel, VEXInstrument* patch) {
+void APU::Patch(int channel, Instrument* patch) {
 	voices[channel].Patch(patch->pan, patch->volume, patch->a, patch->d, patch->s, patch->r, patch->wave1, patch->wave2, patch->detune, patch->phase);
 }
 
@@ -65,7 +65,7 @@ void APU::PlaySong(int songid) {
 	song->Reset();
 }
 
-void APU::PlayNote(VEXNote* note) {
+void APU::PlayNote(Note* note) {
 	if (note->channel >= MAX_VOICES) return;
 	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
@@ -94,7 +94,7 @@ void APU::processTime() {
 	lastTime = time;
 	if (song != nullptr) {
 		song->advanceTime(deltaTime);
-		VEXNote* note = song->getNote();
+		Note* note = song->getNote();
 		while (note != nullptr) {
 			PlayNote(note);
 			note = song->getNote();

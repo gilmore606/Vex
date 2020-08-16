@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "VEXSong.h"
+#include "Song.h"
 #include "Sprite.h"
 #include "Input.h"
 #include "CPU.h"
@@ -29,7 +29,7 @@ public:
 
 private:
 	
-	VEXSong* readSong();
+	Song* readSong();
 	void readCode();
 	void readControls(Input* input);
 	void readInstr();

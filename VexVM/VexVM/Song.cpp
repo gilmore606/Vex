@@ -1,18 +1,17 @@
-#include "VEXSong.h"
+#include "Song.h"
 #include "ROMReader.h"
-#include "VEXInstrument.h"
 
-VEXSong::VEXSong() { 
+Song::Song() { 
 	speed = 1.0;
 	resolution = 192.0;
 }
 
-void VEXSong::Read(ROMReader* rom) {
+void Song::Read(ROMReader* rom) {
 	notecount = rom->next3Int();
 	resolution = rom->next2Int();
 	voicecount = rom->next();
 	for (int i = 0; i < notecount; i++) {
-		VEXNote* note = new VEXNote();
+		Note* note = new Note();
 		note->tick = rom->next3Int();
 		note->channel = rom->next();
 		switch (rom->next()) {
@@ -45,29 +44,29 @@ void VEXSong::Read(ROMReader* rom) {
 		int ph = rom->nextInt();
 		int v = rom->nextInt();
 		int p = rom->nextInt();
-		instruments.push_back(VEXInstrument(w1, w2, a, d, s, r, dt, ph, v, p));
+		instruments.push_back(Instrument(w1, w2, a, d, s, r, dt, ph, v, p));
 	}
 	std::cout << "  read " << voicecount << " instruments" << std::endl;
 }
 
-void VEXSong::Reset() {
+void Song::Reset() {
 	notecursor = 0;
 	setTempo(600);
 	tick = 0.0;
 }
 
-void VEXSong::setTempo(int tempo) {
+void Song::setTempo(int tempo) {
 	this->tempo = tempo;
 	ticksPerSecond = ((double)tempo / 1000.0) * resolution * speed;
 	std::cout << "song tps " << ticksPerSecond << std::endl;
 }
 
 // Advance our ticks
-void VEXSong::advanceTime(double sec) {
+void Song::advanceTime(double sec) {
 	tick += (sec * ticksPerSecond);
 }
 
-VEXNote* VEXSong::getNote() {
+Note* Song::getNote() {
 	if (notecursor > notecount) return nullptr;
 	if (notes[notecursor].tick <= tick) {
 		notecursor++;

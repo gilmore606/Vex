@@ -4,14 +4,6 @@ settings:
     SHOT_SPEED = 0.3
     THRUST = 0.03
 
-controls:
-	left (switch)
-	right (switch)
-	thrust (switch)
-	start (button)
-	fire (button debounce 200)
-	hyperspace (button debounce 1000)
-
 to fooBar:
     a = a + (4 * b) + 7 * (foo^2)
     b = (a * 1.5) / 3
