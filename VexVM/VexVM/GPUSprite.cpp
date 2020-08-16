@@ -1,5 +1,6 @@
 #include "GPUSprite.h"
 #include <cmath>
+#include <iostream>
 
 GPUSprite::GPUSprite() {
 	active = false;
@@ -29,7 +30,7 @@ void GPUSprite::loadImage(Image* image) {
 		data[i].g = image->lines[i].g;
 		data[i].b = image->lines[i].b;
 	}
-	dirty = true;
+
 }
 
 void GPUSprite::update() {

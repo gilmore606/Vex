@@ -9,6 +9,7 @@
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
+#include "Sprite.h"
 
 GPU gpu;
 APU apu;
@@ -21,19 +22,19 @@ int windowWidth = 1300;
 int windowHeight = 1300;
 
 constexpr auto DEMO_POINTS = 200;
-constexpr auto DEMO_LINES = 50;
 
 struct DemoPoint {
 	Point* gpupoint;
 	float dx, dy;
 };
 DemoPoint* demoPoints = new DemoPoint[DEMO_POINTS];
-struct DemoLine {
-	Line* gpuline;
-	float dx, dy;
-};
-DemoLine* demoLines = new DemoLine[DEMO_LINES];
 
+struct DemoRock {
+	Sprite* sprite;
+	float dx, dy, drot;
+};
+std::vector<DemoRock> demoRocks;
+DemoRock demoShip;
 
 void onResize(GLFWwindow* window, int w, int h) {
 	windowWidth = w;
@@ -42,7 +43,25 @@ void onResize(GLFWwindow* window, int w, int h) {
 }
 
 void makeDemoPrims() {
-
+	for (int i = 0; i < 16; i++) {
+		Sprite* sp = new Sprite(1, &gpu);
+		sp->moveTo(randCoord(), randCoord());
+		float scale = (randFloat() * 0.05f) + 0.05f;
+		sp->scale(scale, scale);
+		sp->rotate(randFloat() * 2.7f);
+		DemoRock rock;
+		rock.sprite = sp;
+		rock.dx = randCoord() * 0.2f;
+		rock.dy = randCoord() * 0.2f;
+		rock.drot = randFloat();
+		demoRocks.push_back(rock);
+	}
+	Sprite* shipsp = new Sprite(0, &gpu);
+	shipsp->scale(0.4f, 0.4f);
+	demoShip.sprite = shipsp;
+	demoShip.dx = 0.0f;
+	demoShip.dy = 0.0f;
+	demoShip.drot = 0.0f;
 }
 
 void makeDemoClutter() {
@@ -57,22 +76,14 @@ void makeDemoClutter() {
 		demoPoints[i].dx = (randFloat() - 0.5f) * 0.5f;
 		demoPoints[i].dy = (randFloat() - 0.5f) * 0.5f;
 	}
-	for (int i = 0; i < DEMO_LINES; i++) {
-		float x1 = (randFloat() - 0.5f) * 2.0f;
-		float y1 = (randFloat() - 0.5f) * 2.0f;
-		float x2 = x1 + (randFloat() - 0.5f) * 0.3f;
-		float y2 = y1 + (randFloat() - 0.5f) * 0.3f;
-		float r = randFloat() * 1.4f;
-		float g = randFloat();
-		float b = randFloat() * 0.5f;
-		demoLines[i].gpuline = gpu.addLine(x1, y1, x2, y2, r, g, b);
-		demoLines[i].dx = (randFloat() - 0.5f) * 0.5f;
-		demoLines[i].dy = (randFloat() - 0.5f) * 0.5f;
-	}
 }
 
 void moveDemoPrims(float delta) {
-
+	for (int i = 0; i < demoRocks.size(); i++) {
+		Sprite* sp = demoRocks[i].sprite;
+		sp->moveTo(wrapCoord(sp->x() + demoRocks[i].dx * delta), wrapCoord(sp->y() + demoRocks[i].dy * delta));
+		sp->rotate(demoRocks[i].drot * delta);
+	}
 }
 
 void moveDemoClutter(float delta) {
@@ -82,12 +93,6 @@ void moveDemoClutter(float delta) {
 		demoPoints[i].dy -= 0.2f * delta;
 		if (demoPoints[i].gpupoint->y < -0.95f || demoPoints[i].gpupoint->y > 0.95f) demoPoints[i].dy = -demoPoints[i].dy;
 		if (demoPoints[i].gpupoint->x < -0.95f || demoPoints[i].gpupoint->x > 0.95f) demoPoints[i].dx = -demoPoints[i].dx;
-	}
-	for (int i = 0; i < DEMO_LINES; i++) {
-		demoLines[i].gpuline->x1 += demoLines[i].dx * delta;
-		demoLines[i].gpuline->x2 += demoLines[i].dx * delta;
-		demoLines[i].gpuline->y1 += demoLines[i].dy * delta;
-		demoLines[i].gpuline->y2 += demoLines[i].dy * delta;
 	}
 }
 
@@ -124,7 +129,6 @@ int main() {
 	float currentFrame, lastFrame, deltaTime;
 	lastFrame = glfwGetTime();
 
-
 	// Setup devices
 	gpu = GPU(windowWidth, windowHeight);
 	window = gpu.Setup(onResize);
@@ -138,7 +142,6 @@ int main() {
 	input.Add(53, BUTTON, GLFW_KEY_F3);
 	input.Add(54, BUTTON, GLFW_KEY_F4);
 
-
 	// Read ROM file
 	ROMReader reader = ROMReader("data/demogame.vexo");
 	reader.Read(&gpu, &apu, &input);
@@ -148,7 +151,7 @@ int main() {
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
 	makeDemoClutter();
-	Sprite gridSprite = Sprite(1, &gpu);
+	Sprite gridSprite = Sprite(2, &gpu);
 
 	//apu.PlaySong(0);
 
@@ -161,7 +164,6 @@ int main() {
 
 		moveDemoPrims(deltaTime);
 		moveDemoClutter(deltaTime);
-		gridSprite.scale(0.5, 0.5);
 		gpu.Assemble();
 		gpu.Render();
 	}

@@ -12,3 +12,13 @@ Sprite::Sprite(int image, GPU* gpu) {
 void Sprite::update() {
 	gpuSprite->update();
 }
+
+float Sprite::x() {
+	return gpuSprite->x;
+}
+float Sprite::y() {
+	return gpuSprite->y;
+}
+float Sprite::rot() {
+	return gpuSprite->rot;
+}

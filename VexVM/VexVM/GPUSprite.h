@@ -24,6 +24,7 @@ public:
 	Line* data;
 	Line* data_out;
 	int datac;
+private:
 };
 
 struct GPUSpriteTicket {

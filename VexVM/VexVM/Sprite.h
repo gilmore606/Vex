@@ -11,6 +11,9 @@ class Sprite
 public:
 	Sprite(int image, GPU* gpu);
 
+	float x();
+	float y();
+	float rot();
 	void moveTo(float x, float y);
 	void rotate(float rads);
 	void scale(float xs, float ys);

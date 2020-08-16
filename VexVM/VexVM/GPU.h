@@ -14,7 +14,7 @@
 struct GPUsettings {
 	float MAX_POINTS = 16000;
 	float MAX_LINES = 64000;
-	float MAX_SPRITES = 255;
+	float MAX_SPRITES = 1024;
 
 	double ASPECT_RATIO = 4.0 / 4.0;
 	bool DRAW_SCREEN = true;

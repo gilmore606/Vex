@@ -6,10 +6,6 @@
 #include "util.cpp"
 
 GPU::GPU() {
-	points = new Point[settings.MAX_POINTS];
-	lines = new Line[settings.MAX_LINES];
-	sprites = new GPUSprite[settings.MAX_SPRITES];
-	scaledscreen = new float[24];
 	std::cout << "GPU created, somehow" << std::endl;
 }
 
