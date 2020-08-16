@@ -7,6 +7,7 @@
 #include "VEXSong.h"
 #include "Sprite.h"
 #include "Input.h"
+#include "CPU.h"
 #include "APU.h"
 #include "GPU.h"
 
@@ -17,7 +18,7 @@ class ROMReader {
 public:
 	ROMReader(const char* filename);
 
-	void Read(GPU* gpu, APU* apu, Input* input);
+	void Read(CPU* cpu, GPU* gpu, APU* apu, Input* input);
 	unsigned char next();
 	int nextInt();
 	int next2Int();

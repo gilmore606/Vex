@@ -7,7 +7,7 @@ ROMReader::ROMReader(const char* filename) {
 	this->filename = filename;
 }
 
-void ROMReader::Read(GPU* gpu, APU* apu, Input* input) {
+void ROMReader::Read(CPU* cpu, GPU* gpu, APU* apu, Input* input) {
 	std::cout << "reading ROM " << filename << std::endl;
 
 	std::basic_ifstream<BYTE> file(filename, std::ios::binary);
@@ -26,6 +26,7 @@ void ROMReader::Read(GPU* gpu, APU* apu, Input* input) {
 	while (!eof) {
 		std::string marker = getMarker();
 		std::string resourceName = "";
+
 		if (marker.compare("EOF") == 0) {
 			std::cout << "read EOF" << std::endl;
 			eof = true;
@@ -35,7 +36,7 @@ void ROMReader::Read(GPU* gpu, APU* apu, Input* input) {
 			if (marker.compare("SNG") == 0) {
 				apu->LoadSong(readSong());
 			} else if (marker.compare("COD") == 0) {
-				readCode();
+				//cpu->loadCode(readCode(resourceName);
 			} else if (marker.compare("CTR") == 0) {
 				readControls(input);
 			} else if (marker.compare("IMG") == 0) {

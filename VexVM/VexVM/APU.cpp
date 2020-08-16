@@ -50,10 +50,17 @@ void APU::LoadSong(VEXSong* song) {
 	songs.push_back(*song);
 }
 
+void APU::Patch(int channel, VEXInstrument* patch) {
+	voices[channel].Patch(patch->pan, patch->volume, patch->a, patch->d, patch->s, patch->r, patch->wave1, patch->wave2, patch->detune, patch->phase);
+}
+
 void APU::PlaySong(int songid) {
 	if (songid >= songs.size()) { throw "illegal songid"; }
 	song = &songs.at(songid);
 	std::cout << "APU play song " << songid << " (" << song->notecount << " notes)" << std::endl;
+	for (int i = 0; i < song->instruments.size(); i++) {
+		Patch(i, &song->instruments[i]);
+	}
 	song->setTempo(600);
 	song->Reset();
 }

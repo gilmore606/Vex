@@ -6,11 +6,13 @@
 #include "VEXSong.h"
 #include "ROMReader.h"
 #include "util.cpp"
+#include "CPU.h"
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
 #include "Sprite.h"
 
+CPU cpu;
 GPU gpu;
 APU apu;
 Input input;
@@ -36,6 +38,7 @@ struct DemoRock {
 std::vector<DemoRock> demoRocks;
 DemoRock demoShip;
 
+// Proxy callback for GPU
 void onResize(GLFWwindow* window, int w, int h) {
 	windowWidth = w;
 	windowHeight = h;
@@ -43,7 +46,7 @@ void onResize(GLFWwindow* window, int w, int h) {
 }
 
 void makeDemoPrims() {
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 24; i++) {
 		Sprite* sp = new Sprite(1, &gpu);
 		sp->moveTo(randCoord(), randCoord());
 		float scale = (randFloat() * 0.05f) + 0.05f;
@@ -114,6 +117,8 @@ void fireDemoShot() {
 void handleButton(int input) {
 	if (input == 3) fireDemoShot();
 
+	cpu.OnInput(input);
+
 	if (input == 50) glfwSetWindowShouldClose(window, GLFW_TRUE);
 	if (input == 51) gpu.toggleLayer(0);
 	if (input == 52) gpu.toggleLayer(1);
@@ -130,6 +135,7 @@ int main() {
 	lastFrame = glfwGetTime();
 
 	// Setup devices
+	cpu = CPU();
 	gpu = GPU(windowWidth, windowHeight);
 	window = gpu.Setup(onResize);
 	apu = APU();
@@ -141,19 +147,23 @@ int main() {
 	input.Add(52, BUTTON, GLFW_KEY_F2);
 	input.Add(53, BUTTON, GLFW_KEY_F3);
 	input.Add(54, BUTTON, GLFW_KEY_F4);
+	cpu.Connect(&gpu, &apu, &input);
 
 	// Read ROM file
 	ROMReader reader = ROMReader("data/demogame.vexo");
-	reader.Read(&gpu, &apu, &input);
+	reader.Read(&cpu, &gpu, &apu, &input);
 
+	// Boot
+	cpu.Boot();
 	
+
 	// Make demo shit
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
 	makeDemoClutter();
 	Sprite gridSprite = Sprite(2, &gpu);
 
-	//apu.PlaySong(0);
+	apu.PlaySong(0);
 
 	// MAIN LOOP
 
@@ -164,11 +174,15 @@ int main() {
 
 		moveDemoPrims(deltaTime);
 		moveDemoClutter(deltaTime);
+
+		cpu.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
 	}
 
 	apu.Stop();
+	cpu.Stop();
 	gpu.Stop();
+
 	return 0;
 }

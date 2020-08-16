@@ -5,9 +5,7 @@
 #include "Framebuffer.h"
 #include "util.cpp"
 
-GPU::GPU() {
-	std::cout << "GPU created, somehow" << std::endl;
-}
+GPU::GPU() { }
 
 GPU::GPU(int w, int h) {
 	this->w = w;

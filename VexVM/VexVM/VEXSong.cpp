@@ -2,7 +2,10 @@
 #include "ROMReader.h"
 #include "VEXInstrument.h"
 
-VEXSong::VEXSong() { }
+VEXSong::VEXSong() { 
+	speed = 1.0;
+	resolution = 192.0;
+}
 
 void VEXSong::Read(ROMReader* rom) {
 	notecount = rom->next3Int();
@@ -56,6 +59,7 @@ void VEXSong::Reset() {
 void VEXSong::setTempo(int tempo) {
 	this->tempo = tempo;
 	ticksPerSecond = ((double)tempo / 1000.0) * resolution * speed;
+	std::cout << "song tps " << ticksPerSecond << std::endl;
 }
 
 // Advance our ticks

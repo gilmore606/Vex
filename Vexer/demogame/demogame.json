@@ -39,9 +39,9 @@
     ],
 	"instruments": [
             {
-                "name": "pulselead",
-                "waves": [ "PULSE", "PULSE" ],
-                "adsr": [ 3, 0, 100, 3 ],
+                "name": "piano",
+                "waves": [ "PULSE", "SINE" ],
+                "adsr": [ 3, 0, 40, 130 ],
                 "detune": 15
             },
             {
@@ -60,9 +60,9 @@
 	"songs": [
             {
                 "name": "maintheme",
-                "file": "skyfox.mid",
-                "voices": [ "softpad", "pulselead", "pulselead", "drum" ],
-                "volumes": [ 255, 180, 180, 255 ],
+                "file": "1942.mid",
+                "voices": [ "piano", "piano", "piano", "piano" ],
+                "volumes": [ 200, 200, 200, 200 ],
                 "pans": [ 128, 60, 190, 128 ]
             }
         ]

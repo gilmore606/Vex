@@ -15,6 +15,7 @@ struct APU{
 		double streamTime, RtAudioStreamStatus status, void* userData));
 	void Reset();
 	void LoadSong(VEXSong* song);
+	void Patch(int channel, VEXInstrument* patch);
 	void PlaySong(int songid);
 	void PlayNote(VEXNote* note);
 	void Stop();

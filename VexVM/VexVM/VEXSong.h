@@ -16,6 +16,7 @@ public:
 	long notecount;
 	int resolution;
 	int voicecount;
+	std::vector<VEXInstrument> instruments;
 
 	VEXSong();
 	void Read(ROMReader* rom);
@@ -26,7 +27,6 @@ public:
 
 private:
 	std::vector<VEXNote> notes;
-	std::vector<VEXInstrument> instruments;
 	long tick;
 	long notecursor;
 	int tempo;

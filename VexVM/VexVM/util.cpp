@@ -27,3 +27,8 @@ static float wrapCoord(float c) {
 	if (c < -1.1f) c += 2.2f;
 	return c;
 }
+
+static float bounceCoord(float c) {
+	if (c < -0.99f || c > 0.99f) c = -c;
+	return c;
+}
