@@ -3,24 +3,22 @@
 #include <iostream>
 #include <vector>
 
-#include "Shader.h"
-#include "GPU.h"
-#include "APU.h"
-#include "Input.h"
 #include "VEXSong.h"
 #include "ROMReader.h"
 #include "util.cpp"
+#include "GPU.h"
+#include "APU.h"
+#include "Input.h"
+
+GPU gpu;
+APU apu;
+Input input;
 
 
 
 GLFWwindow* window;
 int windowWidth = 1300;
 int windowHeight = 1300;
-GPU gpu;
-APU apu;
-Input input;
-
-
 
 constexpr auto DEMO_POINTS = 200;
 constexpr auto DEMO_LINES = 50;
@@ -105,7 +103,7 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 }
 
 void fireDemoShot() {
-	apu.voices[1].Trigger(440, 127);
+	// TODO: play an actual sound, make a point
 }
 
 void handleButton(int input) {
@@ -150,8 +148,9 @@ int main() {
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
 	makeDemoClutter();
-	
-	apu.PlaySong(0);
+	Sprite gridSprite = Sprite(1, &gpu);
+
+	//apu.PlaySong(0);
 
 	// MAIN LOOP
 
@@ -162,7 +161,7 @@ int main() {
 
 		moveDemoPrims(deltaTime);
 		moveDemoClutter(deltaTime);
-
+		gridSprite.scale(0.5, 0.5);
 		gpu.Assemble();
 		gpu.Render();
 	}

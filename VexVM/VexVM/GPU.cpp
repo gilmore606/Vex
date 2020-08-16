@@ -5,11 +5,21 @@
 #include "Framebuffer.h"
 #include "util.cpp"
 
-GPU::GPU() { }
+GPU::GPU() {
+	points = new Point[settings.MAX_POINTS];
+	lines = new Line[settings.MAX_LINES];
+	sprites = new GPUSprite[settings.MAX_SPRITES];
+	scaledscreen = new float[24];
+	std::cout << "GPU created, somehow" << std::endl;
+}
 
 GPU::GPU(int w, int h) {
 	this->w = w;
 	this->h = h;
+	points = new Point[settings.MAX_POINTS];
+	lines = new Line[settings.MAX_LINES];
+	sprites = new GPUSprite[settings.MAX_SPRITES];
+	scaledscreen = new float[24];
 	std::cout << "GPU created" << std::endl;
 }
 
@@ -37,7 +47,26 @@ void GPU::Resize(int w, int h) {
 }
 
 void GPU::loadImage(Image* image) {
+	images.push_back(image);
+}
 
+GPUSpriteTicket GPU::createSprite(int image) {
+	int id = 0;
+	while ((id < settings.MAX_SPRITES) && sprites[id].active) { id++; }
+	if (id == settings.MAX_SPRITES) throw "too many sprites";
+	if (id >= spritec) spritec = id + 1;
+	GPUSprite* sprite = &sprites[id];
+	sprite->active = true;
+	sprite->loadImage(images.at(image));
+
+	GPUSpriteTicket ticket;
+	ticket.gpuSprite = sprite;
+	ticket.gpuSpriteID = id;
+	return ticket;
+}
+
+void GPU::destroySprite(int id) {
+	sprites[id].active = false;
 }
 
 Point* GPU::addPoint(float x, float y, float r, float g, float b, float size) {
@@ -59,6 +88,7 @@ Line* GPU::addLine(float x1, float y1, float x2, float y2, float r, float g, flo
 void GPU::Reset() {
 	pointc = 0;
 	linec = 0;
+	spritec = 0;
 }
 
 void GPU::makeShaders() {
@@ -168,6 +198,11 @@ void GPU::Assemble() {
 	}
 	for (int i = 0; i < linec; i++) {
 		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac);
+	}
+	for (int i = 0; i < spritec; i++) {
+		if (sprites[i].active) {
+			sprites[i].PushData(linesVB.vertdata, &linesVB.vertdatac);
+		}
 	}
 	pointsVB.Update();
 	linesVB.Update();

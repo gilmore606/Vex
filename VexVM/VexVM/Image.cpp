@@ -1,7 +1,9 @@
 #include "Image.h"
 #include "ROMReader.h"
 
-Image::Image() { }
+Image::Image() { 
+	lines.reserve(16);
+}
 
 void Image::Read(ROMReader* rom) {
 	int floatc = rom->next2Int();
@@ -13,6 +15,6 @@ void Image::Read(ROMReader* rom) {
 		float r = rom->next2Float();
 		float g = rom->next2Float();
 		float b = rom->next2Float();
-		//lines.push_back(new Line(x1, y1, x2, y2, r, g, b));
+		lines.push_back(Line(x1, y1, x2, y2, r, g, b));
 	}
 }

@@ -9,11 +9,12 @@
 #include "Point.h"
 #include "Line.h"
 #include "Image.h"
-#include "Sprite.h"
+#include "GPUSprite.h"
 
 struct GPUsettings {
 	float MAX_POINTS = 16000;
 	float MAX_LINES = 64000;
+	float MAX_SPRITES = 255;
 
 	double ASPECT_RATIO = 4.0 / 4.0;
 	bool DRAW_SCREEN = true;
@@ -52,11 +53,12 @@ public:
 	void Render();
 	void Stop();
 	void loadImage(Image* image);
+	GPUSpriteTicket createSprite(int image);
+	void destroySprite(int id);
 
 	Point* addPoint(float x, float y, float r, float g, float b, float size);
 	Line* addLine(float x1, float y1, float x2, float y2, float r, float g, float b);
-	Sprite* getSpriteSlot();
-
+	
 	void toggleLayer(int layer);
 
 	GPUsettings settings;
@@ -67,11 +69,14 @@ private:
 	void makeVBs();
 	void drawPrims(float pointThick, float lineThick, float pointBright, float lineBright);
 
-	Point* points = new Point[settings.MAX_POINTS];
+	Point* points;
 	int pointc = 0;
-	Line* lines = new Line[settings.MAX_LINES];
+	Line* lines;
 	int linec = 0;
-	std::vector<Image> images;
+	GPUSprite* sprites;
+	int spritec = 0;
+
+	std::vector<Image*> images;
 
 	int w, h, screenw, screenh;
 	GLFWwindow* window;
@@ -88,5 +93,5 @@ private:
 		1.0f, 1.0f, 1.0f, 1.0f
 	};
 
-	float* scaledscreen = new float[24];
+	float* scaledscreen;
 };

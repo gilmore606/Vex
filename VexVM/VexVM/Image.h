@@ -11,6 +11,5 @@ public:
 	Image();
 	void Read(ROMReader* rom);
 
-private:
 	std::vector<Line> lines;
 };
