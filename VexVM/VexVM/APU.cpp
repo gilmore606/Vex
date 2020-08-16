@@ -46,8 +46,15 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
-void APU::PlaySong(VEXSong* song) {
-	this->song = song;
+void APU::LoadSong(VEXSong* song) {
+	songs.push_back(*song);
+}
+
+void APU::PlaySong(int songid) {
+	if (songid >= songs.size()) { throw "illegal songid"; }
+	song = &songs.at(songid);
+	std::cout << "APU play song " << songid << " (" << song->notecount << " notes)" << std::endl;
+	song->setTempo(600);
 	song->Reset();
 }
 

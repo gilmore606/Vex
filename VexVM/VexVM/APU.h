@@ -6,6 +6,7 @@ constexpr auto MAX_VOICES = 6;
 #include "RtAudio.h"
 #include "APUVoice.h"
 #include "VEXSong.h"
+#include <vector>
 
 struct APU{
 	APU();
@@ -13,7 +14,8 @@ struct APU{
 	void Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData));
 	void Reset();
-	void PlaySong(VEXSong* song);
+	void LoadSong(VEXSong* song);
+	void PlaySong(int songid);
 	void PlayNote(VEXNote* note);
 	void Stop();
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
@@ -23,6 +25,7 @@ struct APU{
 
 private:
 	bool started;
+	std::vector<VEXSong> songs;
 	VEXSong* song;
 
 	RtAudio* adac;

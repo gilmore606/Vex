@@ -2,28 +2,30 @@
 #include "ROMReader.h"
 #include "VEXInstrument.h"
 
-VEXSong::VEXSong(ROMReader* rom) {
+VEXSong::VEXSong() { }
+
+void VEXSong::Read(ROMReader* rom) {
 	notecount = rom->next3Int();
 	resolution = rom->next2Int();
 	voicecount = rom->next();
-	notes = new VEXNote[notecount];
 	for (int i = 0; i < notecount; i++) {
-		notes[i].tick = rom->next3Int();
-		notes[i].channel = rom->next();
+		VEXNote* note = new VEXNote();
+		note->tick = rom->next3Int();
+		note->channel = rom->next();
 		switch (rom->next()) {
-			case 0: notes[i].type = NOTE_OFF; break;
-			case 1: notes[i].type = NOTE_ON; break;
-			case 2: notes[i].type = POLY_AFTER; break;
-			case 3: notes[i].type = CONTROL_CHANGE; break;
-			case 4: notes[i].type = PROGRAM_CHANGE; break;
-			case 5: notes[i].type = CHANNEL_AFTER; break;
-			case 6: notes[i].type = PITCH_BEND; break;
-			case 7: notes[i].type = TEMPO; break;
-			default: notes[i].type = SYSEX; break;
+			case 0: note->type = NOTE_OFF; break;
+			case 1: note->type = NOTE_ON; break;
+			case 2: note->type = POLY_AFTER; break;
+			case 3: note->type = CONTROL_CHANGE; break;
+			case 4: note->type = PROGRAM_CHANGE; break;
+			case 5: note->type = CHANNEL_AFTER; break;
+			case 6: note->type = PITCH_BEND; break;
+			case 7: note->type = TEMPO; break;
+			default: note->type = SYSEX; break;
 		}
-		notes[i].data1 = rom->next();
-		notes[i].data2 = rom->next();
-		//std::cout << notes[i].tick << ": " << notes[i].channel << "  " << notes[i].type << " (" << notes[i].data1 << "," << notes[i].data2 << ")" << std::endl;
+		note->data1 = rom->next();
+		note->data2 = rom->next();
+		notes.push_back(*note);
 	}
 	std::cout << "  read " << notecount << " notes" << std::endl;
 	Reset();
@@ -40,8 +42,7 @@ VEXSong::VEXSong(ROMReader* rom) {
 		int ph = rom->nextInt();
 		int v = rom->nextInt();
 		int p = rom->nextInt();
-		VEXInstrument instrument = VEXInstrument(w1, w2, a, d, s, r, dt, ph, v, p);
-
+		instruments.push_back(VEXInstrument(w1, w2, a, d, s, r, dt, ph, v, p));
 	}
 	std::cout << "  read " << voicecount << " instruments" << std::endl;
 }

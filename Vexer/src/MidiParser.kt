@@ -3,40 +3,40 @@ import model.Song
 import javax.sound.midi.MidiSystem
 import java.io.File
 
-enum class TuneMsgType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, PITCH_BEND, SYSEX, TEMPO }
-class TuneMsg(
-        var type: TuneMsgType,
-        var channel: Int,
-        var data1: UByte,
-        var data2: UByte,
-        var time: Long
+enum class NoteType { NOTE_OFF, NOTE_ON, POLY_AFTER, CONTROL_CHANGE, PROGRAM_CHANGE, CHANNEL_AFTER, PITCH_BEND, SYSEX, TEMPO }
+class Note(
+    var type: NoteType,
+    var channel: Int,
+    var data1: UByte,
+    var data2: UByte,
+    var time: Long
 ) {
     fun print() {
         val typestr = when (type) {
-            TuneMsgType.NOTE_OFF ->       "Note off        "
-            TuneMsgType.NOTE_ON ->        "Note on         "
-            TuneMsgType.POLY_AFTER ->     "Poly aftertouch "
-            TuneMsgType.CONTROL_CHANGE -> "CC              "
-            TuneMsgType.PROGRAM_CHANGE -> "PC              "
-            TuneMsgType.CHANNEL_AFTER ->  "Aftertouch      "
-            TuneMsgType.PITCH_BEND ->     "Pitch bend      "
-            TuneMsgType.SYSEX ->          "SYSEX           "
-            TuneMsgType.TEMPO ->          "TEMPO           "
+            NoteType.NOTE_OFF ->       "Note off   "
+            NoteType.NOTE_ON ->        "Note on    "
+            NoteType.POLY_AFTER ->     "Poly touch "
+            NoteType.CONTROL_CHANGE -> "CC         "
+            NoteType.PROGRAM_CHANGE -> "PC         "
+            NoteType.CHANNEL_AFTER ->  "Aftertouch "
+            NoteType.PITCH_BEND ->     "Pitch bend "
+            NoteType.SYSEX ->          "SYSEX      "
+            NoteType.TEMPO ->          "TEMPO      "
         }
-        println("  " + time.toInt() + ": " + channel + "  " + typestr + " (" + data1.toInt() + ", " + data2.toInt() + ")")
+        println("  " + time.toInt() + ": ch" + channel + "  " + typestr + " (" + data1.toInt() + ", " + data2.toInt() + ")")
     }
 
     fun write(bytes: ArrayList<UByte>, fVerbose: Boolean) {
         val typebyte: UByte = when (type) {
-            TuneMsgType.NOTE_OFF ->       0.toUByte()
-            TuneMsgType.NOTE_ON ->        1.toUByte()
-            TuneMsgType.POLY_AFTER ->     2.toUByte()
-            TuneMsgType.CONTROL_CHANGE -> 3.toUByte()
-            TuneMsgType.PROGRAM_CHANGE -> 4.toUByte()
-            TuneMsgType.CHANNEL_AFTER ->  5.toUByte()
-            TuneMsgType.PITCH_BEND ->     6.toUByte()
-            TuneMsgType.TEMPO ->          7.toUByte()
-            TuneMsgType.SYSEX ->          255.toUByte()
+            NoteType.NOTE_OFF ->       0.toUByte()
+            NoteType.NOTE_ON ->        1.toUByte()
+            NoteType.POLY_AFTER ->     2.toUByte()
+            NoteType.CONTROL_CHANGE -> 3.toUByte()
+            NoteType.PROGRAM_CHANGE -> 4.toUByte()
+            NoteType.CHANNEL_AFTER ->  5.toUByte()
+            NoteType.PITCH_BEND ->     6.toUByte()
+            NoteType.TEMPO ->          7.toUByte()
+            NoteType.SYSEX ->          255.toUByte()
         }
         val timebyte0 = (time % 256)
         val time1 = (time - timebyte0) / 256
@@ -48,8 +48,6 @@ class TuneMsg(
         bytes.add(typebyte)
         bytes.add(data1)
         bytes.add(data2)
-        if (fVerbose) println(timebyte0.toUByte().toString() + "," + time1.toUByte().toString() + "," + time2.toUByte().toString() + ", " + channel.toUByte()
-            + ", " + typebyte.toString() + ", " + data1.toString() + "," + data2.toString())
     }
 }
 
@@ -61,7 +59,7 @@ class MidiParser(val filepath: String, val instrumentCount: Int, val fVerbose: B
 
         val sequence = MidiSystem.getSequence(File(filepath))
 
-        val events = ArrayList<TuneMsg>()
+        val events = ArrayList<Note>()
         for (track in sequence.getTracks()) {
             if (fVerbose) println("  MIDI track size: " + track.size())
             for (i in 0..track.size()-1) {
@@ -73,24 +71,24 @@ class MidiParser(val filepath: String, val instrumentCount: Int, val fVerbose: B
                 var data2: UByte = 0.toUByte()
                 if (len > 1) data1 = message[1].toUByte()
                 if (len > 2) data2 = message[2].toUByte()
-                val tuneMsg = when (status) {
-                    in 128..143 -> TuneMsg(TuneMsgType.NOTE_OFF, status-128, data1, data2, time)
-                    in 144..159 -> TuneMsg(TuneMsgType.NOTE_ON, status-144, data1, data2, time)
-                    in 160..175 -> TuneMsg(TuneMsgType.POLY_AFTER, status-160, data1, data2, time)
-                    in 176..191 -> TuneMsg(TuneMsgType.CONTROL_CHANGE, status-176, data1, data2, time)
-                    in 192..207 -> TuneMsg(TuneMsgType.PROGRAM_CHANGE, status-192, data1, data2, time)
-                    in 208..223 -> TuneMsg(TuneMsgType.CHANNEL_AFTER, status-208, data1, data2, time)
-                    in 224..239 -> TuneMsg(TuneMsgType.PITCH_BEND, status-224, data1, data2, time)
-                    else -> TuneMsg(TuneMsgType.SYSEX, status, data1, data2, time)
+                val note = when (status) {
+                    in 128..143 -> Note(NoteType.NOTE_OFF, status-128, data1, data2, time)
+                    in 144..159 -> Note(NoteType.NOTE_ON, status-144, data1, data2, time)
+                    in 160..175 -> Note(NoteType.POLY_AFTER, status-160, data1, data2, time)
+                    in 176..191 -> Note(NoteType.CONTROL_CHANGE, status-176, data1, data2, time)
+                    in 192..207 -> Note(NoteType.PROGRAM_CHANGE, status-192, data1, data2, time)
+                    in 208..223 -> Note(NoteType.CHANNEL_AFTER, status-208, data1, data2, time)
+                    in 224..239 -> Note(NoteType.PITCH_BEND, status-224, data1, data2, time)
+                    else -> Note(NoteType.SYSEX, status, data1, data2, time)
                 }
-                if ((tuneMsg.type == TuneMsgType.SYSEX) && (tuneMsg.data1 == 81.toUByte()) && (tuneMsg.data2 == 3.toUByte())) {
-                    tuneMsg.type = TuneMsgType.TEMPO
+                if ((note.type == NoteType.SYSEX) && (note.data1 == 81.toUByte()) && (note.data2 == 3.toUByte())) {
+                    note.type = NoteType.TEMPO
                     var tempo = message[3].toInt() * 65536 + message[4].toInt() * 256 + message[5];
                     tempo = tempo / 1000;
-                    tuneMsg.data1 = (tempo / 256).toUByte()
-                    tuneMsg.data2 = (tempo - tuneMsg.data1.toInt() * 256).toUByte()
+                    note.data1 = (tempo / 256).toUByte()
+                    note.data2 = (tempo - note.data1.toInt() * 256).toUByte()
                 }
-                events.add(tuneMsg)
+                events.add(note)
             }
         }
         // Interleave all events sequentially

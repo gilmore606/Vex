@@ -7,7 +7,7 @@ ROMReader::ROMReader(const char* filename) {
 	this->filename = filename;
 }
 
-void ROMReader::Read(std::vector<Sprite> sprites, std::vector<VEXSong> songs, Input* input) {
+void ROMReader::Read(GPU* gpu, APU* apu, Input* input) {
 	std::cout << "reading ROM " << filename << std::endl;
 
 	std::basic_ifstream<BYTE> file(filename, std::ios::binary);
@@ -33,13 +33,13 @@ void ROMReader::Read(std::vector<Sprite> sprites, std::vector<VEXSong> songs, In
 			resourceName = getMarker();
 			std::cout << "read segment " << marker << ": " << resourceName << std::endl;
 			if (marker.compare("SNG") == 0) {
-				readSong(songs, resourceName);
+				apu->LoadSong(readSong());
 			} else if (marker.compare("COD") == 0) {
 				readCode();
 			} else if (marker.compare("CTR") == 0) {
 				readControls(input);
-			} else if (marker.compare("SPR") == 0) {
-				readSprite(sprites);
+			} else if (marker.compare("IMG") == 0) {
+				gpu->loadImage(readImage(std::stoi(resourceName)));
 			} else if (marker.compare("DAT") == 0) {
 				readData();
 			}
@@ -71,6 +71,10 @@ int ROMReader::next3Int() {
 	cursor += 3;
 	return b1 + b2 * 256 + b3 * 65536;
 }
+float ROMReader::next2Float() {
+	int i = next2Int();
+	return ((float)i / 65536.0f) * 2.0f - 1.0f;
+}
 
 bool ROMReader::expectMarker(std::string expected) {
 	std::string marker = getMarker();
@@ -94,9 +98,10 @@ std::string ROMReader::getMarker() {
 	return marker;
 }
 
-void ROMReader::readSong(std::vector<VEXSong> songs, std::string title) {
-	VEXSong* song = new VEXSong(this);
-	songs.push_back(*song);
+VEXSong* ROMReader::readSong() {
+	VEXSong* song = new VEXSong();
+	song->Read(this);
+	return song;
 }
 
 void ROMReader::readCode() {
@@ -122,8 +127,10 @@ void ROMReader::readInstr() {
 	std::cout << "reading instr..." << std::endl;
 }
 
-void ROMReader::readSprite(std::vector<Sprite> sprites) {
-	std::cout << "reading sprite..." << std::endl;
+Image* ROMReader::readImage(int id) {
+	Image* image = new Image();
+	image->Read(this);
+	return image;
 }
 
 void ROMReader::readData() {

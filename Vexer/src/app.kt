@@ -1,6 +1,7 @@
 import com.beust.klaxon.Klaxon
 import compiler.Compiler
 import model.Game
+import model.Image
 import model.OutInstrument
 import java.io.File
 import java.lang.RuntimeException
@@ -11,7 +12,7 @@ fun main() {
 
     val startTime = System.currentTimeMillis()
     val romName = "demogame"
-    val fVerbose = false
+    val fVerbose = true
     val sourceDir = romName
 
     // Parse the manifest
@@ -40,10 +41,14 @@ fun main() {
     gameConfig.controls.forEach { it.writeToFile(outFile) }
     println("  wrote controls")
 
-    // Write sprites
 
-    gameConfig.sprites.forEach { sprite ->
+    // Write images
 
+    gameConfig.images.sortBy { it.id }
+    gameConfig.images.forEach { config ->
+        val image = ImageParser(config, fVerbose)
+        image.parse()
+        image.writeToFile(outFile)
     }
 
 

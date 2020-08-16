@@ -2,11 +2,13 @@
 
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
+#include <vector>
 #include "Shader.h"
 #include "Framebuffer.h"
 #include "Vertbuffer.h"
 #include "Point.h"
 #include "Line.h"
+#include "Image.h"
 #include "Sprite.h"
 
 struct GPUsettings {
@@ -49,10 +51,11 @@ public:
 	void Assemble();
 	void Render();
 	void Stop();
+	void loadImage(Image* image);
 
 	Point* addPoint(float x, float y, float r, float g, float b, float size);
 	Line* addLine(float x1, float y1, float x2, float y2, float r, float g, float b);
-	void addSprite(Sprite* sprite);
+	Sprite* getSpriteSlot();
 
 	void toggleLayer(int layer);
 
@@ -68,8 +71,7 @@ private:
 	int pointc = 0;
 	Line* lines = new Line[settings.MAX_LINES];
 	int linec = 0;
-	Sprite* sprites[1024];
-	int spritec = 0;
+	std::vector<Image> images;
 
 	int w, h, screenw, screenh;
 	GLFWwindow* window;

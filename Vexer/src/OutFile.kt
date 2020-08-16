@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
 import java.io.File
 
 class OutFile(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
@@ -43,5 +45,15 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
         val b1 = (i - b0) / 256
         outBytes.add(b0.toUByte())
         outBytes.add(b1.toUByte())
+    }
+
+    fun writeFloats(floats: ArrayList<Float>) {
+        floats.forEach { f ->
+            var s = f
+            if (f >= 1.0f) s = 0.999f
+            if (f <= -1.0f) s = -0.999f
+            val i = ((s + 1.0f) * 0.5f * 65536.0f).toInt()
+            write2ByteInt(i)
+        }
     }
 }

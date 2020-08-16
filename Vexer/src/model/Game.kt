@@ -7,7 +7,7 @@ data class Game(
     val code: String,
     val aspectRatio: ArrayList<Int>,
     val controls: ArrayList<Control>,
-    val sprites: ArrayList<Sprite>,
+    val images: ArrayList<Image>,
     val instruments: ArrayList<Instrument>,
     val songs: ArrayList<Song>
 )

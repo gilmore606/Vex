@@ -36,6 +36,10 @@ void GPU::Resize(int w, int h) {
 	makeBuffers();
 }
 
+void GPU::loadImage(Image* image) {
+
+}
+
 Point* GPU::addPoint(float x, float y, float r, float g, float b, float size) {
 	if (pointc >= settings.MAX_POINTS) throw "GPU point memory full!";
 	points[pointc] = Point(x, y, r, g, b, size);
@@ -50,16 +54,11 @@ Line* GPU::addLine(float x1, float y1, float x2, float y2, float r, float g, flo
 	return &lines[linec - 1];
 }
 
-void GPU::addSprite(Sprite* sprite) {
-	sprites[spritec] = sprite;
-	spritec++;
-}
 
 // Remove all prims from draw lists
 void GPU::Reset() {
 	pointc = 0;
 	linec = 0;
-	spritec = 0;
 }
 
 void GPU::makeShaders() {
@@ -169,10 +168,6 @@ void GPU::Assemble() {
 	}
 	for (int i = 0; i < linec; i++) {
 		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac);
-	}
-	for (int i = 0; i < spritec; i++) {
-		Sprite* s = sprites[i];
-		s->PushData(linesVB.vertdata, &linesVB.vertdatac);
 	}
 	pointsVB.Update();
 	linesVB.Update();
