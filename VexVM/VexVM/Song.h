@@ -26,6 +26,7 @@ public:
 	Note* getNote();
 
 private:
+	bool done;
 	std::vector<Note> notes;
 	long tick;
 	long notecursor;

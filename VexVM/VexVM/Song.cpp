@@ -2,7 +2,7 @@
 #include "ROMReader.h"
 
 Song::Song() { 
-	speed = 1.0;
+	speed = 4.0;
 	resolution = 192.0;
 }
 
@@ -10,6 +10,7 @@ void Song::Read(ROMReader* rom) {
 	notecount = rom->next3Int();
 	resolution = rom->next2Int();
 	voicecount = rom->next();
+	notes.reserve(notecount);
 	for (int i = 0; i < notecount; i++) {
 		Note* note = new Note();
 		note->tick = rom->next3Int();
@@ -53,6 +54,7 @@ void Song::Reset() {
 	notecursor = 0;
 	setTempo(600);
 	tick = 0.0;
+	done = false;
 }
 
 void Song::setTempo(int tempo) {
@@ -61,13 +63,19 @@ void Song::setTempo(int tempo) {
 	std::cout << "song tps " << ticksPerSecond << std::endl;
 }
 
-// Advance our ticks
 void Song::advanceTime(double sec) {
 	tick += (sec * ticksPerSecond);
 }
 
 Note* Song::getNote() {
-	if (notecursor > notecount) return nullptr;
+	if (notecursor > notecount) {
+		if (loop) {
+			Reset();
+		} else {
+			done = true;
+		}
+		return nullptr;
+	}
 	if (notes[notecursor].tick <= tick) {
 		notecursor++;
 		return &notes[notecursor - 1];

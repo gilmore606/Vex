@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#include "VEXSong.h"
 #include "ROMReader.h"
 #include "util.cpp"
 #include "CPU.h"
@@ -163,7 +162,7 @@ int main() {
 	makeDemoClutter();
 	Sprite gridSprite = Sprite(2, &gpu);
 
-	apu.PlaySong(0);
+	//apu.PlaySong(0);
 
 	// MAIN LOOP
 

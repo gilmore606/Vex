@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Vertbuffer.h"
 
 class Line
 {

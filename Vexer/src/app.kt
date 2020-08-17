@@ -45,12 +45,16 @@ fun main() {
     // Write images
 
     gameConfig.images.sortBy { it.id }
-    gameConfig.images.forEach { config ->
-        val image = ImageParser(config, fVerbose)
-        image.parse()
+    gameConfig.images.forEach { image ->
         image.writeToFile(outFile)
     }
 
+
+    // Write fonts
+
+    gameConfig.fonts.forEach { font ->
+        font.writeToFile(outFile)
+    }
 
     // Compile instruments and map for insertion into songs
 

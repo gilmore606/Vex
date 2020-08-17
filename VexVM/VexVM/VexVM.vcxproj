@@ -155,6 +155,7 @@
     <ClCompile Include="APUVoice.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="dependencies\rtaudio-5.1.0\RtAudio.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GPU.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="APUVoice.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GPUSprite.h" />

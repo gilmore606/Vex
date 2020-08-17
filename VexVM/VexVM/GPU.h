@@ -10,6 +10,7 @@
 #include "Line.h"
 #include "Image.h"
 #include "GPUSprite.h"
+#include "Font.h"
 
 struct GPUsettings {
 	float MAX_POINTS = 16000;
@@ -53,7 +54,9 @@ public:
 	void Render();
 	void Stop();
 	void loadImage(Image* image);
+	void loadFont(Font* font);
 	GPUSpriteTicket createSprite(int image);
+	GPUSpriteTicket createText(int font, std::string text);
 	void destroySprite(int id);
 
 	Point* addPoint(float x, float y, float r, float g, float b, float size);
@@ -68,6 +71,7 @@ private:
 	void makeBuffers();
 	void makeVBs();
 	void drawPrims(float pointThick, float lineThick, float pointBright, float lineBright);
+	int reserveSprite();
 
 	Point* points;
 	int pointc = 0;
@@ -77,6 +81,7 @@ private:
 	int spritec = 0;
 
 	std::vector<Image*> images;
+	std::vector<Font*> fonts;
 
 	int w, h, screenw, screenh;
 	GLFWwindow* window;

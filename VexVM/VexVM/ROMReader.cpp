@@ -41,6 +41,8 @@ void ROMReader::Read(CPU* cpu, GPU* gpu, APU* apu, Input* input) {
 				readControls(input);
 			} else if (marker.compare("IMG") == 0) {
 				gpu->loadImage(readImage(std::stoi(resourceName)));
+			} else if (marker.compare("FNT") == 0) {
+				gpu->loadFont(readFont(std::stoi(resourceName)));
 			} else if (marker.compare("DAT") == 0) {
 				readData();
 			}
@@ -132,6 +134,12 @@ Image* ROMReader::readImage(int id) {
 	Image* image = new Image();
 	image->Read(this);
 	return image;
+}
+
+Font* ROMReader::readFont(int id) {
+	Font* font = new Font();
+	font->Read(this);
+	return font;
 }
 
 void ROMReader::readData() {

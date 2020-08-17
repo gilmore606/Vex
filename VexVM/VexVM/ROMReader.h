@@ -10,6 +10,7 @@
 #include "CPU.h"
 #include "APU.h"
 #include "GPU.h"
+#include "Font.h"
 
 
 typedef unsigned char BYTE;
@@ -34,6 +35,7 @@ private:
 	void readControls(Input* input);
 	void readInstr();
 	Image* readImage(int id);
+	Font* readFont(int id);
 	void readData();
 
 	const char* filename;

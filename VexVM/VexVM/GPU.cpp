@@ -43,15 +43,35 @@ void GPU::Resize(int w, int h) {
 void GPU::loadImage(Image* image) {
 	images.push_back(image);
 }
+void GPU::loadFont(Font* font) {
+	fonts.push_back(font);
+}
 
-GPUSpriteTicket GPU::createSprite(int image) {
+int GPU::reserveSprite() {
 	int id = 0;
 	while ((id < settings.MAX_SPRITES) && sprites[id].active) { id++; }
 	if (id == settings.MAX_SPRITES) throw "too many sprites";
 	if (id >= spritec) spritec = id + 1;
+	sprites[id].active = true;
+	return id;
+}
+
+GPUSpriteTicket GPU::createSprite(int image) {
+	int id = reserveSprite();
 	GPUSprite* sprite = &sprites[id];
-	sprite->active = true;
 	sprite->loadImage(images.at(image));
+
+	GPUSpriteTicket ticket;
+	ticket.gpuSprite = sprite;
+	ticket.gpuSpriteID = id;
+	return ticket;
+}
+
+GPUSpriteTicket GPU::createText(int font, std::string text) {
+	int id = reserveSprite();
+	GPUSprite* sprite = &sprites[id];
+
+	// draw glyphs into sprite
 
 	GPUSpriteTicket ticket;
 	ticket.gpuSprite = sprite;
