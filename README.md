@@ -11,6 +11,8 @@ DISCLAIMER FOR CONTRIBUTORS: I don't actually know C++!  My C++ code is terrible
 
 # Updates
 
+8/16: Proportional fonts and sprites.
+
 8/14: The speculative code below partially compiles (to an AST)!  The GPU and APU exist and mostly work!  The binary .vexo format exists and can be written and (partly) read!
 
 
