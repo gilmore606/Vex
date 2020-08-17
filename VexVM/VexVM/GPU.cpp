@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Framebuffer.h"
 #include "util.cpp"
+#include <algorithm>
 
 GPU::GPU() { }
 
