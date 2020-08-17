@@ -129,11 +129,7 @@ void handleButton(int input) {
 void handleSwitch(int input, bool isDown) { }
 
 
-
 int main() {
-	
-	float currentFrame, lastFrame, deltaTime;
-	lastFrame = glfwGetTime();
 
 	// Setup devices
 	scheduler = Scheduler();
@@ -165,12 +161,12 @@ int main() {
 	makeDemoClutter();
 
 	std::string demoText1 = "VEXSYSTEM";
-	std::string demoText2 = "version 0.7a1";
+	std::string demoText2 = "v0.1a1   vex-11/780";
 	std::string demoText3 = "(c) 1983 Atari Games - All rights reserved";
-	Sprite gridSprite = Sprite(2, &gpu);
-	Sprite textSprite1 = Sprite(&demoText1, 0, &gpu, 1.0f, 0.3f, 0.0f);
-	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.1f, 0.0f);
-	Sprite textSprite3 = Sprite(&demoText3, 1, &gpu, 0.6f, 0.05f, 0.0f);
+	//Sprite gridSprite = Sprite(2, &gpu);
+	Sprite textSprite1 = Sprite(&demoText1, 0, &gpu, 1.0f, 0.6f, 0.0f);
+	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.2f, 0.0f);
+	Sprite textSprite3 = Sprite(&demoText3, 1, &gpu, 0.3f, 0.02f, 0.0f);
 	textSprite1.scale(0.15f, 0.25f);
 	textSprite2.scale(0.03f, 0.03f);
 	textSprite3.scale(0.03f, 0.03f);
@@ -180,7 +176,11 @@ int main() {
 
 	apu.PlaySong(0);
 
+
 	// MAIN LOOP
+
+	float currentFrame, lastFrame, deltaTime;
+	lastFrame = glfwGetTime();
 
 	while (!glfwWindowShouldClose(window)) {
 		currentFrame = glfwGetTime();
@@ -190,15 +190,20 @@ int main() {
 		moveDemoPrims(deltaTime);
 		moveDemoClutter(deltaTime);
 		
+		scheduler.OnUpdate(currentFrame);
 		cpu.OnUpdate(deltaTime);
-		scheduler.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
 	}
 
+	scheduler.Stop();
 	apu.Stop();
 	cpu.Stop();
 	gpu.Stop();
 
 	return 0;
+}
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+	main();
 }

@@ -6,6 +6,10 @@ void Scheduler::Start() {
 
 }
 
-void Scheduler::OnUpdate(float delta) {
+void Scheduler::OnUpdate(float time) {
+
+}
+
+void Scheduler::Stop() {
 
 }
