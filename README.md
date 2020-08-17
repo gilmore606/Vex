@@ -12,6 +12,8 @@ DISCLAIMER FOR CONTRIBUTORS: I don't actually know C++!  My C++ code is terrible
 
 # Updates
 
+8/17: GPU: we can render >10,000 lines (or >1,000 sprites) at 60fps with pretty good vector simulation.  APU: we can play 8+ voice MIDI files with 2-osc ADSR synths that kinda sound like a POKEY chip.
+
 8/16: Proportional fonts and sprites.
 
 8/14: The speculative code below partially compiles (to an AST)!  The GPU and APU exist and mostly work!  The binary .vexo format exists and can be written and (partly) read!
