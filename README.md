@@ -27,14 +27,6 @@ Speculative asteroids.vexc :
 		SHOT_SPEED = 0.3
 		THRUST = 0.03
 
-	controls:
-		left (switch)
-		right (switch)
-		thrust (switch)
-		start (button)
-		fire (button debounce 200)
-		hyperspace (button debounce 1000)
-
 	screen attract:
 
 	on draw:
@@ -135,12 +127,4 @@ Speculative asteroids.vexc :
 		each shot: draw at xy
 		draw text score at position(0.45,0.01)
 
-
-	SPRITES.ship: (svg object)
-	SPRITES.explodingShip: (svg object w frames)
-	SPRITES.rockBig: (svg object)
-	SPRITES.rockMed (svg object)
-	SPRITES.rockSmall: (svg object)
-	SPRITES.shot: (svg object)
-	SPRITES.exhaust: (svg object)
 
