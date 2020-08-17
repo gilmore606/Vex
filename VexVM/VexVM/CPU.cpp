@@ -6,7 +6,8 @@ CPU::CPU() {
 	std::cout << "CPU missing; default to demo rom" << std::endl;
 }
 
-void CPU::Connect(GPU* gpu, APU* apu, Input* input) {
+void CPU::Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input) {
+	this->scheduler = scheduler;
 	this->gpu = gpu;
 	this->apu = apu;
 	this->input = input;

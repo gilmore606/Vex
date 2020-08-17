@@ -5,12 +5,14 @@
 
 #include "ROMReader.h"
 #include "util.cpp"
+#include "Scheduler.h"
 #include "CPU.h"
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
 #include "Sprite.h"
 
+Scheduler scheduler;
 CPU cpu;
 GPU gpu;
 APU apu;
@@ -134,6 +136,7 @@ int main() {
 	lastFrame = glfwGetTime();
 
 	// Setup devices
+	scheduler = Scheduler();
 	cpu = CPU();
 	gpu = GPU(windowWidth, windowHeight);
 	window = gpu.Setup(onResize);
@@ -146,7 +149,7 @@ int main() {
 	input.Add(52, BUTTON, GLFW_KEY_F2);
 	input.Add(53, BUTTON, GLFW_KEY_F3);
 	input.Add(54, BUTTON, GLFW_KEY_F4);
-	cpu.Connect(&gpu, &apu, &input);
+	cpu.Connect(&scheduler, &gpu, &apu, &input);
 
 	// Read ROM file
 	ROMReader reader = ROMReader("data/demogame.vexo");
@@ -154,7 +157,7 @@ int main() {
 
 	// Boot
 	cpu.Boot();
-	
+	scheduler.Start();
 
 	// Make demo shit
 	std::cout << "creating demo prims" << std::endl;
@@ -175,7 +178,7 @@ int main() {
 	textSprite2.moveTo(-0.9f, 0.2f);
 	textSprite3.moveTo(-0.9f, 0.1f);
 
-	//apu.PlaySong(0);
+	apu.PlaySong(0);
 
 	// MAIN LOOP
 
@@ -188,6 +191,7 @@ int main() {
 		moveDemoClutter(deltaTime);
 		
 		cpu.OnUpdate(deltaTime);
+		scheduler.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
 	}
