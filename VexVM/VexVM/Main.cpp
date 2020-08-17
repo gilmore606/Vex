@@ -161,11 +161,19 @@ int main() {
 	makeDemoPrims();
 	makeDemoClutter();
 
-	std::string demoText = "HELLO WORLD";
+	std::string demoText1 = "VEXSYSTEM";
+	std::string demoText2 = "version 0.7a1";
+	std::string demoText3 = "(c) 1983 Atari Games - All rights reserved";
 	Sprite gridSprite = Sprite(2, &gpu);
-	Sprite textSprite = Sprite(&demoText, 0, &gpu, 1.0f, 0.3f, 0.0f);
-	textSprite.scale(0.2f, 0.2f);
-	textSprite.moveTo(-0.6f, 0.6f);
+	Sprite textSprite1 = Sprite(&demoText1, 0, &gpu, 1.0f, 0.3f, 0.0f);
+	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.1f, 0.0f);
+	Sprite textSprite3 = Sprite(&demoText3, 1, &gpu, 0.6f, 0.05f, 0.0f);
+	textSprite1.scale(0.15f, 0.25f);
+	textSprite2.scale(0.03f, 0.03f);
+	textSprite3.scale(0.03f, 0.03f);
+	textSprite1.moveTo(-0.9f, 0.3f);
+	textSprite2.moveTo(-0.9f, 0.2f);
+	textSprite3.moveTo(-0.9f, 0.1f);
 
 	//apu.PlaySong(0);
 
@@ -178,7 +186,7 @@ int main() {
 
 		moveDemoPrims(deltaTime);
 		moveDemoClutter(deltaTime);
-
+		
 		cpu.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();

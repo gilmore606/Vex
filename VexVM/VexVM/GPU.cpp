@@ -76,9 +76,8 @@ GPUSpriteTicket GPU::createText(int font, std::string* text, float r, float g, f
 	int linec = 0;
 	float hoff = 0.0f;
 	for (char& c : *text) {
-		std::cout << "render char " << c << std::endl;
 		if (c == ' ') {
-			hoff += 0.4f;
+			hoff += 0.7f;
 		} else if (fonts.at(font)->glyphs.count(c) > 0) {
 			std::vector<Line>* glyph = fonts.at(font)->glyphs[c];
 			float minx = 0.0f;
@@ -92,7 +91,7 @@ GPUSpriteTicket GPU::createText(int font, std::string* text, float r, float g, f
 				if (l->x2 < minx) { minx = l->x2; }
 				if (l->x2 > maxx) { maxx = l->x2; }
 			}
-			hoff += (maxx - minx) + 0.1f;
+			hoff += (maxx - minx) + 0.2f;
 		}
 	}
 
