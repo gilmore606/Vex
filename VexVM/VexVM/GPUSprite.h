@@ -13,6 +13,8 @@ public:
 
 	GPUSprite();
 	void reset();
+	void allocateLines(int newc);
+	void writeLine(int linei, float x1, float y1, float x2, float y2, float r, float g, float b);
 	void loadImage(Image* image);
 	void PushData(float dataArray[], int* counter);
 	void update();

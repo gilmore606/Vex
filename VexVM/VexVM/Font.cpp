@@ -25,3 +25,14 @@ void Font::Read(ROMReader* rom) {
 		glyphs[c] = lines;
 	}
 }
+
+int Font::countLinesInText(std::string* text) {
+	int lc = 0;
+	for (char& c : *text) {
+		if (glyphs.count(c) > 0) {
+			lc += glyphs[c]->size();
+		}
+	}
+	std::cout << "counted " << lc << " lines in " << *text << std::endl;
+	return lc;
+}

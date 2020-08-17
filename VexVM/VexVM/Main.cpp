@@ -160,7 +160,12 @@ int main() {
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
 	makeDemoClutter();
+
+	std::string demoText = "HELLO WORLD";
 	Sprite gridSprite = Sprite(2, &gpu);
+	Sprite textSprite = Sprite(&demoText, 0, &gpu, 1.0f, 0.3f, 0.0f);
+	textSprite.scale(0.2f, 0.2f);
+	textSprite.moveTo(-0.6f, 0.6f);
 
 	//apu.PlaySong(0);
 

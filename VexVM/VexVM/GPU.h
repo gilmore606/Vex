@@ -56,7 +56,7 @@ public:
 	void loadImage(Image* image);
 	void loadFont(Font* font);
 	GPUSpriteTicket createSprite(int image);
-	GPUSpriteTicket createText(int font, std::string text);
+	GPUSpriteTicket createText(int font, std::string* text, float r, float g, float b);
 	void destroySprite(int id);
 
 	Point* addPoint(float x, float y, float r, float g, float b, float size);

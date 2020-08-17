@@ -67,11 +67,34 @@ GPUSpriteTicket GPU::createSprite(int image) {
 	return ticket;
 }
 
-GPUSpriteTicket GPU::createText(int font, std::string text) {
+GPUSpriteTicket GPU::createText(int font, std::string* text, float r, float g, float b) {
 	int id = reserveSprite();
 	GPUSprite* sprite = &sprites[id];
+	sprite->allocateLines(fonts[font]->countLinesInText(text));
 
 	// draw glyphs into sprite
+	int linec = 0;
+	float hoff = 0.0f;
+	for (char& c : *text) {
+		std::cout << "render char " << c << std::endl;
+		if (c == ' ') {
+			hoff += 0.4f;
+		} else if (fonts.at(font)->glyphs.count(c) > 0) {
+			std::vector<Line>* glyph = fonts.at(font)->glyphs[c];
+			float minx = 0.0f;
+			float maxx = 0.0f;
+			for (int j = 0; j < glyph->size(); j++) {
+				Line* l = &glyph->at(j);
+				sprite->writeLine(linec, l->x1 + hoff, l->y1, l->x2 + hoff, l->y2, r, g, b);
+				linec++;
+				if (l->x1 < minx) { minx = l->x1; }
+				if (l->x1 > maxx) { maxx = l->x1; }
+				if (l->x2 < minx) { minx = l->x2; }
+				if (l->x2 > maxx) { maxx = l->x2; }
+			}
+			hoff += (maxx - minx) + 0.1f;
+		}
+	}
 
 	GPUSpriteTicket ticket;
 	ticket.gpuSprite = sprite;

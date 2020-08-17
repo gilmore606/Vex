@@ -9,6 +9,12 @@ Sprite::Sprite(int image, GPU* gpu) {
 	gpuSpriteID = ticket.gpuSpriteID;
 }
 
+Sprite::Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b) {
+	GPUSpriteTicket ticket = gpu->createText(font, text, r, g, b);
+	gpuSprite = ticket.gpuSprite;
+	gpuSpriteID = ticket.gpuSpriteID;
+}
+
 void Sprite::update() {
 	gpuSprite->update();
 }
