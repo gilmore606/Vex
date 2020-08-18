@@ -181,6 +181,7 @@
   <ItemGroup>
     <ClInclude Include="APU.h" />
     <ClInclude Include="APUVoice.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h" />
     <ClInclude Include="Font.h" />

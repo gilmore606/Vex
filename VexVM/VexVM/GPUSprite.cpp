@@ -5,7 +5,7 @@
 GPUSprite::GPUSprite() {
 	active = false;
 	collides = false;
-	colliders = new short[8];
+	colliders = new Collider[8];
 	colliderc = 0;
 	reset();
 }

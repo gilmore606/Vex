@@ -35,6 +35,6 @@ float Sprite::rot() {
 	return gpuSprite->rot;
 }
 
-short* Sprite::colliders() {
+Collider* Sprite::colliders() {
 	return gpuSprite->colliders;
 }

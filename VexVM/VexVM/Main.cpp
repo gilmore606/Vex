@@ -29,7 +29,7 @@ constexpr auto DEMO_POINTS = 200;
 
 struct DemoPoint {
 	Point* gpupoint;
-	float dx, dy;
+	float z;
 };
 DemoPoint* demoPoints = new DemoPoint[DEMO_POINTS];
 
@@ -69,9 +69,10 @@ void makeDemoPrims() {
 	demoShip.dx = 0.0f;
 	demoShip.dy = 0.0f;
 	demoShip.drot = 0.0f;
+	apu.Patch(0, Instrument(SINE, SAWTOOTH, 0, 0, 255, 0, 0, 0, 255, 127));
 }
 
-void makeDemoClutter() {
+void makeDemoStars() {
 	for (int i = 0; i < DEMO_POINTS; i++) {
 		float x = (randFloat() - 0.5f) * 2.0f;
 		float y = (randFloat() - 0.5f) * 2.0f;
@@ -80,8 +81,7 @@ void makeDemoClutter() {
 		float b = randFloat() * 1.9f;
 		float size = randFloat() * 3.5f + 1.0f;
 		demoPoints[i].gpupoint = gpu.addPoint(x, y, r, g, b, size);
-		demoPoints[i].dx = (randFloat() - 0.5f) * 0.5f;
-		demoPoints[i].dy = (randFloat() - 0.5f) * 0.5f;
+		demoPoints[i].z = (randFloat() * 0.4f) + 0.2f;
 	}
 }
 
@@ -102,20 +102,17 @@ void moveDemoPrims(float delta) {
 	}
 	Sprite* shipsp = demoShip.sprite;
 	shipsp->moveTo(wrapCoord(shipsp->x() + demoShip.dx * delta), wrapCoord(shipsp->y() + demoShip.dy * delta));
-	if (shipsp->colliders()[0] > 0) {
+	if (shipsp->colliders()[0].id > 0) {
 		shipsp->moveTo(0.0f, 0.0f);
 		demoShip.dx = 0.0f;
 		demoShip.dy = 0.0f;
 	}
 }
 
-void moveDemoClutter(float delta) {
+void moveDemoStars(float delta) {
 	for (int i = 0; i < DEMO_POINTS; i++) {
-		demoPoints[i].gpupoint->x += demoPoints[i].dx * delta;
-		demoPoints[i].gpupoint->y += demoPoints[i].dy * delta;
-		demoPoints[i].dy -= 0.2f * delta;
-		if (demoPoints[i].gpupoint->y < -0.95f || demoPoints[i].gpupoint->y > 0.95f) demoPoints[i].dy = -demoPoints[i].dy;
-		if (demoPoints[i].gpupoint->x < -0.95f || demoPoints[i].gpupoint->x > 0.95f) demoPoints[i].dx = -demoPoints[i].dx;
+		demoPoints[i].gpupoint->x = wrapCoord(demoPoints[i].gpupoint->x + demoPoints[i].z * -demoShip.dx * delta * 6.0);
+		demoPoints[i].gpupoint->y = wrapCoord(demoPoints[i].gpupoint->y + demoPoints[i].z * -demoShip.dy * delta * 6.0);
 	}
 }
 
@@ -132,6 +129,7 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 
 void fireDemoShot() {
 	// TODO: play an actual sound, make a point
+	apu.voices[0].Trigger(2000.0, 127);
 }
 
 void handleButton(int input) {
@@ -177,7 +175,7 @@ int main() {
 	// Make demo shit
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
-	makeDemoClutter();
+	makeDemoStars();
 
 	std::string demoText1 = "VEXSYSTEM";
 	std::string demoText2 = "v0.1a1   vex-11/780";
@@ -194,7 +192,7 @@ int main() {
 	textSprite3.moveTo(-0.9f, 0.1f);
 
 	//apu.PlaySong(0);
-
+	
 
 	// MAIN LOOP
 
@@ -207,7 +205,7 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
-		moveDemoClutter(deltaTime);
+		moveDemoStars(deltaTime);
 		
 		scheduler.OnUpdate(currentFrame);
 		cpu.OnUpdate(deltaTime);

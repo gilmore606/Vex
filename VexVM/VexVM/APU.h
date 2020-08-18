@@ -15,7 +15,7 @@ struct APU{
 		double streamTime, RtAudioStreamStatus status, void* userData));
 	void Reset();
 	void LoadSong(Song* song);
-	void Patch(int channel, Instrument* patch);
+	void Patch(int channel, Instrument patch);
 	void PlaySong(int songid);
 	void PlayNote(Note* note);
 	void Stop();

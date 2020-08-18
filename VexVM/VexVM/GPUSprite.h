@@ -3,6 +3,7 @@
 #include "Line.h"
 #include "Image.h"
 #include <cmath>
+#include "Collider.h"
 
 // Internal GPU sprite data, for copying into VBO
 // Pointed to by Sprite
@@ -29,7 +30,7 @@ public:
 	Line* data_out;
 	int datac;
 
-	short* colliders;
+	Collider* colliders;
 	int colliderc;
 
 private:

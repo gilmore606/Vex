@@ -50,8 +50,9 @@ void APU::LoadSong(Song* song) {
 	songs.push_back(*song);
 }
 
-void APU::Patch(int channel, Instrument* patch) {
-	voices[channel].Patch(patch->pan, patch->volume, patch->a, patch->d, patch->s, patch->r, patch->wave1, patch->wave2, patch->detune, patch->phase);
+void APU::Patch(int channel, Instrument patch) {
+	std::cout << "APU patch ch " << channel << std::endl;
+	voices[channel].Patch(patch.pan, patch.volume, patch.a, patch.d, patch.s, patch.r, patch.wave1, patch.wave2, patch.detune, patch.phase);
 }
 
 void APU::PlaySong(int songid) {
@@ -59,7 +60,7 @@ void APU::PlaySong(int songid) {
 	song = &songs.at(songid);
 	std::cout << "APU play song " << songid << " (" << song->notecount << " notes)" << std::endl;
 	for (int i = 0; i < song->instruments.size(); i++) {
-		Patch(i, &song->instruments[i]);
+		Patch(i, song->instruments[i]);
 	}
 	song->setTempo(600);
 	song->Reset();

@@ -11,6 +11,7 @@
 #include "Image.h"
 #include "GPUSprite.h"
 #include "Font.h"
+#include "Collider.h"
 
 struct GPUsettings {
 	float MAX_POINTS = 16000;
@@ -41,6 +42,7 @@ struct GPUsettings {
 	float TRAIL_DECAY = 0.89f;
 	float TRAIL_BLUR = 0.4f;
 };
+
 
 class GPU{
 public:

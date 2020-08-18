@@ -345,7 +345,7 @@ void GPU::Collide() {
 	for (int sp = 0; sp < spritec; sp++) {
 		if (sprites[sp].collides) {
 			for (int i = 0; i < 8; i++) {
-				sprites[sp].colliders[i] = 0;
+				sprites[sp].colliders[i].id = 0;
 			}
 			sprites[sp].colliderc = 0;
 		}
@@ -364,11 +364,18 @@ void GPU::Collide() {
 				while (x1 != x2 || y1 != y2) {
 
 					if ((collideMap[x1][y1] > 0) && (collideMap[x1][y1] != sp)) {
+						// Record collision between sp and osp
 						short osp = collideMap[x1][y1];
-						sprites[sp].colliders[sprites[sp].colliderc] = osp;
+						Collider* spc = &sprites[sp].colliders[sprites[sp].colliderc];
 						if (sprites[sp].colliderc < 8) { sprites[sp].colliderc++; }
-						sprites[osp].colliders[sprites[osp].colliderc] = sp;
+						Collider* ospc = &sprites[osp].colliders[sprites[osp].colliderc];
 						if (sprites[osp].colliderc < 8) { sprites[osp].colliderc++; }
+						spc->id = osp;
+						ospc->id = sp;
+						spc->x = x1;
+						spc->y = y1;
+						ospc->x = x1;
+						ospc->y = y1;
 					}
 					collideMap[x1][y1] = sp;
 
