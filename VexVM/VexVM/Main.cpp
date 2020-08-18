@@ -2,6 +2,7 @@
 #include <GLFW\glfw3.h>
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include "ROMReader.h"
 #include "util.cpp"
@@ -76,7 +77,7 @@ void makeDemoClutter() {
 		float g = randFloat() * 0.7f;
 		float b = randFloat() * 1.9f;
 		float size = randFloat() * 3.5f + 1.0f;
-		demoPoints[i].gpupoint = gpu.addPoint(x,y,r,g,b,size);
+		demoPoints[i].gpupoint = gpu.addPoint(x, y, r, g, b, size);
 		demoPoints[i].dx = (randFloat() - 0.5f) * 0.5f;
 		demoPoints[i].dy = (randFloat() - 0.5f) * 0.5f;
 	}
@@ -88,6 +89,17 @@ void moveDemoPrims(float delta) {
 		sp->moveTo(wrapCoord(sp->x() + demoRocks[i].dx * delta), wrapCoord(sp->y() + demoRocks[i].dy * delta));
 		sp->rotate(demoRocks[i].drot * delta);
 	}
+	if (input.isPressed(0)) {
+		demoShip.sprite->rotate(2.5 * delta);
+	} else if (input.isPressed(1)) {
+		demoShip.sprite->rotate(-2.5 * delta);
+	}
+	if (input.isPressed(2)) {
+		demoShip.dx += std::cos(demoShip.sprite->rot() + 1.5707) * delta * 0.6f;
+		demoShip.dy += std::sin(demoShip.sprite->rot() + 1.5707) * delta * 0.6f;
+	}
+	Sprite* shipsp = demoShip.sprite;
+	shipsp->moveTo(wrapCoord(shipsp->x() + demoShip.dx * delta), wrapCoord(shipsp->y() + demoShip.dy * delta));
 }
 
 void moveDemoClutter(float delta) {
@@ -169,7 +181,7 @@ int main() {
 	Sprite textSprite3 = Sprite(&demoText3, 0, &gpu, 0.3f, 0.02f, 0.0f);
 	textSprite1.scale(0.15f, 0.25f);
 	textSprite2.scale(0.05f, 0.05f);
-	textSprite3.scale(0.03f, 0.03f);
+	textSprite3.scale(0.025f, 0.035f);
 	textSprite1.moveTo(-0.9f, 0.3f);
 	textSprite2.moveTo(-0.9f, 0.2f);
 	textSprite3.moveTo(-0.9f, 0.1f);
@@ -188,7 +200,7 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
-		moveDemoClutter(deltaTime);
+		//moveDemoClutter(deltaTime);
 		
 		scheduler.OnUpdate(currentFrame);
 		cpu.OnUpdate(deltaTime);
