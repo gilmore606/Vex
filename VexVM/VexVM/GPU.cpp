@@ -15,8 +15,8 @@ GPU::GPU(int w, int h) {
 	lines = new Line[settings.MAX_LINES];
 	sprites = new GPUSprite[settings.MAX_SPRITES];
 	scaledscreen = new float[24];
-	colW = w / 4;
-	colH = h / 4;
+	colW = w / 2;
+	colH = h / 2;
 	collideMap = new short*[colH];
 	for (int i = 0; i < colH; ++i) {
 		collideMap[i] = new short[colW];
