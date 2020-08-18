@@ -102,6 +102,11 @@ void moveDemoPrims(float delta) {
 	}
 	Sprite* shipsp = demoShip.sprite;
 	shipsp->moveTo(wrapCoord(shipsp->x() + demoShip.dx * delta), wrapCoord(shipsp->y() + demoShip.dy * delta));
+	if (shipsp->colliders()[0] > 0) {
+		shipsp->moveTo(0.0f, 0.0f);
+		demoShip.dx = 0.0f;
+		demoShip.dy = 0.0f;
+	}
 }
 
 void moveDemoClutter(float delta) {
@@ -202,18 +207,13 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
-		//moveDemoClutter(deltaTime);
+		moveDemoClutter(deltaTime);
 		
 		scheduler.OnUpdate(currentFrame);
 		cpu.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
 		gpu.Collide();
-		if (demoShip.sprite->colliders()[0] > 0) {
-			demoShip.sprite->moveTo(0.0f, 0.0f);
-			demoShip.dx = 0.0f;
-			demoShip.dy = 0.0f;
-		}
 	}
 
 	scheduler.Stop();

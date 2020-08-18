@@ -15,8 +15,8 @@ GPU::GPU(int w, int h) {
 	lines = new Line[settings.MAX_LINES];
 	sprites = new GPUSprite[settings.MAX_SPRITES];
 	scaledscreen = new float[24];
-	colW = w / 2;
-	colH = h / 2;
+	colW = w / 4;
+	colH = h / 4;
 	collideMap = new short*[colH];
 	for (int i = 0; i < colH; ++i) {
 		collideMap[i] = new short[colW];
@@ -350,21 +350,21 @@ void GPU::Collide() {
 			sprites[sp].colliderc = 0;
 		}
 	}
-	int x1, y1, x2, y2;
-	for (int sp = 0; sp < spritec; sp++) {
+	short x1, y1, x2, y2;
+	for (short sp = 0; sp < spritec; sp++) {
 		if (sprites[sp].collides) {
-			for (int l = 0; l < sprites[sp].datac; l++) {
-				x1 = std::min(colW-1, std::max(0, (int)(colW * ((sprites[sp].data_out[l].x1 + 0.5f) * 0.5f))));
-				y1 = std::min(colH-1, std::max(0, (int)(colH * ((sprites[sp].data_out[l].y1 + 0.5f) * 0.5f))));
-				x2 = std::min(colW-1, std::max(0, (int)(colW * ((sprites[sp].data_out[l].x2 + 0.5f) * 0.5f))));
-				y2 = std::min(colH-1, std::max(0, (int)(colH * ((sprites[sp].data_out[l].y2 + 0.5f) * 0.5f))));
-				int dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
-				int dy = abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
-				int err = (dx > dy ? dx : -dy) / 2;
+			for (short l = 0; l < sprites[sp].datac; l++) {
+				x1 = std::min(colW-1, std::max(0, (int)(colW * ((sprites[sp].data_out[l].x1 + 1.0f) * 0.5f))));
+				y1 = std::min(colH-1, std::max(0, (int)(colH * ((sprites[sp].data_out[l].y1 + 1.0f) * 0.5f))));
+				x2 = std::min(colW-1, std::max(0, (int)(colW * ((sprites[sp].data_out[l].x2 + 1.0f) * 0.5f))));
+				y2 = std::min(colH-1, std::max(0, (int)(colH * ((sprites[sp].data_out[l].y2 + 1.0f) * 0.5f))));
+				short dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+				short dy = abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+				short err = (dx > dy ? dx : -dy) / 2;
 				while (x1 != x2 || y1 != y2) {
 
 					if ((collideMap[x1][y1] > 0) && (collideMap[x1][y1] != sp)) {
-						int osp = collideMap[x1][y1];
+						short osp = collideMap[x1][y1];
 						sprites[sp].colliders[sprites[sp].colliderc] = osp;
 						if (sprites[sp].colliderc < 8) { sprites[sp].colliderc++; }
 						sprites[osp].colliders[sprites[osp].colliderc] = sp;
@@ -372,7 +372,7 @@ void GPU::Collide() {
 					}
 					collideMap[x1][y1] = sp;
 
-					int e2 = err;
+					short e2 = err;
 					if (e2 > -dx) { err -= dy; x1 += sx; }
 					if (e2 < dy) { err += dx; y1 += sy; }
 				}
