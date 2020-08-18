@@ -20,11 +20,7 @@ data class Font(
             outFile.writeByte(c.toByte().toUByte())
             // 2 bytes for float count
             outFile.write2ByteInt(data.size)
-            var flip = false;
-            outFile.writeFloats(ArrayList<Float>(data.map { f ->
-                flip = !flip;
-                if (flip) (f + 0.5f) else f
-            }))
+            outFile.writeFloats(data)
             println("  wrote glyph " + c.toByte().toUByte() + " (" + data.size + " vals)")
         }
         println("wrote FNT " + id + " (" + glyphs.size + " glyphs)")

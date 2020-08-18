@@ -65,44 +65,12 @@ class Parser(
             tossNextToken()
             return when  {
                 token.string.equals("settings") -> Node.SETTINGS(parseSettings())
-                token.string.equals("controls") -> Node.CONTROLS(parseControls())
                 else -> throw ParseException(this, "unknown top-level block type")
             }
         } else throw ParseException(
             this,
             "only top-level block declarations are allowed at top level"
         )
-    }
-
-    fun parseControls(): List<Node.CONTROLDEF> {
-        val defs = ArrayList<Node.CONTROLDEF>()
-        while (nextToken().type == INDENT) {
-            tossNextToken()
-            defs.add(parseControlDef())
-        }
-        return defs
-    }
-    fun parseControlDef(): Node.CONTROLDEF {
-        val name = expectToken(IDENTIFIER, "expected control name")
-        if (getToken().type != PAREN_OPEN) throw ParseException(
-            this,
-            "expected ( to begin control definition"
-        )
-        val params = ArrayList<Node.CONTROLPARAM>()
-        while (nextToken().type != PAREN_CLOSE) {
-            val token = expectToken(IDENTIFIER, "expected control modifier")
-            when {
-                token.string.equals("switch") -> params.add(Node.CONTROL_SWITCH().also { it.tag(this) })
-                token.string.equals("button") -> params.add(Node.CONTROL_BUTTON().also { it.tag(this) })
-                token.string.equals("debounce") -> {
-                    val value = expectToken(INTEGER, "expected integer debounce value")
-                    params.add(Node.CONTROL_DEBOUNCE(value.int).also { it.tag(this) })
-                }
-                else -> throw ParseException(this, "unknown control modifier")
-            }
-        }
-        tossNextToken()
-        return Node.CONTROLDEF(name.string, params).also { it.tag(this) }
     }
 
     fun parseSettings(): List<Node.ASSIGN> {

@@ -107,29 +107,12 @@ sealed class Node {
         }
     }
 
-    class CONTROLDEF(val name: String, val params: List<CONTROLPARAM>): STATEMENT() {
-        override fun toString() = super.toString() + " (" + name + ")"
-        override fun printMine(lvl: Int) {
-            params.forEach { it.print(lvl) }
-        }
-    }
-    abstract class CONTROLPARAM: Node()
-    class CONTROL_SWITCH: CONTROLPARAM()
-    class CONTROL_BUTTON: CONTROLPARAM()
-    class CONTROL_DEBOUNCE(val ms: Int): CONTROLPARAM() {
-        override fun toString() = super.toString() + " (" + ms.toString() + "ms)"
-    }
 
     abstract class BLOCK: Node()
 
     class SETTINGS(val assigns: List<ASSIGN>): BLOCK() {
         override fun printMine(lvl: Int) {
             assigns.forEach { it.print(lvl) }
-        }
-    }
-    class CONTROLS(val controls: List<CONTROLDEF>): BLOCK() {
-        override fun printMine(lvl: Int) {
-            controls.forEach { it.print(lvl) }
         }
     }
     class CODEBLOCK(val statements: List<STATEMENT>): BLOCK() {

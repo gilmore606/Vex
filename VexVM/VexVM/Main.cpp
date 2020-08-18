@@ -162,11 +162,11 @@ int main() {
 
 	std::string demoText1 = "VEXSYSTEM";
 	std::string demoText2 = "v0.1a1   vex-11/780";
-	std::string demoText3 = "(c) 1983 Atari Games - All rights reserved";
+	std::string demoText3 = "(c) 1983 Otari Games - All rights reserved\n\nThis is a long piece of text to test the font renderer\nand the sprite/line capacity of the virtual GPU.";
 	//Sprite gridSprite = Sprite(2, &gpu);
 	Sprite textSprite1 = Sprite(&demoText1, 0, &gpu, 1.0f, 0.6f, 0.0f);
-	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.2f, 0.0f);
-	Sprite textSprite3 = Sprite(&demoText3, 1, &gpu, 0.3f, 0.02f, 0.0f);
+	Sprite textSprite2 = Sprite(&demoText2, 0, &gpu, 0.7f, 0.2f, 0.0f);
+	Sprite textSprite3 = Sprite(&demoText3, 0, &gpu, 0.3f, 0.02f, 0.0f);
 	textSprite1.scale(0.15f, 0.25f);
 	textSprite2.scale(0.03f, 0.03f);
 	textSprite3.scale(0.03f, 0.03f);

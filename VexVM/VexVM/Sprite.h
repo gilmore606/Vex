@@ -10,7 +10,8 @@ class Sprite
 {
 public:
 	Sprite(int image, GPU* gpu);
-	Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b);
+	Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b,
+		float charSpacing = 0.2f, float lineSpacing = 1.1f);
 
 	float x();
 	float y();
