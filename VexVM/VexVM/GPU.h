@@ -52,6 +52,7 @@ public:
 	void Reset();
 	void Assemble();
 	void Render();
+	void Collide();
 	void Stop();
 	void loadImage(Image* image);
 	void loadFont(Font* font);
@@ -99,4 +100,7 @@ private:
 	};
 
 	float* scaledscreen;
+
+	short** collideMap;
+	int colW, colH;
 };

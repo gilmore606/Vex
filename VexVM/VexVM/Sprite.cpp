@@ -17,6 +17,10 @@ Sprite::Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b,
 	gpuSpriteID = ticket.gpuSpriteID;
 }
 
+void Sprite::setCollision(bool value) {
+	gpuSprite->collides = value;
+}
+
 void Sprite::update() {
 	gpuSprite->update();
 }
@@ -29,4 +33,8 @@ float Sprite::y() {
 }
 float Sprite::rot() {
 	return gpuSprite->rot;
+}
+
+short* Sprite::colliders() {
+	return gpuSprite->colliders;
 }

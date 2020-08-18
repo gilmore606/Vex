@@ -16,6 +16,8 @@ public:
 	float x();
 	float y();
 	float rot();
+	short* colliders();
+	void setCollision(bool value);
 	void moveTo(float x, float y);
 	void rotate(float rads);
 	void scale(float xs, float ys);

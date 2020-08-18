@@ -10,7 +10,7 @@
 class GPUSprite {
 public:
 	bool active;
-
+	
 	GPUSprite();
 	void reset();
 	void allocateLines(int newc);
@@ -19,6 +19,7 @@ public:
 	void PushData(float dataArray[], int* counter);
 	void update();
 
+	bool collides;
 	float x, y;
 	float xscale, yscale;
 	float rot;
@@ -27,6 +28,9 @@ public:
 	Line* data;
 	Line* data_out;
 	int datac;
+
+	short* colliders;
+	int colliderc;
 
 private:
 };

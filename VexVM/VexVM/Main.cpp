@@ -54,6 +54,7 @@ void makeDemoPrims() {
 		float scale = (randFloat() * 0.05f) + 0.05f;
 		sp->scale(scale, scale);
 		sp->rotate(randFloat() * 2.7f);
+		sp->setCollision(true);
 		DemoRock rock;
 		rock.sprite = sp;
 		rock.dx = randCoord() * 0.2f;
@@ -63,6 +64,7 @@ void makeDemoPrims() {
 	}
 	Sprite* shipsp = new Sprite(0, &gpu);
 	shipsp->scale(0.4f, 0.4f);
+	shipsp->setCollision(true);
 	demoShip.sprite = shipsp;
 	demoShip.dx = 0.0f;
 	demoShip.dy = 0.0f;
@@ -206,6 +208,10 @@ int main() {
 		cpu.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
+		gpu.Collide();
+		if (demoShip.sprite->colliders()[0] > 0) {
+			std::cout << demoShip.sprite->colliders()[0] << " ";
+		}
 	}
 
 	scheduler.Stop();
