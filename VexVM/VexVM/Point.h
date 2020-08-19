@@ -7,13 +7,13 @@ public:
 	Point();
 	Point(float x, float y, float r, float g, float b, float size);
 
-	void PushData(float dataArray[], int* counter);
+	void PushData(float dataArray[], int* counter, float aspect);
 
 	float x, y, r, g, b, size;
 };
 
-inline void Point::PushData(float dataArray[], int* counter) {
-	dataArray[*counter] = x;
+inline void Point::PushData(float dataArray[], int* counter, float aspect) {
+	dataArray[*counter] = x / aspect;
 	dataArray[*counter + 1] = y;
 	dataArray[*counter + 2] = r;
 	dataArray[*counter + 3] = g;

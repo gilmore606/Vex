@@ -241,14 +241,14 @@ void GPU::Assemble() {
 	pointsVB.Reset();
 	linesVB.Reset();
 	for (int i = 0; i < pointc; i++) {
-		points[i].PushData(pointsVB.vertdata, &pointsVB.vertdatac);  // internals exposed for speed
+		points[i].PushData(pointsVB.vertdata, &pointsVB.vertdatac, settings.ASPECT_RATIO);  // internals exposed for speed
 	}
 	for (int i = 0; i < linec; i++) {
-		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac);
+		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac, settings.ASPECT_RATIO);
 	}
 	for (int i = 0; i < spritec; i++) {
 		if (sprites[i].active) {
-			sprites[i].PushData(linesVB.vertdata, &linesVB.vertdatac);
+			sprites[i].PushData(linesVB.vertdata, &linesVB.vertdatac, settings.ASPECT_RATIO);
 		}
 	}
 	pointsVB.Update();

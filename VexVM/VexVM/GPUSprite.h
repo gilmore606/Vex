@@ -18,7 +18,7 @@ public:
 	void allocateLines(int newc);
 	void writeLine(int linei, float x1, float y1, float x2, float y2, float r, float g, float b);
 	void loadImage(Image* image);
-	void PushData(float dataArray[], int* counter);
+	void PushData(float dataArray[], int* counter, float aspect);
 	void update();
 
 	bool collides;
@@ -64,12 +64,12 @@ inline void GPUSprite::update() {
 	dirty = false;
 }
 
-inline void GPUSprite::PushData(float dataArray[], int* counter) {
+inline void GPUSprite::PushData(float dataArray[], int* counter, float aspect) {
 	if (dirty) update();
 	if (!visible) return;
 	int i = 0;
 	while (i < datac) {
-		data_out[i].PushData(dataArray, counter);
+		data_out[i].PushData(dataArray, counter, aspect);
 		i++;
 	}
 }
