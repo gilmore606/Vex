@@ -144,16 +144,16 @@ void fireDemoShot() {
 }
 
 void handleButton(int input) {
-	if (input == 3) fireDemoShot();
+	if (input == 3) { fireDemoShot(); }
 
 	cpu.OnInput(input);
 
-	if (input == 50) glfwSetWindowShouldClose(window, GLFW_TRUE);
-	if (input == 51) gpu.toggleLayer(0);
-	if (input == 52) gpu.toggleLayer(1);
-	if (input == 53) gpu.toggleLayer(2);
-	if (input == 54) apu.voices[0].testTone = !apu.voices[0].testTone;
-	if (input == 55) gridSprite.setVisible(!gridSprite.visible());
+	if (input == 50) { glfwSetWindowShouldClose(window, GLFW_TRUE); }
+	if (input == 51) { gpu.toggleLayer(0); }
+	if (input == 52) { gpu.toggleLayer(1); }
+	if (input == 53) { gpu.toggleLayer(2); }
+	if (input == 54) { apu.voices[0].testTone = !apu.voices[0].testTone; }
+	if (input == 55) { gridSprite.setVisible(!gridSprite.visible()); }
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -188,7 +188,7 @@ int main() {
 	// Make demo shit
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
-	makeDemoStars();
+	//makeDemoStars();
 
 	std::string demoText1 = "VEXSYSTEM";
 	std::string demoText2 = "v0.1a1   vex-11/780";
@@ -217,7 +217,7 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
-		moveDemoStars(deltaTime);
+		//moveDemoStars(deltaTime);
 		
 		scheduler.OnUpdate(currentFrame);
 		cpu.OnUpdate(deltaTime);

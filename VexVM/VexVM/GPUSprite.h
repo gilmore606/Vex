@@ -3,6 +3,7 @@
 #include "Line.h"
 #include "Image.h"
 #include <cmath>
+#include <iostream>
 #include "Collider.h"
 
 // Internal GPU sprite data, for copying into VBO
@@ -16,9 +17,10 @@ public:
 	GPUSprite();
 	void reset();
 	void allocateLines(int newc);
+	void allocatePoints(int newc);
 	void writeLine(int linei, float x1, float y1, float x2, float y2, float r, float g, float b);
 	void loadImage(Image* image);
-	void PushData(float dataArray[], int* counter, float aspect);
+	void PushData(float linedata[], int* linec, float pointdata[], int* pointc, float aspect);
 	void update();
 
 	bool collides;
@@ -30,6 +32,9 @@ public:
 	Line* data;
 	Line* data_out;
 	int datac;
+	Point* pdata;
+	Point* pdata_out;
+	int pdatac;
 
 	Collider* colliders;
 	int colliderc;
@@ -61,15 +66,29 @@ inline void GPUSprite::update() {
 		data_out[i].b = data[i].b;
 		i++;
 	}
+	i = 0;
+	while (i < pdatac) {
+		pdata_out[i].x = xscale * pdata[i].x + x;
+		pdata_out[i].y = yscale * pdata[i].y + y;
+		pdata_out[i].r = pdata[i].r;
+		pdata_out[i].g = pdata[i].g;
+		pdata_out[i].b = pdata[i].b;
+		pdata_out[i].size = pdata[i].size;
+		i++;
+	}
 	dirty = false;
 }
 
-inline void GPUSprite::PushData(float dataArray[], int* counter, float aspect) {
+inline void GPUSprite::PushData(float linedata[], int* linec, float pointdata[], int* pointc, float aspect) {
 	if (dirty) update();
-	if (!visible) return;
 	int i = 0;
 	while (i < datac) {
-		data_out[i].PushData(dataArray, counter, aspect);
+		data_out[i].PushData(linedata, linec, aspect);
+		i++;
+	}
+	i = 0;
+	while (i < pdatac) {
+		pdata_out[i].PushData(pointdata, pointc, aspect);
 		i++;
 	}
 }

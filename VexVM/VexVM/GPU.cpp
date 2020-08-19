@@ -247,8 +247,8 @@ void GPU::Assemble() {
 		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac, settings.ASPECT_RATIO);
 	}
 	for (int i = 0; i < spritec; i++) {
-		if (sprites[i].active) {
-			sprites[i].PushData(linesVB.vertdata, &linesVB.vertdatac, settings.ASPECT_RATIO);
+		if (sprites[i].active && sprites[i].visible) {
+			sprites[i].PushData(linesVB.vertdata, &linesVB.vertdatac, pointsVB.vertdata, &pointsVB.vertdatac, settings.ASPECT_RATIO);
 		}
 	}
 	pointsVB.Update();

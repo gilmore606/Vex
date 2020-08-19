@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Line.h"
+#include "Point.h"
 #include <vector>
 
 class ROMReader;
@@ -12,4 +13,5 @@ public:
 	void Read(ROMReader* rom);
 
 	std::vector<Line> lines;
+	std::vector<Point> points;
 };

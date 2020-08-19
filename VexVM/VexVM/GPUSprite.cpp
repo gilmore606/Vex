@@ -29,6 +29,14 @@ void GPUSprite::allocateLines(int newc) {
 	datac = newc;
 	dirty = true;
 }
+void GPUSprite::allocatePoints(int newc) {
+	if (newc > pdatac) {
+		pdata = new Point[newc];
+		pdata_out = new Point[newc];
+	}
+	pdatac = newc;
+	dirty = true;
+}
 
 void GPUSprite::writeLine(int linei, float x1, float y1, float x2, float y2, float r, float g, float b) {
 	data[linei].x1 = x1;
@@ -51,6 +59,15 @@ void GPUSprite::loadImage(Image* image) {
 		data[i].r = image->lines[i].r;
 		data[i].g = image->lines[i].g;
 		data[i].b = image->lines[i].b;
+	}
+	allocatePoints(image->points.size());
+	for (int i = 0; i < pdatac; i++) {
+		pdata[i].x = image->points[i].x;
+		pdata[i].y = image->points[i].y;
+		pdata[i].size = image->points[i].size;
+		pdata[i].r = image->points[i].r;
+		pdata[i].g = image->points[i].g;
+		pdata[i].b = image->points[i].b;
 	}
 	dirty = true;
 }

@@ -50,8 +50,8 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
     fun writeFloats(floats: ArrayList<Float>) {
         floats.forEach { f ->
             var s = f
-            if (f >= 1.0f) s = 0.999f
-            if (f <= -1.0f) s = -0.999f
+            if (f >= 1.0f) s = 0.9999f
+            if (f <= -1.0f) s = -0.9999f
             val i = ((s + 1.0f) * 0.5f * 65536.0f).toInt()
             write2ByteInt(i)
         }
