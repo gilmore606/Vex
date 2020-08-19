@@ -39,6 +39,7 @@ struct DemoRock {
 std::vector<DemoRock> demoRocks;
 DemoRock demoShip;
 Sprite gridSprite;
+Sprite* flameSprite;
 
 // Proxy callback for GPU
 void onResize(GLFWwindow* window, int w, int h) {
@@ -71,6 +72,9 @@ void makeDemoPrims() {
 	demoShip.dx = 0.0f;
 	demoShip.dy = 0.0f;
 	demoShip.drot = 0.0f;
+	flameSprite = new Sprite(3, &gpu);
+	flameSprite->scale(0.4f, 0.4f);
+	
 	apu.Patch(0, Instrument(SINE, SAWTOOTH, 0, 0, 255, 0, 0, 0, 255, 127));
 }
 
@@ -101,9 +105,14 @@ void moveDemoPrims(float delta) {
 	if (input.isPressed(2)) {
 		demoShip.dx += std::cos(demoShip.sprite->rot() + 1.5707) * delta * 0.6f;
 		demoShip.dy += std::sin(demoShip.sprite->rot() + 1.5707) * delta * 0.6f;
+		flameSprite->setVisible(true);
+	} else {
+		flameSprite->setVisible(false);
 	}
 	Sprite* shipsp = demoShip.sprite;
 	shipsp->moveTo(wrapCoord(shipsp->x() + demoShip.dx * delta), wrapCoord(shipsp->y() + demoShip.dy * delta));
+	flameSprite->moveTo(shipsp->x(), shipsp->y());
+	flameSprite->setRotation(shipsp->rot());
 	if (shipsp->colliders()[0].id > 0) {
 		shipsp->moveTo(0.0f, 0.0f);
 		demoShip.dx = 0.0f;

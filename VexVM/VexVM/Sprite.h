@@ -23,6 +23,7 @@ public:
 	void setVisible(bool value);
 	void moveTo(float x, float y);
 	void rotate(float rads);
+	void setRotation(float rads);
 	void scale(float xs, float ys);
 	void update();
 
@@ -42,6 +43,10 @@ inline void Sprite::rotate(float rads) {
 	while (rot > 6.283185f) rot -= 6.283185f;
 	while (rot < 0.0f) rot += 6.283185f;
 	gpuSprite->rot = rot;
+	gpuSprite->dirty = true;
+}
+inline void Sprite::setRotation(float rads) {
+	gpuSprite->rot = rads;
 	gpuSprite->dirty = true;
 }
 
