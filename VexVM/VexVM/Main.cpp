@@ -165,6 +165,7 @@ void fireDemoShot() {
 void handleButton(int input) {
 	if (input == 3) { fireDemoShot(); }
 
+	if (input == 999) { gpu.ToggleFullscreen(); }
 	cpu.OnInput(input);
 
 	if (input == 50) { glfwSetWindowShouldClose(window, GLFW_TRUE); }
@@ -210,7 +211,7 @@ int main() {
 	makeDemoStars();
 
 	std::string demoText1 = "VEXSYSTEM";
-	std::string demoText2 = "v0.1a1   vex-11/780";
+	std::string demoText2 = "v0.1a2   vex-11/780";
 	std::string demoText3 = "(c) 1983 Otari Games - All rights reserved\n\nThis is a long piece of text to test the font renderer\nand the sprite/line capacity of the virtual GPU.";
 	Sprite textSprite1 = Sprite(&demoText1, 1, &gpu, 1.0f, 0.6f, 0.0f);
 	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.2f, 0.0f);

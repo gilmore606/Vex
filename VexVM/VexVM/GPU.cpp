@@ -11,6 +11,7 @@ GPU::GPU() { }
 GPU::GPU(int w, int h) {
 	this->w = w;
 	this->h = h;
+	isFullscreen = false;
 	points = new Point[settings.MAX_POINTS];
 	lines = new Line[settings.MAX_LINES];
 	sprites = new GPUSprite[settings.MAX_SPRITES];
@@ -45,6 +46,22 @@ void GPU::Resize(int w, int h) {
 	}
 	std::cout << "screen scaled to " << screenw << "," << screenh << std::endl;
 	makeBuffers();
+}
+
+void GPU::ToggleFullscreen() {
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	if (!isFullscreen) {
+		savedWidth = w;
+		savedHeight = h;
+		glfwGetWindowPos(window, &savedX, &savedY);
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		isFullscreen = true;
+	} else {
+		glfwSetWindowMonitor(window, nullptr, savedX, savedY, savedWidth, savedHeight, 0);
+		isFullscreen = false;
+	}
+	std::cout << "GPU toggle fullscreen" << std::endl;
 }
 
 void GPU::loadImage(Image* image) {
@@ -326,7 +343,7 @@ void GPU::Render() {
 
 	// Compose to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // letterbox
+	glClearColor(settings.LETTERBOX_R, settings.LETTERBOX_G, settings.LETTERBOX_B, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, w, h);
 	composeShader.Use();

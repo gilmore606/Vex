@@ -28,6 +28,7 @@ public:
 private:
 	VEXControl* controls;
 	bool* status;
+	bool isShift, isAlt, isCtrl;
 
 	void (*buttonCallback)(int);
 	void (*switchCallback)(int, bool);

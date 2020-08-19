@@ -41,6 +41,10 @@ struct GPUsettings {
 	float LINE_TRAIL_BRIGHTNESS = 0.3f;
 	float TRAIL_DECAY = 0.89f;
 	float TRAIL_BLUR = 0.4f;
+
+	float LETTERBOX_R = 0.02f;
+	float LETTERBOX_G = 0.02f;
+	float LETTERBOX_B = 0.02f;
 };
 
 
@@ -52,6 +56,7 @@ public:
 	GLFWwindow* Setup(void (*onResize)(GLFWwindow* window, int neww, int newh));
 	void Resize(int w, int h);
 	void Reset();
+	void ToggleFullscreen();
 	void OnUpdate(float delta);
 	void Assemble();
 	void Render();
@@ -69,6 +74,9 @@ public:
 	void toggleLayer(int layer);
 
 	GPUsettings settings;
+	bool isFullscreen;
+	int savedX, savedY;
+	int savedWidth, savedHeight;
 
 private:
 	void makeShaders();

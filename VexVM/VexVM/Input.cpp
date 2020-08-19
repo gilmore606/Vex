@@ -4,6 +4,9 @@
 Input::Input() { 
 	controls = new VEXControl[64];
 	status = new bool[64];
+	isAlt = false;
+	isCtrl = false;
+	isShift = false;
 }
 
 void Input::Setup(GLFWwindow* window, 
@@ -29,6 +32,34 @@ void Input::Add(int id, VEXInputType type, GLuint defaultKey) {
 }
 
 void Input::HandleKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (key == GLFW_KEY_LEFT_ALT || key == GLFW_KEY_RIGHT_ALT) {
+		if (action == GLFW_PRESS) {
+			isAlt = true;
+		}
+		else if (action == GLFW_RELEASE) {
+			isAlt = false;
+		}
+	}
+	if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL) {
+		if (action == GLFW_PRESS) {
+			isCtrl = true;
+		}
+		else if (action == GLFW_RELEASE) {
+			isCtrl = false;
+		}
+	}
+	if (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT) {
+		if (action == GLFW_PRESS) {
+			isShift = true;
+		}
+		else if (action == GLFW_RELEASE) {
+			isShift = false;
+		}
+	}
+	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && isAlt) {
+		buttonCallback(999);
+		return;
+	}
 	for (int i = 0; i < 64; i++) {
 		if (controls[i].key == key) {
 			if (action == GLFW_PRESS) {
