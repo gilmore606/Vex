@@ -102,6 +102,7 @@ private:
 	};
 
 	float* scaledscreen;
+	float xscale, yscale;
 
 	short** collideMap;
 	int colW, colH;

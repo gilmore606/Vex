@@ -35,8 +35,8 @@ void GPU::Resize(int w, int h) {
 	screenw = scale * screenw;
 	screenh = scale * screenh;
 	// Resize the screen vertices to match the ratio on the new window size
-	float xscale = (float)screenw / (float)w;
-	float yscale = (float)screenh / (float)h;
+	xscale = (float)screenw / (float)w;
+	yscale = (float)screenh / (float)h;
 	for (int i = 0; i < 12; i++) {
 		float x = screendata[i];
 		float y = screendata[i + 1];
@@ -320,6 +320,8 @@ void GPU::Render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, w, h);
 	composeShader.Use();
+	composeShader.SetUniform("xscale", xscale);
+	composeShader.SetUniform("yscale", yscale);
 	screenBuffer.BindAsTexture(GL_TEXTURE0, composeShader, "screenTex", 0);
 	glowBuffer.BindAsTexture(GL_TEXTURE1, composeShader, "glowTex", 1);
 	trailBuffer.BindAsTexture(GL_TEXTURE2, composeShader, "trailTex", 2);
