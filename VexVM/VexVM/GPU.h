@@ -52,6 +52,7 @@ public:
 	GLFWwindow* Setup(void (*onResize)(GLFWwindow* window, int neww, int newh));
 	void Resize(int w, int h);
 	void Reset();
+	void OnUpdate(float delta);
 	void Assemble();
 	void Render();
 	void Collide();

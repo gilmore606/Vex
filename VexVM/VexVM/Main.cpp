@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <list>
 
 #include "ROMReader.h"
 #include "util.cpp"
@@ -12,6 +13,7 @@
 #include "APU.h"
 #include "Input.h"
 #include "Sprite.h"
+#include "Vector.h"
 
 Scheduler scheduler;
 CPU cpu;
@@ -34,12 +36,16 @@ struct DemoPoint {
 DemoPoint* demoPoints = new DemoPoint[DEMO_POINTS];
 struct DemoRock {
 	Sprite* sprite;
-	float dx, dy, drot;
+	float drot;
 };
 std::vector<DemoRock> demoRocks;
 DemoRock demoShip;
 Sprite gridSprite;
 Sprite* flameSprite;
+struct DemoShot {
+	Sprite* sprite;
+};
+std::list<DemoShot> demoShots;
 
 // Proxy callback for GPU
 void onResize(GLFWwindow* window, int w, int h) {
@@ -58,10 +64,9 @@ void makeDemoPrims() {
 		sp->scale(scale, scale);
 		sp->rotate(randFloat() * 2.7f);
 		sp->setCollision(true);
+		sp->setVector(randCoord() * 0.2f, randCoord() * 0.2f);
 		DemoRock rock;
 		rock.sprite = sp;
-		rock.dx = randCoord() * 0.2f;
-		rock.dy = randCoord() * 0.2f;
 		rock.drot = randFloat();
 		demoRocks.push_back(rock);
 	}
@@ -69,8 +74,6 @@ void makeDemoPrims() {
 	shipsp->scale(0.4f, 0.4f);
 	shipsp->setCollision(true);
 	demoShip.sprite = shipsp;
-	demoShip.dx = 0.0f;
-	demoShip.dy = 0.0f;
 	demoShip.drot = 0.0f;
 	flameSprite = new Sprite(3, &gpu);
 	flameSprite->scale(0.4f, 0.4f);
@@ -92,9 +95,16 @@ void makeDemoStars() {
 }
 
 void moveDemoPrims(float delta) {
+	for (std::list<DemoShot>::const_iterator shot = demoShots.begin(), end = demoShots.end(); shot != end; ++shot) {
+		Sprite* sp = (*shot).sprite;
+		if (isOffscreen(sp->p())) {
+			//demoShots.remove(*shot);
+		}
+		// check collisions
+	}
 	for (int i = 0; i < demoRocks.size(); i++) {
 		Sprite* sp = demoRocks[i].sprite;
-		sp->moveTo(wrapCoord(sp->x() + demoRocks[i].dx * delta), wrapCoord(sp->y() + demoRocks[i].dy * delta));
+		sp->moveTo(wrapPos(sp->p()));
 		sp->rotate(demoRocks[i].drot * delta);
 	}
 	if (input.isPressed(0)) {
@@ -103,27 +113,25 @@ void moveDemoPrims(float delta) {
 		demoShip.sprite->rotate(-2.5 * delta);
 	}
 	if (input.isPressed(2)) {
-		demoShip.dx += std::cos(demoShip.sprite->rot() + 1.5707) * delta * 0.6f;
-		demoShip.dy += std::sin(demoShip.sprite->rot() + 1.5707) * delta * 0.6f;
+		demoShip.sprite->setVector(demoShip.sprite->v() + rot2vec(demoShip.sprite->rot() + 1.5707) * delta * 0.6f);
 		flameSprite->setVisible(true);
 	} else {
 		flameSprite->setVisible(false);
 	}
 	Sprite* shipsp = demoShip.sprite;
-	shipsp->moveTo(wrapCoord(shipsp->x() + demoShip.dx * delta), wrapCoord(shipsp->y() + demoShip.dy * delta));
+	shipsp->moveTo(wrapPos(shipsp->p()));
 	flameSprite->moveTo(shipsp->x(), shipsp->y());
 	flameSprite->setRotation(shipsp->rot());
 	if (shipsp->colliders()[0].id > 0) {
 		shipsp->moveTo(0.0f, 0.0f);
-		demoShip.dx = 0.0f;
-		demoShip.dy = 0.0f;
+		shipsp->setVector(0.0f, 0.0f);
 	}
 }
 
 void moveDemoStars(float delta) {
 	for (int i = 0; i < DEMO_POINTS; i++) {
-		demoPoints[i].gpupoint->x = wrapCoord(demoPoints[i].gpupoint->x + demoPoints[i].z * -demoShip.dx * delta * 6.0);
-		demoPoints[i].gpupoint->y = wrapCoord(demoPoints[i].gpupoint->y + demoPoints[i].z * -demoShip.dy * delta * 6.0);
+		demoPoints[i].gpupoint->x = wrapCoord(demoPoints[i].gpupoint->x + demoPoints[i].z * -demoShip.sprite->v().dx * delta * 6.0);
+		demoPoints[i].gpupoint->y = wrapCoord(demoPoints[i].gpupoint->y + demoPoints[i].z * -demoShip.sprite->v().dy * delta * 6.0);
 	}
 }
 
@@ -139,7 +147,10 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 }
 
 void fireDemoShot() {
-	// TODO: play an actual sound, make a point
+	if (demoShots.size() > 4) { return; }
+	std::cout << "BOOM";
+	//Sprite* sp = new Sprite(4, &gpu);
+	//demoShots.push_back(shot);
 	apu.voices[0].Trigger(2000.0, 127);
 }
 
@@ -188,7 +199,7 @@ int main() {
 	// Make demo shit
 	std::cout << "creating demo prims" << std::endl;
 	makeDemoPrims();
-	//makeDemoStars();
+	makeDemoStars();
 
 	std::string demoText1 = "VEXSYSTEM";
 	std::string demoText2 = "v0.1a1   vex-11/780";
@@ -217,10 +228,11 @@ int main() {
 		lastFrame = currentFrame;
 
 		moveDemoPrims(deltaTime);
-		//moveDemoStars(deltaTime);
+		moveDemoStars(deltaTime);
 		
 		scheduler.OnUpdate(currentFrame);
 		cpu.OnUpdate(deltaTime);
+		gpu.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
 		gpu.Collide();

@@ -196,6 +196,7 @@
     <ClInclude Include="Scheduler.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="Vertbuffer.h" />
     <ClInclude Include="Instrument.h" />
     <ClInclude Include="Note.h" />

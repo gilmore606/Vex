@@ -8,7 +8,7 @@
             { "name": "left", "key": "a", "type": "switch" },
             { "name": "right", "key": "d", "type": "switch" },
             { "name": "thrust", "key": "w", "type": "switch" },
-            { "name": "fire", "key": " ", "debounce": 200 },
+            { "name": "fire", "key": "space", "debounce": 200 },
             { "name": "start", "key": "enter" },
             { "name": "hyperspace", "key": "tab", "debounce": 1000 }
     ],

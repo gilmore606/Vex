@@ -236,6 +236,15 @@ void GPU::Stop() {
 	glfwTerminate();
 }
 
+void GPU::OnUpdate(float delta) {
+	for (int i = 0; i < spritec; i++) {
+		if (sprites[i].active && (sprites[i].v.dx != 0.0f || sprites[i].v.dy != 0.0f)) {
+			sprites[i].p.x += sprites[i].v.dx * delta;
+			sprites[i].p.y += sprites[i].v.dy * delta;
+		}
+	}
+}
+
 // Copy all our abstract prims into vertex buffers, to prep for render
 void GPU::Assemble() {
 	pointsVB.Reset();

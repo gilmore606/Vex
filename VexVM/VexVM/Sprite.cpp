@@ -26,23 +26,3 @@ void Sprite::setVisible(bool value) {
 	gpuSprite->visible = value;
 }
 
-void Sprite::update() {
-	gpuSprite->update();
-}
-
-float Sprite::x() {
-	return gpuSprite->x;
-}
-float Sprite::y() {
-	return gpuSprite->y;
-}
-float Sprite::rot() {
-	return gpuSprite->rot;
-}
-bool Sprite::visible() {
-	return gpuSprite->visible;
-}
-
-Collider* Sprite::colliders() {
-	return gpuSprite->colliders;
-}

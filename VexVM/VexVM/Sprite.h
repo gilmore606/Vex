@@ -5,6 +5,7 @@
 #include "GPU.h"
 #include <algorithm>
 #include <iostream>
+#include "Vector.h"
 
 class Sprite
 {
@@ -16,16 +17,20 @@ public:
 
 	float x();
 	float y();
+	Pos p();
+	Vec v();
 	float rot();
 	bool visible();
 	Collider* colliders();
 	void setCollision(bool value);
 	void setVisible(bool value);
 	void moveTo(float x, float y);
+	void moveTo(Pos p);
 	void rotate(float rads);
 	void setRotation(float rads);
+	void setVector(float dx, float dy);
+	void setVector(Vec nv);
 	void scale(float xs, float ys);
-	void update();
 
 private:
 	GPUSprite* gpuSprite;
@@ -33,8 +38,12 @@ private:
 };
 
 inline void Sprite::moveTo(float newx, float newy) {
-	gpuSprite->x = newx;
-	gpuSprite->y = newy;
+	gpuSprite->p.x = newx;
+	gpuSprite->p.y = newy;
+	gpuSprite->dirty = true;
+}
+inline void Sprite::moveTo(Pos p) {
+	gpuSprite->p = p;
 	gpuSprite->dirty = true;
 }
 inline void Sprite::rotate(float rads) {
@@ -49,8 +58,37 @@ inline void Sprite::setRotation(float rads) {
 	gpuSprite->rot = rads;
 	gpuSprite->dirty = true;
 }
-
+inline void Sprite::setVector(float dx, float dy) {
+	gpuSprite->v.dx = dx;
+	gpuSprite->v.dy = dy;
+}
+inline void Sprite::setVector(Vec nv) {
+	gpuSprite->v.dx = nv.dx;
+	gpuSprite->v.dy = nv.dy;
+}
 inline void Sprite::scale(float xs, float ys) {
 	gpuSprite->xscale = xs;
 	gpuSprite->yscale = ys;
+}
+inline float Sprite::x() {
+	return gpuSprite->p.x;
+}
+inline float Sprite::y() {
+	return gpuSprite->p.y;
+}
+inline Pos Sprite::p() {
+	return gpuSprite->p;
+}
+inline Vec Sprite::v() {
+	return gpuSprite->v;
+}
+inline float Sprite::rot() {
+	return gpuSprite->rot;
+}
+inline bool Sprite::visible() {
+	return gpuSprite->visible;
+}
+
+inline Collider* Sprite::colliders() {
+	return gpuSprite->colliders;
 }
