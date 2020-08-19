@@ -66,6 +66,7 @@ int GPU::reserveSprite() {
 GPUSpriteTicket GPU::createSprite(int image) {
 	int id = reserveSprite();
 	GPUSprite* sprite = &sprites[id];
+	sprite->gpu = this;
 	sprite->loadImage(images.at(image));
 
 	GPUSpriteTicket ticket;

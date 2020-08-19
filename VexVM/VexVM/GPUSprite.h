@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Collider.h"
 #include "Vector.h"
-
+class GPU;
 // Internal GPU sprite data, for copying into VBO
 // Pointed to by Sprite
 
@@ -23,6 +23,7 @@ public:
 	void loadImage(Image* image);
 	void PushData(float linedata[], int* linec, float pointdata[], int* pointc, float aspect);
 	void update();
+	void Destroy(int spriteID);
 
 	bool collides;
 	Pos p;
@@ -40,6 +41,7 @@ public:
 
 	Collider* colliders;
 	int colliderc;
+	GPU* gpu;
 
 private:
 };

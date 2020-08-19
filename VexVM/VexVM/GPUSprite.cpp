@@ -1,6 +1,7 @@
 #include "GPUSprite.h"
 #include <cmath>
 #include <iostream>
+#include "GPU.h"
 
 GPUSprite::GPUSprite() {
 	active = false;
@@ -70,4 +71,8 @@ void GPUSprite::loadImage(Image* image) {
 		pdata[i].b = image->points[i].b;
 	}
 	dirty = true;
+}
+
+void GPUSprite::Destroy(int spriteID) {
+	gpu->destroySprite(spriteID);
 }

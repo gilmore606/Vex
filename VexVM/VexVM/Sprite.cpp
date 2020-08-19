@@ -26,3 +26,6 @@ void Sprite::setVisible(bool value) {
 	gpuSprite->visible = value;
 }
 
+void Sprite::Destroy() {
+	gpuSprite->Destroy(gpuSpriteID);
+}

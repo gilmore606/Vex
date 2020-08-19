@@ -95,12 +95,16 @@ void makeDemoStars() {
 }
 
 void moveDemoPrims(float delta) {
-	for (std::list<DemoShot>::const_iterator shot = demoShots.begin(), end = demoShots.end(); shot != end; ++shot) {
-		Sprite* sp = (*shot).sprite;
-		if (isOffscreen(sp->p())) {
-			//demoShots.remove(*shot);
+	std::list<DemoShot>::iterator iter = demoShots.begin();
+	std::list<DemoShot>::iterator end = demoShots.end();
+	while (iter != end) {
+		DemoShot shot = *iter;
+		if (!isOffscreen(shot.sprite->p())) {
+			++iter;
+		} else {
+			shot.sprite->Destroy();
+			iter = demoShots.erase(iter);
 		}
-		// check collisions
 	}
 	for (int i = 0; i < demoRocks.size(); i++) {
 		Sprite* sp = demoRocks[i].sprite;
@@ -148,9 +152,12 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 
 void fireDemoShot() {
 	if (demoShots.size() > 4) { return; }
-	std::cout << "BOOM";
-	//Sprite* sp = new Sprite(4, &gpu);
-	//demoShots.push_back(shot);
+	Sprite* sp = new Sprite(4, &gpu);
+	sp->moveTo(demoShip.sprite->p());
+	sp->setVector(rot2vec((demoShip.sprite->rot() + 1.5707)) * 0.8f);
+	DemoShot shot;
+	shot.sprite = sp;
+	demoShots.push_back(shot);
 	apu.voices[0].Trigger(2000.0, 127);
 }
 

@@ -31,6 +31,7 @@ public:
 	void setVector(float dx, float dy);
 	void setVector(Vec nv);
 	void scale(float xs, float ys);
+	void Destroy();
 
 private:
 	GPUSprite* gpuSprite;
