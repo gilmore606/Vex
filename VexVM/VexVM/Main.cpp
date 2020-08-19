@@ -32,13 +32,13 @@ struct DemoPoint {
 	float z;
 };
 DemoPoint* demoPoints = new DemoPoint[DEMO_POINTS];
-
 struct DemoRock {
 	Sprite* sprite;
 	float dx, dy, drot;
 };
 std::vector<DemoRock> demoRocks;
 DemoRock demoShip;
+Sprite gridSprite;
 
 // Proxy callback for GPU
 void onResize(GLFWwindow* window, int w, int h) {
@@ -48,6 +48,8 @@ void onResize(GLFWwindow* window, int w, int h) {
 }
 
 void makeDemoPrims() {
+	gridSprite = Sprite(2, &gpu);
+	gridSprite.setVisible(false);
 	for (int i = 0; i < 24; i++) {
 		Sprite* sp = new Sprite(1, &gpu);
 		sp->moveTo(randCoord(), randCoord());
@@ -142,6 +144,7 @@ void handleButton(int input) {
 	if (input == 52) gpu.toggleLayer(1);
 	if (input == 53) gpu.toggleLayer(2);
 	if (input == 54) apu.voices[0].testTone = !apu.voices[0].testTone;
+	if (input == 55) gridSprite.setVisible(!gridSprite.visible());
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -162,6 +165,7 @@ int main() {
 	input.Add(52, BUTTON, GLFW_KEY_F2);
 	input.Add(53, BUTTON, GLFW_KEY_F3);
 	input.Add(54, BUTTON, GLFW_KEY_F4);
+	input.Add(55, BUTTON, GLFW_KEY_F5);
 	cpu.Connect(&scheduler, &gpu, &apu, &input);
 
 	// Read ROM file
@@ -180,7 +184,6 @@ int main() {
 	std::string demoText1 = "VEXSYSTEM";
 	std::string demoText2 = "v0.1a1   vex-11/780";
 	std::string demoText3 = "(c) 1983 Otari Games - All rights reserved\n\nThis is a long piece of text to test the font renderer\nand the sprite/line capacity of the virtual GPU.";
-	//Sprite gridSprite = Sprite(2, &gpu);
 	Sprite textSprite1 = Sprite(&demoText1, 1, &gpu, 1.0f, 0.6f, 0.0f);
 	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.2f, 0.0f);
 	Sprite textSprite3 = Sprite(&demoText3, 0, &gpu, 0.3f, 0.02f, 0.0f);

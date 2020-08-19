@@ -11,6 +11,7 @@
 class GPUSprite {
 public:
 	bool active;
+	bool visible;
 	
 	GPUSprite();
 	void reset();
@@ -65,6 +66,7 @@ inline void GPUSprite::update() {
 
 inline void GPUSprite::PushData(float dataArray[], int* counter) {
 	if (dirty) update();
+	if (!visible) return;
 	int i = 0;
 	while (i < datac) {
 		data_out[i].PushData(dataArray, counter);

@@ -4,6 +4,7 @@
 
 GPUSprite::GPUSprite() {
 	active = false;
+	visible = true;
 	collides = false;
 	colliders = new Collider[8];
 	colliderc = 0;

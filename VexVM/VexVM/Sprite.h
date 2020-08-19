@@ -9,6 +9,7 @@
 class Sprite
 {
 public:
+	Sprite();
 	Sprite(int image, GPU* gpu);
 	Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b,
 		float charSpacing = 0.2f, float lineSpacing = 1.1f);
@@ -16,8 +17,10 @@ public:
 	float x();
 	float y();
 	float rot();
+	bool visible();
 	Collider* colliders();
 	void setCollision(bool value);
+	void setVisible(bool value);
 	void moveTo(float x, float y);
 	void rotate(float rads);
 	void scale(float xs, float ys);

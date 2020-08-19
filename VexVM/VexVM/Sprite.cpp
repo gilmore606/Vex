@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 
+Sprite::Sprite() { }
+
 Sprite::Sprite(int image, GPU* gpu) {
 	GPUSpriteTicket ticket = gpu->createSprite(image);
 	gpuSprite = ticket.gpuSprite;
@@ -20,6 +22,9 @@ Sprite::Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b,
 void Sprite::setCollision(bool value) {
 	gpuSprite->collides = value;
 }
+void Sprite::setVisible(bool value) {
+	gpuSprite->visible = value;
+}
 
 void Sprite::update() {
 	gpuSprite->update();
@@ -33,6 +38,9 @@ float Sprite::y() {
 }
 float Sprite::rot() {
 	return gpuSprite->rot;
+}
+bool Sprite::visible() {
+	return gpuSprite->visible;
 }
 
 Collider* Sprite::colliders() {
