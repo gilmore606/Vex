@@ -20,6 +20,8 @@ public:
 	Pos p();
 	Vec v();
 	float rot();
+	Color color();
+	float tint();
 	bool visible();
 	Collider* colliders();
 	void setCollision(bool value);
@@ -29,6 +31,7 @@ public:
 	void rotate(float rads);
 	void setRotation(float rads);
 	void setVector(float dx, float dy);
+	void setColor(float r, float g, float b, float tint);
 	void setVector(Vec nv);
 	void scale(float xs, float ys);
 	void Destroy();
@@ -85,6 +88,12 @@ inline Vec Sprite::v() {
 }
 inline float Sprite::rot() {
 	return gpuSprite->rot;
+}
+inline Color Sprite::color() {
+	return gpuSprite->color;
+}
+inline float Sprite::tint() {
+	return gpuSprite->tint;
 }
 inline bool Sprite::visible() {
 	return gpuSprite->visible;

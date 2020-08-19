@@ -41,3 +41,8 @@ inline static Pos wrapPos(Pos p) {
 inline static bool isOffscreen(Pos p) {
 	return (p.x > 1.0f || p.x < -1.0f || p.y > 1.0f || p.x < -1.0f);
 }
+
+
+struct Color {
+	float r = 1.0f, g = 1.0f, b = 1.0f;
+};

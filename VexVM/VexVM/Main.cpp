@@ -63,6 +63,7 @@ void makeDemoPrims() {
 		float scale = (randFloat() * 0.05f) + 0.05f;
 		sp->scale(scale, scale);
 		sp->rotate(randFloat() * 2.7f);
+		sp->setColor(randFloat() * 0.5f, randFloat() * 0.5f, randFloat() * 0.5f, 0.3f);
 		sp->setCollision(true);
 		sp->setVector(randCoord() * 0.2f, randCoord() * 0.2f);
 		DemoRock rock;

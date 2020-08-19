@@ -30,6 +30,8 @@ public:
 	Vec v;
 	float xscale, yscale;
 	float rot;
+	Color color;
+	float tint;
 
 	bool dirty;
 	Line* data;
@@ -65,18 +67,18 @@ inline void GPUSprite::update() {
 		data_out[i].y1 = (y1 * cos + x1 * sin) + p.y;
 		data_out[i].x2 = (x2 * cos - y2 * sin) + p.x;
 		data_out[i].y2 = (y2 * cos + x2 * sin) + p.y;
-		data_out[i].r = data[i].r;
-		data_out[i].g = data[i].g;
-		data_out[i].b = data[i].b;
+		data_out[i].r = data[i].r * (1.0f - tint) + color.r * tint;
+		data_out[i].g = data[i].g * (1.0f - tint) + color.g * tint;
+		data_out[i].b = data[i].b * (1.0f - tint) + color.b * tint;
 		i++;
 	}
 	i = 0;
 	while (i < pdatac) {
 		pdata_out[i].x = xscale * pdata[i].x + p.x;
 		pdata_out[i].y = yscale * pdata[i].y + p.y;
-		pdata_out[i].r = pdata[i].r;
-		pdata_out[i].g = pdata[i].g;
-		pdata_out[i].b = pdata[i].b;
+		pdata_out[i].r = pdata[i].r * (1.0f - tint) + color.r * tint;
+		pdata_out[i].g = pdata[i].g * (1.0f - tint) + color.g * tint;
+		pdata_out[i].b = pdata[i].b * (1.0f - tint) * color.b * tint;
 		pdata_out[i].size = pdata[i].size;
 		i++;
 	}

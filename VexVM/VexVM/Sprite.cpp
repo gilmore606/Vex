@@ -25,6 +25,12 @@ void Sprite::setCollision(bool value) {
 void Sprite::setVisible(bool value) {
 	gpuSprite->visible = value;
 }
+void Sprite::setColor(float r, float g, float b, float tint) {
+	gpuSprite->color.r = r;
+	gpuSprite->color.g = g;
+	gpuSprite->color.b = b;
+	gpuSprite->tint = tint;
+}
 
 void Sprite::Destroy() {
 	gpuSprite->Destroy(gpuSpriteID);
