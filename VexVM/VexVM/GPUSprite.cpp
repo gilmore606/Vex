@@ -16,8 +16,8 @@ GPUSprite::GPUSprite() {
 void GPUSprite::reset() {
 	p.x = 0.0f;
 	p.y = 0.0f;
-	xscale = 1.0f;
-	yscale = 1.0f;
+	scale.dx = 1.0f;
+	scale.dy = 1.0f;
 	rot = 0.0f;
 	dirty = true;
 	datac = 0;

@@ -71,8 +71,8 @@ inline void Sprite::setVector(Vec nv) {
 	gpuSprite->v.dy = nv.dy;
 }
 inline void Sprite::scale(float xs, float ys) {
-	gpuSprite->xscale = xs;
-	gpuSprite->yscale = ys;
+	gpuSprite->scale.dx = xs;
+	gpuSprite->scale.dy = ys;
 }
 inline float Sprite::x() {
 	return gpuSprite->p.x;

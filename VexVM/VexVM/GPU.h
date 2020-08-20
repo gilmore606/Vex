@@ -10,6 +10,7 @@
 #include "Line.h"
 #include "Image.h"
 #include "GPUSprite.h"
+#include "GPUParticle.h"
 #include "Font.h"
 #include "Collider.h"
 
@@ -17,6 +18,7 @@ struct GPUsettings {
 	float MAX_POINTS = 16000;
 	float MAX_LINES = 64000;
 	float MAX_SPRITES = 1024;
+	float MAX_PARTICLES = 1024;
 
 	double ASPECT_RATIO = 4.0 / 4.0;
 	bool DRAW_SCREEN = true;
@@ -67,6 +69,8 @@ public:
 	GPUSpriteTicket createSprite(int image);
 	GPUSpriteTicket createText(int font, std::string* text, float r, float g, float b, float charSpacing, float lineSpacing);
 	void destroySprite(int id);
+	void spawnParticle(int image, Pos p, Vec v, Vec vv, Color color0, Color color1, 
+		Vec scale0, Vec scale1, float rot, float rotv, float lifetime);
 
 	Point* addPoint(float x, float y, float r, float g, float b, float size);
 	Line* addLine(float x1, float y1, float x2, float y2, float r, float g, float b);
@@ -91,6 +95,8 @@ private:
 	int linec = 0;
 	GPUSprite* sprites;
 	int spritec = 0;
+	GPUParticle* particles;
+	int particlec = 0;
 
 	std::vector<Image*> images;
 	std::vector<Font*> fonts;

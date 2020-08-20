@@ -40,6 +40,7 @@ struct DemoRock {
 };
 std::vector<DemoRock> demoRocks;
 DemoRock demoShip;
+float thrustTime;
 Sprite gridSprite;
 Sprite* flameSprite;
 struct DemoShot {
@@ -120,8 +121,16 @@ void moveDemoPrims(float delta) {
 	if (input.isPressed(2)) {
 		demoShip.sprite->setVector(demoShip.sprite->v() + rot2vec(demoShip.sprite->rot() + 1.5707) * delta * 0.6f);
 		flameSprite->setVisible(true);
+		thrustTime += delta;
+		if (thrustTime > 0.1f) {
+			gpu.spawnParticle(5, demoShip.sprite->p(), rot2vec(demoShip.sprite->rot() - 1.5707) * 0.2f, Vec(0.0f, 0.0f),
+				Color(0.1f, 0.1f, 0.1f), Color(0.02f, 0.02f, 0.02f), Vec(0.02f, 0.02f), Vec(0.002f, 0.002f), 
+					randFloat() * 2.7f, randFloat() + 3.0f, 1.0f + randFloat());
+			thrustTime = 0.0f;
+		}
 	} else {
 		flameSprite->setVisible(false);
+		thrustTime = 0.0f;
 	}
 	Sprite* shipsp = demoShip.sprite;
 	shipsp->moveTo(wrapPos(shipsp->p()));

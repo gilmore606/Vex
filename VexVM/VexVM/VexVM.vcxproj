@@ -162,6 +162,7 @@
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GPU.cpp" />
+    <ClCompile Include="GPUParticle.cpp" />
     <ClCompile Include="GPUSprite.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Font.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPU.h" />
+    <ClInclude Include="GPUParticle.h" />
     <ClInclude Include="GPUSprite.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Input.h" />

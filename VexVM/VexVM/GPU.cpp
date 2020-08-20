@@ -15,6 +15,7 @@ GPU::GPU(int w, int h) {
 	points = new Point[settings.MAX_POINTS];
 	lines = new Line[settings.MAX_LINES];
 	sprites = new GPUSprite[settings.MAX_SPRITES];
+	particles = new GPUParticle[settings.MAX_PARTICLES];
 	scaledscreen = new float[24];
 	colW = w / 4;
 	colH = h / 4;
@@ -69,6 +70,30 @@ void GPU::loadImage(Image* image) {
 }
 void GPU::loadFont(Font* font) {
 	fonts.push_back(font);
+}
+
+void GPU::spawnParticle(int image, Pos p, Vec v, Vec vv, Color color0, Color color1, 
+			Vec scale0, Vec scale1, float rot, float rotv, float lifetime) {
+	int id = 0;
+	while ((id < settings.MAX_PARTICLES) && particles[id].active) { id++; }
+	if (id == settings.MAX_PARTICLES) return;
+	if (id >= particlec) particlec = id + 1;
+	GPUParticle* particle = &particles[id];
+	particle->active = true;
+	particle->p = p;
+	particle->v = v;
+	particle->vv = vv;
+	particle->color0 = color0;
+	particle->color1 = color1;
+	particle->scale0 = scale0;
+	particle->scale1 = scale1;
+	particle->rot = rot;
+	particle->rotv = rotv;
+	particle->lifetime = lifetime;
+	particle->age = 0.0f;
+	particle->color = color0;
+	particle->scale = scale0;
+	particle->loadImage(images.at(image));
 }
 
 int GPU::reserveSprite() {
@@ -154,6 +179,7 @@ void GPU::Reset() {
 	pointc = 0;
 	linec = 0;
 	spritec = 0;
+	particlec = 0;
 }
 
 void GPU::makeShaders() {
@@ -256,9 +282,25 @@ void GPU::Stop() {
 
 void GPU::OnUpdate(float delta) {
 	for (int i = 0; i < spritec; i++) {
-		if (sprites[i].active && (sprites[i].v.dx != 0.0f || sprites[i].v.dy != 0.0f)) {
-			sprites[i].p.x += sprites[i].v.dx * delta;
-			sprites[i].p.y += sprites[i].v.dy * delta;
+		GPUSprite* s = &sprites[i];
+		if (s->active && (s->v.dx != 0.0f || s->v.dy != 0.0f)) {
+			s->p = s->p + s->v * delta;
+		}
+	}
+	for (int i = 0; i < particlec; i++) {
+		GPUParticle* p = &particles[i];
+		if (p->active) {
+			p->v = p->v + p->vv * delta;
+			p->p = p->p + p->v * delta;
+			p->rot = p->rot + p->rotv * delta;
+			float progress = p->age / p->lifetime;
+			p->color = (p->color0 * (1.0 - progress)) + (p->color1 * progress);
+			p->scale = (p->scale0 * (1.0 - progress)) + (p->scale1 * progress);
+			p->age += delta;
+			p->dirty = true;
+			if (p->age > p->lifetime) {
+				p->active = false;
+			}
 		}
 	}
 }
@@ -276,6 +318,11 @@ void GPU::Assemble() {
 	for (int i = 0; i < spritec; i++) {
 		if (sprites[i].active && sprites[i].visible) {
 			sprites[i].PushData(linesVB.vertdata, &linesVB.vertdatac, pointsVB.vertdata, &pointsVB.vertdatac, settings.ASPECT_RATIO);
+		}
+	}
+	for (int i = 0; i < particlec; i++) {
+		if (particles[i].active && particles[i].visible) {
+			particles[i].PushData(linesVB.vertdata, &linesVB.vertdatac, pointsVB.vertdata, &pointsVB.vertdatac, settings.ASPECT_RATIO);
 		}
 	}
 	pointsVB.Update();

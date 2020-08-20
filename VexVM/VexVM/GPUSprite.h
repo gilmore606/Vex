@@ -28,7 +28,7 @@ public:
 	bool collides;
 	Pos p;
 	Vec v;
-	float xscale, yscale;
+	Vec scale;
 	float rot;
 	Color color;
 	float tint;
@@ -59,10 +59,10 @@ inline void GPUSprite::update() {
 	float x1, y1, x2, y2;
 	int i = 0;
 	while (i < datac) {
-		x1 = xscale * data[i].x1;
-		y1 = yscale * data[i].y1;
-		x2 = xscale * data[i].x2;
-		y2 = yscale * data[i].y2;
+		x1 = scale.dx * data[i].x1;
+		y1 = scale.dy * data[i].y1;
+		x2 = scale.dx * data[i].x2;
+		y2 = scale.dy * data[i].y2;
 		data_out[i].x1 = (x1 * cos - y1 * sin) + p.x;
 		data_out[i].y1 = (y1 * cos + x1 * sin) + p.y;
 		data_out[i].x2 = (x2 * cos - y2 * sin) + p.x;
@@ -74,8 +74,8 @@ inline void GPUSprite::update() {
 	}
 	i = 0;
 	while (i < pdatac) {
-		pdata_out[i].x = xscale * pdata[i].x + p.x;
-		pdata_out[i].y = yscale * pdata[i].y + p.y;
+		pdata_out[i].x = scale.dx * pdata[i].x + p.x;
+		pdata_out[i].y = scale.dy * pdata[i].y + p.y;
 		pdata_out[i].r = pdata[i].r * (1.0f - tint) + color.r * tint;
 		pdata_out[i].g = pdata[i].g * (1.0f - tint) + color.g * tint;
 		pdata_out[i].b = pdata[i].b * (1.0f - tint) * color.b * tint;
