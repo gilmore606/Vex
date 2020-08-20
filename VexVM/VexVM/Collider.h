@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Vector.h"
+
 class Collider {
 public:
 	int id;
-	float x, y;
+	Pos p;
 private:
 };

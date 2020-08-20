@@ -57,7 +57,7 @@ inline static bool isOffscreen(Pos p) {
 struct Color {
 	Color() { }
 	Color(float r, float g, float b) { this->r = r; this->g = g; this->b = b; }
-	float r = 1.0f, g = 1.0f, b = 1.0f;
+	float r, g, b;
 	inline Color operator + (Color const& obj) {
 		Color res;
 		res.r = r + obj.r;

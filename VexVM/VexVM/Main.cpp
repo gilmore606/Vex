@@ -136,7 +136,14 @@ void moveDemoPrims(float delta) {
 	shipsp->moveTo(wrapPos(shipsp->p()));
 	flameSprite->moveTo(shipsp->x(), shipsp->y());
 	flameSprite->setRotation(shipsp->rot());
-	if (shipsp->colliders()[0].id > 0) {
+	if ((shipsp->x() != 0.0f) && (shipsp->y() != 0.0f) && shipsp->colliders()[0].id > 0) {
+		for (int i = 0; i < 12; i++) {
+			gpu.spawnParticle(6, shipsp->colliders()[0].p, 
+				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.4f + 0.2f), 
+				Vec(randFloat() - 0.5f, randFloat() - 0.5f),
+				Color(1.0f, 1.0f, 1.0f), Color(0.0f, 0.0f, 0.2f), Vec(0.04f, 0.04f), Vec(0.04f, 0.04f),
+				randFloat() * 6.25f, 0.7f, 0.5f);
+		}
 		shipsp->moveTo(0.0f, 0.0f);
 		shipsp->setVector(0.0f, 0.0f);
 	}

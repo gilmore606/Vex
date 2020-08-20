@@ -17,8 +17,8 @@ GPU::GPU(int w, int h) {
 	sprites = new GPUSprite[settings.MAX_SPRITES];
 	particles = new GPUParticle[settings.MAX_PARTICLES];
 	scaledscreen = new float[24];
-	colW = w / 4;
-	colH = h / 4;
+	colW = w / settings.COLLIDEMAP_SCALE;
+	colH = h / settings.COLLIDEMAP_SCALE;
 	collideMap = new short*[colH];
 	for (int i = 0; i < colH; ++i) {
 		collideMap[i] = new short[colW];
@@ -92,6 +92,7 @@ void GPU::spawnParticle(int image, Pos p, Vec v, Vec vv, Color color0, Color col
 	particle->lifetime = lifetime;
 	particle->age = 0.0f;
 	particle->color = color0;
+	particle->tint = 1.0f;
 	particle->scale = scale0;
 	particle->loadImage(images.at(image));
 }
@@ -438,7 +439,6 @@ void GPU::Collide() {
 				short dy = abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
 				short err = (dx > dy ? dx : -dy) / 2;
 				while (x1 != x2 || y1 != y2) {
-
 					if ((collideMap[x1][y1] > 0) && (collideMap[x1][y1] != sp)) {
 						// Record collision between sp and osp
 						short osp = collideMap[x1][y1];
@@ -448,10 +448,9 @@ void GPU::Collide() {
 						if (sprites[osp].colliderc < 8) { sprites[osp].colliderc++; }
 						spc->id = osp;
 						ospc->id = sp;
-						spc->x = x1;
-						spc->y = y1;
-						ospc->x = x1;
-						ospc->y = y1;
+						spc->p.x = ((x1 / (float)colW) * 2.0f) - 1.0f;
+						spc->p.y = ((y1 / (float)colH) * 2.0f) - 1.0f;
+						ospc->p = spc->p;
 					}
 					collideMap[x1][y1] = sp;
 
@@ -459,6 +458,9 @@ void GPU::Collide() {
 					if (e2 > -dx) { err -= dy; x1 += sx; }
 					if (e2 < dy) { err += dx; y1 += sy; }
 				}
+			}
+			for (short p = 0; p < sprites[sp].pdatac; p++) {
+				// TODO: collide points by drawing their vector
 			}
 		}
 	}

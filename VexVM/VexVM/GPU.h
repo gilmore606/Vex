@@ -47,6 +47,8 @@ struct GPUsettings {
 	float LETTERBOX_R = 0.02f;
 	float LETTERBOX_G = 0.02f;
 	float LETTERBOX_B = 0.02f;
+
+	int COLLIDEMAP_SCALE = 4;
 };
 
 

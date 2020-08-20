@@ -78,7 +78,7 @@ inline void GPUSprite::update() {
 		pdata_out[i].y = scale.dy * pdata[i].y + p.y;
 		pdata_out[i].r = pdata[i].r * (1.0f - tint) + color.r * tint;
 		pdata_out[i].g = pdata[i].g * (1.0f - tint) + color.g * tint;
-		pdata_out[i].b = pdata[i].b * (1.0f - tint) * color.b * tint;
+		pdata_out[i].b = pdata[i].b * (1.0f - tint) + color.b * tint;
 		pdata_out[i].size = pdata[i].size;
 		i++;
 	}
