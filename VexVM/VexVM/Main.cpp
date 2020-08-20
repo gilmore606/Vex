@@ -142,7 +142,7 @@ void moveDemoPrims(float delta) {
 				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.4f + 0.2f), 
 				Vec(randFloat() - 0.5f, randFloat() - 0.5f),
 				Color(1.0f, 1.0f, 1.0f), Color(0.0f, 0.0f, 0.2f), Vec(0.04f, 0.04f), Vec(0.04f, 0.04f),
-				randFloat() * 6.25f, 0.7f, 0.5f);
+				randFloat() * 6.25f, 3.5f, 0.5f);
 		}
 		shipsp->moveTo(0.0f, 0.0f);
 		shipsp->setVector(0.0f, 0.0f);
