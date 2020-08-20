@@ -413,7 +413,7 @@ void GPU::toggleLayer(int layer) {
 	if (layer == 2) settings.DRAW_TRAILS = (settings.DRAW_TRAILS ? false : true);
 }
 
-void GPU::Collide() {
+void GPU::Collide(float delta) {
 	for (int i = 0; i < colW; i++) {
 		for (int j = 0; j < colH; j++) {
 			collideMap[i][j] = 0;
@@ -435,33 +435,42 @@ void GPU::Collide() {
 				y1 = std::min(colH-1, std::max(0, (int)(colH * ((sprites[sp].data_out[l].y1 + 1.0f) * 0.5f))));
 				x2 = std::min(colW-1, std::max(0, (int)(colW * ((sprites[sp].data_out[l].x2 + 1.0f) * 0.5f))));
 				y2 = std::min(colH-1, std::max(0, (int)(colH * ((sprites[sp].data_out[l].y2 + 1.0f) * 0.5f))));
-				short dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
-				short dy = abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
-				short err = (dx > dy ? dx : -dy) / 2;
-				while (x1 != x2 || y1 != y2) {
-					if ((collideMap[x1][y1] > 0) && (collideMap[x1][y1] != sp)) {
-						// Record collision between sp and osp
-						short osp = collideMap[x1][y1];
-						Collider* spc = &sprites[sp].colliders[sprites[sp].colliderc];
-						if (sprites[sp].colliderc < 8) { sprites[sp].colliderc++; }
-						Collider* ospc = &sprites[osp].colliders[sprites[osp].colliderc];
-						if (sprites[osp].colliderc < 8) { sprites[osp].colliderc++; }
-						spc->id = osp;
-						ospc->id = sp;
-						spc->p.x = ((x1 / (float)colW) * 2.0f) - 1.0f;
-						spc->p.y = ((y1 / (float)colH) * 2.0f) - 1.0f;
-						ospc->p = spc->p;
-					}
-					collideMap[x1][y1] = sp;
-
-					short e2 = err;
-					if (e2 > -dx) { err -= dy; x1 += sx; }
-					if (e2 < dy) { err += dx; y1 += sy; }
-				}
+				collideLine(sp, x1, y1, x2, y2);
 			}
 			for (short p = 0; p < sprites[sp].pdatac; p++) {
-				// TODO: collide points by drawing their vector
+				// collide points by drawing their vector
+				x1 = std::min(colW - 1, std::max(0, (int)(colW * ((sprites[sp].pdata_out[p].x + 1.0f) * 0.5f))));
+				y1 = std::min(colH - 1, std::max(0, (int)(colH * ((sprites[sp].pdata_out[p].y + 1.0f) * 0.5f))));
+				x2 = std::min(colW - 1, std::max(0, (int)(colW * (((sprites[sp].pdata_out[p].x + sprites[sp].v.dx * delta) + 1.0f) * 0.5f))));
+				y2 = std::min(colH - 1, std::max(0, (int)(colH * (((sprites[sp].pdata_out[p].y + sprites[sp].v.dy * delta) + 1.0f) * 0.5f))));
+				collideLine(sp, x1, y1, x2, y2);
 			}
 		}
+	}
+}
+
+inline void GPU::collideLine(short sp, short x1, short y1, short x2, short y2) {
+	short dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+	short dy = abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+	short err = (dx > dy ? dx : -dy) / 2;
+	while (x1 != x2 || y1 != y2) {
+		if ((collideMap[x1][y1] > 0) && (collideMap[x1][y1] != sp)) {
+			// Record collision between sp and osp
+			short osp = collideMap[x1][y1];
+			Collider* spc = &sprites[sp].colliders[sprites[sp].colliderc];
+			if (sprites[sp].colliderc < 8) { sprites[sp].colliderc++; }
+			Collider* ospc = &sprites[osp].colliders[sprites[osp].colliderc];
+			if (sprites[osp].colliderc < 8) { sprites[osp].colliderc++; }
+			spc->id = osp;
+			ospc->id = sp;
+			spc->p.x = ((x1 / (float)colW) * 2.0f) - 1.0f;
+			spc->p.y = ((y1 / (float)colH) * 2.0f) - 1.0f;
+			ospc->p = spc->p;
+		}
+		collideMap[x1][y1] = sp;
+
+		short e2 = err;
+		if (e2 > -dx) { err -= dy; x1 += sx; }
+		if (e2 < dy) { err += dx; y1 += sy; }
 	}
 }

@@ -64,7 +64,7 @@ public:
 	void OnUpdate(float delta);
 	void Assemble();
 	void Render();
-	void Collide();
+	void Collide(float delta);
 	void Stop();
 	void loadImage(Image* image);
 	void loadFont(Font* font);
@@ -90,6 +90,7 @@ private:
 	void makeVBs();
 	void drawPrims(float pointThick, float lineThick, float pointBright, float lineBright);
 	int reserveSprite();
+	inline void collideLine(short sp, short x1, short y1, short x2, short y2);
 
 	Point* points;
 	int pointc = 0;
