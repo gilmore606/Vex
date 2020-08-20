@@ -8,9 +8,13 @@ The compiler is currently being written in Kotlin.  The VM is being written in C
 
 DISCLAIMER FOR CONTRIBUTORS: I don't actually know C++!  My C++ code is terrible and probably insults the compiler.  Please help me learn better C++!
 
+You can [download an .exe demo](https://raw.githubusercontent.com/gilmore606/Vex/master/vextest.zip) if you want to see it running yourself.
+
 ![screenshot](https://raw.githubusercontent.com/gilmore606/Vex/master/vexlogo.png)
 
 # Updates
+
+8/19: Particles!
 
 8/18: Collision detection!
 
