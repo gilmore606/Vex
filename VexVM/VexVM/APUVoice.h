@@ -165,7 +165,7 @@ inline double* APUVoice::nextSample() {
 	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
 	else samplebuf = (*osc1->nextSample() + *osc2->nextSample()) / 2.0;
 
-	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume * 0.1;
+	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume;
 	samplebuf = (samplebuf + filtermem) / 2.0;
 	filtermem = samplebuf;
 	return &samplebuf;
@@ -173,7 +173,7 @@ inline double* APUVoice::nextSample() {
 inline void APUVoice::Trigger(double freq, int vel) {
 	osc1->setFreq(freq);
 	osc2->setFreq(freq);
-	velocity = (double)(vel + 158) / 285.0;
+	velocity = ((double)vel + 158.0) / 285.0;
 	Trigger();
 }
 inline void APUVoice::Trigger() {

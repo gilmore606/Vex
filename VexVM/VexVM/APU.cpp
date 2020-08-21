@@ -70,7 +70,7 @@ void APU::PlayNote(Note* note) {
 	if (note->channel >= MAX_VOICES) return;
 	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
-		voices[note->channel].Trigger(notefreqs[note->data1], notefreqs[note->data2]);
+		voices[note->channel].Trigger(notefreqs[note->data1], note->data2);
 	} else if (note->type == NOTE_OFF) {
 		voices[note->channel].Release();
 	} else if (note->type == PITCH_BEND) {
