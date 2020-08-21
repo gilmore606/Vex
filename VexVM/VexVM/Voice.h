@@ -123,21 +123,21 @@ inline double* ADSR::nextLevel() {
 }
 
 
-class APUVoice {
+class Voice {
 
 public:
-	APUVoice();
+	Voice();
 
-	double* nextSample();
+	void genSample();
 	void Reset();
 	void Trigger();
 	void Trigger(double freq, int vel);
 	void Release();
 	void setADSR(double a, double d, double s, double r);
 	void Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase);
+	void Patch(int pan, int volume, int a, int d, int s, int r, int wave1, int wave2, int detune, int phase);
 	void PitchBend(int bend);
 
-	bool enabled;
 	double volume;    // 0.0 to 1.0
 	double pan;       // 0.0 to 1.0, 0.5 = center
 	int pitchBend;    // 0 to 16384, 8192 = on-pitch
@@ -146,39 +146,36 @@ public:
 	OSC* osc1;
 	OSC* osc2;
 
-	bool testTone;
+	double outsample;
 
 private:
 	double samplebuf;
 	double filtermem;
 	double velocity;
+
+	double intToDouble(int b, double max);
 };
 
-inline double* APUVoice::nextSample() {
-	if (testTone) {
-		samplebuf = noise();
-		return &samplebuf;
-	}
-	
+inline void Voice::genSample() {
 	if (osc1->enabled && !osc2->enabled) samplebuf = *osc1->nextSample();
 	else if (osc2->enabled && !osc1->enabled) samplebuf = *osc2->nextSample();
 	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
 	else samplebuf = (*osc1->nextSample() + *osc2->nextSample()) / 2.0;
 
 	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume;
-	samplebuf = (samplebuf + filtermem) / 2.0;
+	samplebuf = (samplebuf + filtermem) / 2.0;  // cheap grungy filter
 	filtermem = samplebuf;
-	return &samplebuf;
+	outsample = samplebuf;
 }
-inline void APUVoice::Trigger(double freq, int vel) {
+inline void Voice::Trigger(double freq, int vel) {
 	osc1->setFreq(freq);
 	osc2->setFreq(freq);
 	velocity = ((double)vel + 158.0) / 285.0;
 	Trigger();
 }
-inline void APUVoice::Trigger() {
+inline void Voice::Trigger() {
 	adsrMain->Trigger();
 }
-inline void APUVoice::Release() {
+inline void Voice::Release() {
 	adsrMain->Release();
 }

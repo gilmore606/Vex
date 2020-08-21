@@ -1,7 +1,7 @@
 package model
 
 data class Song(
-    val name: String,
+    val id: String,
     val file: String,
     val voices: ArrayList<String>,
     val volumes: ArrayList<Int>,

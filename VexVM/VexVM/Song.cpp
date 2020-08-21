@@ -1,7 +1,8 @@
 #include "Song.h"
 #include "ROMReader.h"
 
-Song::Song() { 
+Song::Song(int id) { 
+	this->id = id;
 	speed = 4.0;
 	resolution = 192.0;
 }
@@ -9,7 +10,7 @@ Song::Song() {
 void Song::Read(ROMReader* rom) {
 	notecount = rom->next3Int();
 	resolution = rom->next2Int();
-	voicecount = rom->next();
+	int voicecount = rom->next();
 	notes.reserve(notecount);
 	for (int i = 0; i < notecount; i++) {
 		Note* note = new Note();
@@ -45,14 +46,16 @@ void Song::Read(ROMReader* rom) {
 		int ph = rom->nextInt();
 		int v = rom->nextInt();
 		int p = rom->nextInt();
-		instruments.push_back(Instrument(w1, w2, a, d, s, r, dt, ph, v, p));
+		Voice voice;
+		voice.Patch(p, v, a, d, s, r, w1, w2, dt, ph);
+		voices.push_back(voice);
 	}
 	std::cout << "  read " << voicecount << " instruments" << std::endl;
 }
 
 void Song::Reset() {
 	notecursor = 0;
-	setTempo(600);
+	setTempo(600); // 120bpm default tempo
 	tick = 0.0;
 	done = false;
 }
@@ -61,24 +64,4 @@ void Song::setTempo(int tempo) {
 	this->tempo = tempo;
 	ticksPerSecond = ((double)tempo / 1000.0) * resolution * speed;
 	std::cout << "song tps " << ticksPerSecond << std::endl;
-}
-
-void Song::advanceTime(double sec) {
-	tick += (sec * ticksPerSecond);
-}
-
-Note* Song::getNote() {
-	if (notecursor > notecount) {
-		if (loop) {
-			Reset();
-		} else {
-			done = true;
-		}
-		return nullptr;
-	}
-	if (notes[notecursor].tick <= tick) {
-		notecursor++;
-		return &notes[notecursor - 1];
-	}
-	return nullptr;
 }

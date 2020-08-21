@@ -34,7 +34,7 @@ void ROMReader::Read(CPU* cpu, GPU* gpu, APU* apu, Input* input) {
 			resourceName = getMarker();
 			std::cout << "read segment " << marker << ": " << resourceName << std::endl;
 			if (marker.compare("SNG") == 0) {
-				apu->LoadSong(readSong());
+				apu->LoadSong(readSong(std::stoi(resourceName)));
 			} else if (marker.compare("COD") == 0) {
 				//cpu->loadCode(readCode(resourceName);
 			} else if (marker.compare("CTR") == 0) {
@@ -101,8 +101,8 @@ std::string ROMReader::getMarker() {
 	return marker;
 }
 
-Song* ROMReader::readSong() {
-	Song* song = new Song();
+Song* ROMReader::readSong(int id) {
+	Song* song = new Song(id);
 	song->Read(this);
 	return song;
 }

@@ -236,11 +236,16 @@
                 "name": "drum",
                 "waves": [ "NOISE", "NOISE" ],
                 "adsr": [ 0, 8, 0, 0 ]
+            },
+            {
+                "name": "shoot",
+                "waves": [ "NOISE", "NOISE" ],
+                "adsr": [ 0, 25, 0, 0 ]
             }
 	    ],
 	"songs": [
             {
-                "name": "maintheme",
+                "id": "1",
                 "file": "1942.mid",
                 "voices": [ "piano", "piano", "piano", "piano" ],
                 "volumes": [ 200, 200, 200, 200 ],

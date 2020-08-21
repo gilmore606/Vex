@@ -78,12 +78,6 @@
     <ClCompile Include="APU.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="APUVoice.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Instrument.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
     <ClCompile Include="Note.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
@@ -91,6 +85,9 @@
       <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="Song.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Voice.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,12 +146,6 @@
     <ClInclude Include="APU.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="APUVoice.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Instrument.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Note.h">
       <Filter>Audio</Filter>
     </ClInclude>
@@ -162,6 +153,9 @@
       <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="Song.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Voice.h">
       <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>

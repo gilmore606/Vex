@@ -1,11 +1,9 @@
-#include "APUVoice.h"
+#include "Voice.h"
 #include <cmath>
 
-APUVoice::APUVoice() { 
+Voice::Voice() { 
 	volume = 1.0f;
 	pan = 0.5f;
-	enabled = true;
-	testTone = false;
 	adsrMain = new ADSR();
 	osc1 = new OSC();
 	osc2 = new OSC();
@@ -24,18 +22,18 @@ APUVoice::APUVoice() {
 	filtermem = 0.0;
 }
 
-void APUVoice::Reset() {
+void Voice::Reset() {
 
 }
 
-void APUVoice::setADSR(double a, double d, double s, double r) {
+void Voice::setADSR(double a, double d, double s, double r) {
 	adsrMain->a = a;
 	adsrMain->d = d;
 	adsrMain->s = s;
 	adsrMain->r = r;
 }
 
-void APUVoice::Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase) {
+void Voice::Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase) {
 	adsrMain->a = a;
 	adsrMain->d = d;
 	adsrMain->s = s;
@@ -48,11 +46,24 @@ void APUVoice::Patch(double pan, double volume, double a, double d, double s, do
 	this->osc2->phase = phase;
 }
 
-void APUVoice::PitchBend(int bend) {
+// Patch using integer values from ROM
+void Voice::Patch(int pan, int volume, int a, int d, int s, int r, int wave1, int wave2, int detune, int phase) {
+	Patch(
+		intToDouble(pan, 1.0), intToDouble(volume, 1.0),
+		intToDouble(a, 2.0), intToDouble(d, 3.0), intToDouble(s, 1.0), intToDouble(r, 3.0),
+		(Waveform)wave1, (Waveform)wave2, intToDouble(detune, 20.0), intToDouble(phase, 0.5)
+	);
+}
+
+void Voice::PitchBend(int bend) {
 	pitchBend = bend;
 	double b = (double)(bend - 8192) / 8192.0;
 	b *= 2.0;  // 2 semitone bend range
 	double fac = std::pow(2.0, b / 12.0);
 	osc1->setBend(fac);
 	osc2->setBend(fac);
+}
+
+double Voice::intToDouble(int b, double max) {
+	return ((double)b / 255.0) * max;
 }

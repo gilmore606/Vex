@@ -6,16 +6,11 @@
 
 APU::APU() { 
 	started = false;
-	song = nullptr;
-	voices = new APUVoice[MAX_VOICES];
-	voicedata = new double[MAX_VOICES];
 	lastTime = glfwGetTime();
 }
 
 void APU::Reset() { 
-	for (int i = 0; i < MAX_VOICES; i++) {
-		voices[i].Reset();
-	}
+	playing.clear();
 }
 
 int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
@@ -27,16 +22,24 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double sample;
 
 	for (i = 0; i < nFrames; i++) {
-		for (v = 0; v < MAX_VOICES; v++) {
-			voicedata[v] = 0.0;
-			if (voices[v].enabled) voicedata[v] = *voices[v].nextSample();
+		// make a sample for every voice of every song
+		for (auto const& s : playing) {
+			for (int i = 0; i < s->voices.size(); i++) {
+				s->voices[i].genSample();
+			}
 		}
+		// left + right channels
 		for (j = 0; j < 2; j++) {
 			sample = 0.0;
-			for (v = 0; v < MAX_VOICES; v++) {
-				if (voices[v].enabled) {
-					if (j == 0) sample += voicedata[v] * (1.0 - voices[v].pan) * voices[v].ccPan;
-					else sample += voicedata[v] * voices[v].pan * voices[v].ccPan;
+			// add up panned samples of every voice of every song
+			for (auto const& s : playing) {
+				for (int i = 0; i < s->voices.size(); i++) {
+					Voice* v = &s->voices[i];
+					if (j == 0) {
+						sample += v->outsample * (1.0 - (v->pan + v->ccPan) * 0.5);
+					} else {
+						sample += v->outsample * ((v->pan + v->ccPan) * 0.5);
+					}
 				}
 			}
 			*buffer++ = sample;
@@ -47,58 +50,40 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 }
 
 void APU::LoadSong(Song* song) {
-	songs.push_back(*song);
-}
-
-void APU::Patch(int channel, Instrument patch) {
-	std::cout << "APU patch ch " << channel << std::endl;
-	voices[channel].Patch(patch.pan, patch.volume, patch.a, patch.d, patch.s, patch.r, patch.wave1, patch.wave2, patch.detune, patch.phase);
+	songs.push_back(song);
 }
 
 void APU::PlaySong(int songid) {
-	if (songid >= songs.size()) { throw "illegal songid"; }
-	song = &songs.at(songid);
-	std::cout << "APU play song " << songid << " (" << song->notecount << " notes)" << std::endl;
-	for (int i = 0; i < song->instruments.size(); i++) {
-		Patch(i, song->instruments[i]);
-	}
-	song->setTempo(600);
-	song->Reset();
-}
-
-void APU::PlayNote(Note* note) {
-	if (note->channel >= MAX_VOICES) return;
-	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
-	if (note->type == NOTE_ON) {
-		voices[note->channel].Trigger(notefreqs[note->data1], note->data2);
-	} else if (note->type == NOTE_OFF) {
-		voices[note->channel].Release();
-	} else if (note->type == PITCH_BEND) {
-		voices[note->channel].PitchBend(note->data1 + note->data2 * 128);
-	} else if (note->type == CONTROL_CHANGE) {
-		if (note->data1 == 1) {
-			voices[note->channel].ccMod = (double)note->data2 / 127.0;
-		} else if (note->data1 == 7) {
-			voices[note->channel].ccVol = (double)note->data2 / 127.0;
-		} else if (note->data1 == 10) {
-			voices[note->channel].ccPan = (double)note->data2 / 127.0;
-		} else if (note->data1 == 11) {
-			voices[note->channel].ccExp = (double)note->data2 / 127.0;
+	Song* song = nullptr;
+	for (int i = 0; i < songs.size(); i++) {
+		if (songs.at(i)->id == songid) {
+			song = songs[i];
 		}
 	}
+	if (song == nullptr) { throw "illegal songid"; }
+	bool found = false;
+	for (auto const& s : playing) {
+		if (s->id == songid) {
+			found = true;
+		}
+	}
+	song->Reset();
+	if (!found) {
+		playing.push_back(song);
+	}
+	std::cout << "APU play song " << songid << " (" << song->notecount << " notes)" << std::endl;
 }
 
-// Process the passage of time -- advance songs, etc.
 void APU::processTime() {
 	time = glfwGetTime();
 	deltaTime = time - lastTime;
 	lastTime = time;
-	if (song != nullptr) {
-		song->advanceTime(deltaTime);
-		Note* note = song->getNote();
-		while (note != nullptr) {
-			PlayNote(note);
-			note = song->getNote();
+	// Advance songs in time
+	for (auto song = playing.begin(); song != playing.end();) {
+		if ((*song)->done) { song = playing.erase(song); }
+		else { 
+			(*song)->advanceTime(deltaTime);
+			++song; 
 		}
 	}
 }

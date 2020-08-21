@@ -58,7 +58,7 @@ void onResize(GLFWwindow* window, int w, int h) {
 void makeDemoPrims() {
 	gridSprite = Sprite(2, &gpu);
 	gridSprite.setVisible(false);
-	for (int i = 0; i < 24; i++) {
+	for (int i = 0; i < 8; i++) {
 		Sprite* sp = new Sprite(1, &gpu);
 		sp->moveTo(randCoord(), randCoord());
 		float scale = (randFloat() * 0.05f) + 0.05f;
@@ -79,8 +79,6 @@ void makeDemoPrims() {
 	demoShip.drot = 0.0f;
 	flameSprite = new Sprite(3, &gpu);
 	flameSprite->scale(0.4f, 0.4f);
-	
-	apu.Patch(0, Instrument(SINE, SAWTOOTH, 0, 0, 255, 0, 0, 0, 255, 127));
 }
 
 void makeDemoStars() {
@@ -101,7 +99,7 @@ void moveDemoPrims(float delta) {
 	std::list<DemoShot>::iterator end = demoShots.end();
 	while (iter != end) {
 		DemoShot shot = *iter;
-		if (!isOffscreen(shot.sprite->p())) {
+		if (!isOffscreen(shot.sprite->p()) && shot.sprite->colliders()[0].id == 0) {
 			++iter;
 		} else {
 			shot.sprite->Destroy();
@@ -136,6 +134,8 @@ void moveDemoPrims(float delta) {
 	shipsp->moveTo(wrapPos(shipsp->p()));
 	flameSprite->moveTo(shipsp->x(), shipsp->y());
 	flameSprite->setRotation(shipsp->rot());
+
+	// Did we crash?
 	if ((shipsp->x() != 0.0f) && (shipsp->y() != 0.0f) && shipsp->colliders()[0].id > 0) {
 		for (int i = 0; i < 12; i++) {
 			gpu.spawnParticle(6, shipsp->colliders()[0].p, 
@@ -170,12 +170,12 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 void fireDemoShot() {
 	if (demoShots.size() > 4) { return; }
 	Sprite* sp = new Sprite(4, &gpu);
-	sp->moveTo(demoShip.sprite->p());
+	sp->moveTo(demoShip.sprite->p() + rot2vec((demoShip.sprite->rot() + 1.5707)) * 0.025f);
 	sp->setVector(rot2vec((demoShip.sprite->rot() + 1.5707)) * 0.8f);
+	sp->setCollision(true);
 	DemoShot shot;
 	shot.sprite = sp;
 	demoShots.push_back(shot);
-	apu.voices[0].Trigger(2000.0, 127);
 }
 
 void handleButton(int input) {
@@ -188,8 +188,7 @@ void handleButton(int input) {
 	if (input == 51) { gpu.toggleLayer(0); }
 	if (input == 52) { gpu.toggleLayer(1); }
 	if (input == 53) { gpu.toggleLayer(2); }
-	if (input == 54) { apu.voices[0].testTone = !apu.voices[0].testTone; }
-	if (input == 55) { gridSprite.setVisible(!gridSprite.visible()); }
+	if (input == 54) { gridSprite.setVisible(!gridSprite.visible()); }
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -210,7 +209,6 @@ int main() {
 	input.Add(52, BUTTON, GLFW_KEY_F2);
 	input.Add(53, BUTTON, GLFW_KEY_F3);
 	input.Add(54, BUTTON, GLFW_KEY_F4);
-	input.Add(55, BUTTON, GLFW_KEY_F5);
 	cpu.Connect(&scheduler, &gpu, &apu, &input);
 
 	// Read ROM file
@@ -239,7 +237,7 @@ int main() {
 	textSprite2.moveTo(-0.9f, 0.2f);
 	textSprite3.moveTo(-0.9f, 0.1f);
 
-	//apu.PlaySong(0);
+	apu.PlaySong(1);
 	
 
 	// MAIN LOOP

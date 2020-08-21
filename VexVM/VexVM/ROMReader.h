@@ -30,7 +30,7 @@ public:
 
 private:
 	
-	Song* readSong();
+	Song* readSong(int id);
 	void readCode();
 	void readControls(Input* input);
 	void readInstr();

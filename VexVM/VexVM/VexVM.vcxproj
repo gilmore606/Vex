@@ -155,7 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="APU.cpp" />
-    <ClCompile Include="APUVoice.cpp" />
+    <ClCompile Include="Voice.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="dependencies\rtaudio-5.1.0\RtAudio.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -175,13 +175,12 @@
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Vertbuffer.cpp" />
-    <ClCompile Include="Instrument.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="Song.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APU.h" />
-    <ClInclude Include="APUVoice.h" />
+    <ClInclude Include="Voice.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="dependencies\rtaudio-5.1.0\RtAudio.h" />
@@ -200,7 +199,6 @@
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="Vertbuffer.h" />
-    <ClInclude Include="Instrument.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="Song.h" />
   </ItemGroup>
