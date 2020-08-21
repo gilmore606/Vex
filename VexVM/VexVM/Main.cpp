@@ -226,7 +226,7 @@ int main() {
 	makeDemoPrims();
 	makeDemoStars();
 
-	std::string demoText1 = "VEXSYSTEM";
+	std::string demoText1 = "VEXSYS";
 	std::string demoText2 = "v0.1a2   vex-11/780";
 	std::string demoText3 = "(c) 1983 Otari Games - All rights reserved\n\nThis is a long piece of text to test the font renderer\nand the sprite/line capacity of the virtual GPU.";
 	Sprite textSprite1 = Sprite(&demoText1, 1, &gpu, 1.0f, 0.6f, 0.0f);
@@ -260,7 +260,7 @@ int main() {
 		gpu.OnUpdate(deltaTime);
 		gpu.Assemble();
 		gpu.Render();
-		gpu.Collide();
+		gpu.Collide(deltaTime);
 	}
 
 	scheduler.Stop();
