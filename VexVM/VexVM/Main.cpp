@@ -137,12 +137,19 @@ void moveDemoPrims(float delta) {
 
 	// Did we crash?
 	if ((shipsp->x() != 0.0f) && (shipsp->y() != 0.0f) && shipsp->colliders()[0].id > 0) {
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < 8; i++) {
 			gpu.spawnParticle(6, shipsp->colliders()[0].p, 
-				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.4f + 0.2f), 
+				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.1f + 0.1f) + shipsp->v() * 0.5f, 
 				Vec(randFloat() - 0.5f, randFloat() - 0.5f),
 				Color(1.0f, 1.0f, 1.0f), Color(0.0f, 0.0f, 0.2f), Vec(0.04f, 0.04f), Vec(0.04f, 0.04f),
-				randFloat() * 6.25f, 3.5f, 1.0f);
+				randFloat() * 6.25f, 3.5f, 1.2f);
+		}
+		for (int i = 0; i < 18; i++) {
+			gpu.spawnParticle(4, shipsp->colliders()[0].p,
+				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.4f + 0.3f) + shipsp->v() * 0.2f,
+				Vec(0.0f, -0.7f),
+				Color(0.3f, 0.7f, 1.0f), Color(0.0f, 0.0f, 0.0f), Vec(1.0f, 1.0f), Vec(1.0f, 1.0f),
+				0.0f, 0.0f, 0.6f);
 		}
 		shipsp->moveTo(0.0f, 0.0f);
 		shipsp->setVector(0.0f, 0.0f);
@@ -189,6 +196,7 @@ void handleButton(int input) {
 	if (input == 52) { gpu.toggleLayer(1); }
 	if (input == 53) { gpu.toggleLayer(2); }
 	if (input == 54) { gridSprite.setVisible(!gridSprite.visible()); }
+	if (input == 55) { apu.Reset(); }
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -209,6 +217,7 @@ int main() {
 	input.Add(52, BUTTON, GLFW_KEY_F2);
 	input.Add(53, BUTTON, GLFW_KEY_F3);
 	input.Add(54, BUTTON, GLFW_KEY_F4);
+	input.Add(55, BUTTON, GLFW_KEY_F5);
 	cpu.Connect(&scheduler, &gpu, &apu, &input);
 
 	// Read ROM file
@@ -227,15 +236,19 @@ int main() {
 	std::string demoText1 = "VEXSYS";
 	std::string demoText2 = "v0.1a2   vex-11/780";
 	std::string demoText3 = "(c) 1983 Otari Games - All rights reserved\n\nThis is a long piece of text to test the font renderer\nand the sprite/line capacity of the virtual GPU.";
+	std::string demoText4 = "score  000040";
 	Sprite textSprite1 = Sprite(&demoText1, 1, &gpu, 1.0f, 0.6f, 0.0f);
 	Sprite textSprite2 = Sprite(&demoText2, 1, &gpu, 0.7f, 0.2f, 0.0f);
 	Sprite textSprite3 = Sprite(&demoText3, 0, &gpu, 0.3f, 0.02f, 0.0f);
+	Sprite textSprite4 = Sprite(&demoText4, 0, &gpu, 0.7f, 0.7f, 0.7f);
 	textSprite1.scale(0.15f, 0.25f);
 	textSprite2.scale(0.05f, 0.05f);
 	textSprite3.scale(0.025f, 0.035f);
 	textSprite1.moveTo(-0.9f, 0.3f);
 	textSprite2.moveTo(-0.9f, 0.2f);
 	textSprite3.moveTo(-0.9f, 0.1f);
+	textSprite4.scale(0.03f, 0.03f);
+	textSprite4.moveTo(0.6f, 0.9f);
 
 	apu.PlaySong(1, 0.5f, 0.5f, true);
 	
