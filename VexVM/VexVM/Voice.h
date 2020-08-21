@@ -131,7 +131,7 @@ public:
 	void genSample();
 	void Reset();
 	void Trigger();
-	void Trigger(double freq, int vel, double volume, double pan);
+	void Trigger(double freq, int vel, double volume = 1.0, double pan = 0.5);
 	void Release();
 	void setADSR(double a, double d, double s, double r);
 	void Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase);

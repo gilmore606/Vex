@@ -17,7 +17,9 @@ public:
 	void Reset();
 	void LoadSong(Song* song);
 	void PlaySong(int songid, float volume, float pan, bool loop);
+	Voice* getVoice();
 	void Stop();
+
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);
 
@@ -26,6 +28,7 @@ private:
 	bool started;
 	std::vector<Song*> songs;
 	std::list<Song*> playing;
+	std::list<Voice*> voices;
 
 	RtAudio* adac;
 	unsigned int bufferSize = 512;

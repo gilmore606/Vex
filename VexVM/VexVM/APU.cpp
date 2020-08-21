@@ -33,6 +33,10 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 				s->voices[i].genSample();
 			}
 		}
+		// make a sample for every solo voice
+		for (auto const& v : voices) {
+			v->genSample();
+		}
 		// left + right channels
 		for (j = 0; j < 2; j++) {
 			sample = 0.0;
@@ -45,6 +49,14 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 					} else {
 						sample += v->outsample * sumPans(v->pan, v->ccPan, v->songPan);
 					}
+				}
+			}
+			// add solo voices
+			for (auto const& v : voices) {
+				if (j == 0) {
+					sample += v->outsample * (1.0 - sumPans(v->pan, v->ccPan, v->songPan));
+				} else {
+					sample += v->outsample * sumPans(v->pan, v->ccPan, v->songPan);
 				}
 			}
 			*buffer++ = sample;
@@ -81,6 +93,12 @@ void APU::PlaySong(int songid, float volume, float pan, bool loop) {
 		playing.push_back(song);
 	}
 	std::cout << "APU play song " << songid << " (" << song->notecount << " notes)" << std::endl;
+}
+
+Voice* APU::getVoice() {
+	Voice* voice = new Voice();
+	voices.push_back(voice);
+	return voice;
 }
 
 void APU::processTime() {

@@ -48,6 +48,9 @@ struct DemoShot {
 };
 std::list<DemoShot> demoShots;
 
+Voice* engineSound;
+bool thrusting;
+
 // Proxy callback for GPU
 void onResize(GLFWwindow* window, int w, int h) {
 	windowWidth = w;
@@ -79,6 +82,9 @@ void makeDemoPrims() {
 	demoShip.drot = 0.0f;
 	flameSprite = new Sprite(3, &gpu);
 	flameSprite->scale(0.4f, 0.4f);
+	engineSound = apu.getVoice();
+	engineSound->Patch(127, 255, 4, 4, 255, 15, 4, 4, 0, 0);
+	thrusting = false;
 }
 
 void makeDemoStars() {
@@ -126,9 +132,17 @@ void moveDemoPrims(float delta) {
 					randFloat() * 2.7f, randFloat() + 3.0f, 1.0f + randFloat());
 			thrustTime = 0.0f;
 		}
+		if (!thrusting) {
+			engineSound->Trigger(700.0, 127, 1.0, 0.5);
+			thrusting = true;
+		}
 	} else {
 		flameSprite->setVisible(false);
 		thrustTime = 0.0f;
+		if (thrusting) {
+			engineSound->Release();
+			thrusting = false;
+		}
 	}
 	Sprite* shipsp = demoShip.sprite;
 	shipsp->moveTo(wrapPos(shipsp->p()));

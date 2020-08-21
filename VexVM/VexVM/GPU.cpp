@@ -110,7 +110,9 @@ GPUSpriteTicket GPU::createSprite(int image) {
 	int id = reserveSprite();
 	GPUSprite* sprite = &sprites[id];
 	sprite->gpu = this;
-	sprite->loadImage(images.at(image));
+	if (image >= 0) {
+		sprite->loadImage(images.at(image));
+	}
 
 	GPUSpriteTicket ticket;
 	ticket.gpuSprite = sprite;
@@ -119,14 +121,8 @@ GPUSpriteTicket GPU::createSprite(int image) {
 }
 
 GPUSpriteTicket GPU::createText(int font, std::string* text, Color color, float charSpacing, float lineSpacing) {
-	int id = reserveSprite();
-	GPUSprite* sprite = &sprites[id];
-	sprite->gpu = this;
-	drawText(sprite, font, text, color, charSpacing, lineSpacing);
-
-	GPUSpriteTicket ticket;
-	ticket.gpuSprite = sprite;
-	ticket.gpuSpriteID = id;
+	GPUSpriteTicket ticket = createSprite(-1);
+	drawText(ticket.gpuSprite, font, text, color, charSpacing, lineSpacing);
 	return ticket;
 }
 
