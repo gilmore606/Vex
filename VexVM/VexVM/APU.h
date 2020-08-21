@@ -3,6 +3,7 @@
 constexpr auto SAMPLE_RATE = 44100;
 
 #include "RtAudio.h"
+#include "RtMidi.h"
 #include "Voice.h"
 #include "Song.h"
 #include <vector>
@@ -13,7 +14,8 @@ public:
 	APU();
 
 	void Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
-		double streamTime, RtAudioStreamStatus status, void* userData));
+		double streamTime, RtAudioStreamStatus status, void* userData),
+		void (*midiCallback)(double deltatime, std::vector<unsigned char>* message, void* userData));
 	void Reset();
 	void LoadSong(Song* song);
 	void PlaySong(int songid, float volume, float pan, bool loop);
@@ -22,6 +24,7 @@ public:
 
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);
+	void receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData);
 
 
 private:
@@ -31,6 +34,7 @@ private:
 	std::list<Voice*> voices;
 
 	RtAudio* adac;
+	RtMidiIn* midi;
 	unsigned int bufferSize = 512;
 
 	double time, lastTime, deltaTime;

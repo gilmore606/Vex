@@ -66,6 +66,14 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
+void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData) {
+	unsigned int nBytes = message->size();
+	for (unsigned int i = 0; i < nBytes; i++)
+		std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
+	if (nBytes > 0)
+		std::cout << "stamp = " << deltatime << std::endl;
+}
+
 
 void APU::LoadSong(Song* song) {
 	songs.push_back(song);
@@ -116,7 +124,9 @@ void APU::processTime() {
 }
 
 void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
-	double streamTime, RtAudioStreamStatus status, void* userData)) {
+	double streamTime, RtAudioStreamStatus status, void* userData),
+	void (*midiCallback)(double deltatime, std::vector<unsigned char>* message, void* userData)) {
+
 	RtAudio::StreamParameters params;
 	try {
 		adac = new RtAudio();
@@ -133,6 +143,19 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 	}
 	started = true;
 	std::cout << "APU initialized" << std::endl;
+
+	midi = new RtMidiIn();
+	unsigned int ports = midi->getPortCount();
+	if (ports < 1) {
+		std::cout << "APU detected no MIDI, aborting MIDI setup" << std::endl;
+		delete midi;
+		midi = nullptr;
+	} else {
+		midi->openPort(0);
+		midi->setCallback(midiCallback);
+		midi->ignoreTypes(true, true, true);
+		std::cout << "APU detected " << ports << " MIDI in, opened port 0 for listen";
+	}
 }
 
 void APU::Stop() {
@@ -141,4 +164,8 @@ void APU::Stop() {
 	adac->closeStream();
 	started = false;
 	std::cout << "APU shutdown" << std::endl;
+	if (midi != nullptr) {
+		delete midi;
+		std::cout << "APU MIDI shutdown" << std::endl;
+	}
 }

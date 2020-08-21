@@ -90,6 +90,9 @@
     <ClCompile Include="Voice.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
+    <ClCompile Include="dependencies\rtmidi-4.0.0\RtMidi.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -156,6 +159,9 @@
       <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="Voice.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\rtmidi-4.0.0\RtMidi.h">
       <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>

@@ -177,10 +177,13 @@ void moveDemoStars(float delta) {
 	}
 }
 
-// Proxy callback for APU
+// Proxy callbacks for APU
 int handleAudio(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
 	return apu.genSamples(outBuffer, inBuffer, nFrames, streamTime, status, userData);
+}
+void handleMIDI(double deltatime, std::vector<unsigned char>* message, void* userData) {
+	apu.receiveMIDI(deltatime, message, userData);
 }
 
 // Proxy callback for Input
@@ -223,7 +226,7 @@ int main() {
 	gpu = GPU(windowWidth, windowHeight);
 	window = gpu.Setup(onResize);
 	apu = APU();
-	apu.Setup(handleAudio);
+	apu.Setup(handleAudio, handleMIDI);
 	input = Input();
 	input.Setup(window, handleKey, handleButton, handleSwitch);
 	input.Add(50, BUTTON, GLFW_KEY_ESCAPE);
