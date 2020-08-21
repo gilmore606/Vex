@@ -142,7 +142,7 @@ void moveDemoPrims(float delta) {
 				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.4f + 0.2f), 
 				Vec(randFloat() - 0.5f, randFloat() - 0.5f),
 				Color(1.0f, 1.0f, 1.0f), Color(0.0f, 0.0f, 0.2f), Vec(0.04f, 0.04f), Vec(0.04f, 0.04f),
-				randFloat() * 6.25f, 3.5f, 0.5f);
+				randFloat() * 6.25f, 3.5f, 1.0f);
 		}
 		shipsp->moveTo(0.0f, 0.0f);
 		shipsp->setVector(0.0f, 0.0f);
@@ -237,7 +237,7 @@ int main() {
 	textSprite2.moveTo(-0.9f, 0.2f);
 	textSprite3.moveTo(-0.9f, 0.1f);
 
-	apu.PlaySong(1);
+	apu.PlaySong(1, 0.5f, 0.5f, true);
 	
 
 	// MAIN LOOP

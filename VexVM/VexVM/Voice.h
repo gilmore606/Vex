@@ -131,7 +131,7 @@ public:
 	void genSample();
 	void Reset();
 	void Trigger();
-	void Trigger(double freq, int vel);
+	void Trigger(double freq, int vel, double volume, double pan);
 	void Release();
 	void setADSR(double a, double d, double s, double r);
 	void Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase);
@@ -146,9 +146,12 @@ public:
 	OSC* osc1;
 	OSC* osc2;
 
+	double songPan;
 	double outsample;
 
 private:
+	double songVolume;
+
 	double samplebuf;
 	double filtermem;
 	double velocity;
@@ -162,12 +165,14 @@ inline void Voice::genSample() {
 	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
 	else samplebuf = (*osc1->nextSample() + *osc2->nextSample()) / 2.0;
 
-	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume;
+	samplebuf *= *(*adsrMain).nextLevel() * velocity * ccVol * volume * songVolume;
 	samplebuf = (samplebuf + filtermem) / 2.0;  // cheap grungy filter
 	filtermem = samplebuf;
 	outsample = samplebuf;
 }
-inline void Voice::Trigger(double freq, int vel) {
+inline void Voice::Trigger(double freq, int vel, double volume, double pan) {
+	songVolume = volume;
+	songPan = pan;
 	osc1->setFreq(freq);
 	osc2->setFreq(freq);
 	velocity = ((double)vel + 158.0) / 285.0;

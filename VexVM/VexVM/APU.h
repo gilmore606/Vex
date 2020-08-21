@@ -16,7 +16,7 @@ public:
 		double streamTime, RtAudioStreamStatus status, void* userData));
 	void Reset();
 	void LoadSong(Song* song);
-	void PlaySong(int songid);
+	void PlaySong(int songid, float volume, float pan, bool loop);
 	void Stop();
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);

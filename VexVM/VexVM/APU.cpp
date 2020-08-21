@@ -13,6 +13,11 @@ void APU::Reset() {
 	playing.clear();
 }
 
+inline static double sumPans(double p1, double p2, double p3) {
+	double s = (p1 + p2 + p3) - 1.5;
+	return (s < 1.0) ? (s > 0.0 ? s : 0.0) : 1.0;
+}
+
 int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
 
@@ -36,9 +41,9 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 				for (int i = 0; i < s->voices.size(); i++) {
 					Voice* v = &s->voices[i];
 					if (j == 0) {
-						sample += v->outsample * (1.0 - (v->pan + v->ccPan) * 0.5);
+						sample += v->outsample * (1.0 - sumPans(v->pan, v->ccPan, v->songPan));
 					} else {
-						sample += v->outsample * ((v->pan + v->ccPan) * 0.5);
+						sample += v->outsample * sumPans(v->pan, v->ccPan, v->songPan);
 					}
 				}
 			}
@@ -49,11 +54,12 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
+
 void APU::LoadSong(Song* song) {
 	songs.push_back(song);
 }
 
-void APU::PlaySong(int songid) {
+void APU::PlaySong(int songid, float volume, float pan, bool loop) {
 	Song* song = nullptr;
 	for (int i = 0; i < songs.size(); i++) {
 		if (songs.at(i)->id == songid) {
@@ -67,6 +73,9 @@ void APU::PlaySong(int songid) {
 			found = true;
 		}
 	}
+	song->loop = loop;
+	song->volume = volume;
+	song->pan = pan;
 	song->Reset();
 	if (!found) {
 		playing.push_back(song);
@@ -88,7 +97,6 @@ void APU::processTime() {
 	}
 }
 
-// The given proxyCallback func should call APU::genSamples()
 void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData)) {
 	RtAudio::StreamParameters params;

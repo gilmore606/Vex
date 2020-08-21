@@ -25,6 +25,9 @@ class Song {
 public:
 	int id;
 	bool loop;
+	float volume;
+	float pan;
+
 	bool done;
 	double speed;
 	long notecount;
@@ -36,8 +39,6 @@ public:
 	void Reset();
 	void setTempo(int tempo);
 	inline void advanceTime(double delta);
-
-	
 
 private:
 	std::vector<Note> notes;
@@ -63,9 +64,9 @@ inline void Song::advanceTime(double sec) {
 }
 
 inline void Song::playNote(Note* note) {
-	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
+	//std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
-		voices[note->channel].Trigger(notefreqs[note->data1], note->data2);
+		voices[note->channel].Trigger(notefreqs[note->data1], note->data2, volume, pan);
 	}
 	else if (note->type == NOTE_OFF) {
 		voices[note->channel].Release();
