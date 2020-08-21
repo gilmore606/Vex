@@ -48,9 +48,13 @@ void Song::Read(ROMReader* rom) {
 		int p = rom->nextInt();
 		Voice voice;
 		voice.Patch(p, v, a, d, s, r, w1, w2, dt, ph);
-		voices.push_back(voice);
+		addVoice(voice);
 	}
 	std::cout << "  read " << voicecount << " instruments" << std::endl;
+}
+
+void Song::addVoice(Voice voice) {
+	voices.push_back(voice);
 }
 
 void Song::Reset() {

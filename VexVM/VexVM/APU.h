@@ -32,6 +32,7 @@ private:
 	std::vector<Song*> songs;
 	std::list<Song*> playing;
 	std::list<Voice*> voices;
+	Song* livesong;
 
 	RtAudio* adac;
 	RtMidiIn* midi;

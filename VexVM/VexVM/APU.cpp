@@ -6,7 +6,12 @@
 
 APU::APU() { 
 	started = false;
+	livesong = nullptr;
+	midi = nullptr;
+	adac = nullptr;
 	lastTime = glfwGetTime();
+	time = lastTime;
+	deltaTime = 0.0;
 }
 
 void APU::Reset() { 
@@ -59,6 +64,14 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 					sample += v->outsample * sumPans(v->pan, v->ccPan, v->songPan);
 				}
 			}
+			// add livesong voices
+			if (livesong != nullptr) {
+				for (int i = 0; i < livesong->voices.size(); i++) {
+					livesong->voices[i].genSample();
+					sample += livesong->voices[i].outsample;
+				}
+			}
+
 			*buffer++ = sample;
 		}
 	}
@@ -67,11 +80,20 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 }
 
 void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData) {
-	unsigned int nBytes = message->size();
-	for (unsigned int i = 0; i < nBytes; i++)
-		std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-	if (nBytes > 0)
-		std::cout << "stamp = " << deltatime << std::endl;
+	Note* note = new Note();
+	note->channel = 0;
+	note->type = SYSEX;
+	unsigned char type = message->at(0);
+	if (type >= 128 && type <= 143) { note->type = NOTE_OFF; }
+	if (type >= 144 && type <= 159) { note->type = NOTE_ON; }
+	if (type >= 176 && type <= 191) { note->type = CONTROL_CHANGE; }
+	if (type >= 224 && type <= 239) { note->type = PITCH_BEND; }
+	note->data1 = (int)message->at(1);
+	note->data2 = (int)message->at(2);
+	if (note->type == NOTE_ON && note->data2 == 0) {
+		note->type = NOTE_OFF;
+	}
+	livesong->playNote(note);
 }
 
 
@@ -154,7 +176,13 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		midi->openPort(0);
 		midi->setCallback(midiCallback);
 		midi->ignoreTypes(true, true, true);
-		std::cout << "APU detected " << ports << " MIDI in, opened port 0 for listen";
+		livesong = new Song(999);
+		livesong->volume = 1.0;
+		livesong->pan = 0.5;
+		Voice voice;
+		voice.Patch(0.5, 1.0, 0.01, 0.3, 0.4, 0.5, TRIANGLE, SINE, 3.0, 0.0);
+		livesong->addVoice(voice);
+		std::cout << "APU detected " << ports << " MIDI in, opened port 0 for listen" << std::endl;
 	}
 }
 

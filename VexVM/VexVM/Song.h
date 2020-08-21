@@ -35,10 +35,12 @@ public:
 	std::vector<Voice> voices;
 
 	Song(int id);
+	void addVoice(Voice voice);
 	void Read(ROMReader* rom);
 	void Reset();
 	void setTempo(int tempo);
 	inline void advanceTime(double delta);
+	inline void playNote(Note* note);
 
 private:
 	std::vector<Note> notes;
@@ -47,7 +49,6 @@ private:
 	int tempo;
 	double ticksPerSecond;
 
-	inline void playNote(Note* note);
 };
 
 
@@ -64,7 +65,7 @@ inline void Song::advanceTime(double sec) {
 }
 
 inline void Song::playNote(Note* note) {
-	//std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
+	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
 		voices[note->channel].Trigger(notefreqs[note->data1], note->data2, volume, pan);
 	}
