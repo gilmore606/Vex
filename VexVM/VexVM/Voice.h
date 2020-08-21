@@ -24,7 +24,7 @@ private:
 	double level = 0.0;
 	double step;
 	double progress = 0.0;
-	double lastNoiseLatch = 0.0;
+	double noiseProgress = 0.0;
 	void setStep();
 };
 
@@ -47,9 +47,10 @@ inline double* OSC::nextSample() {
 	progress += step;
 	if (progress > 1.0) progress -= 1.0;
 	if (waveform == NOISE) {
-		if (progress > (lastNoiseLatch + step * 0.25)) {
+		noiseProgress += step;
+		if (noiseProgress > 0.2) {
+			noiseProgress = 0.0;
 			level = noise();
-			lastNoiseLatch = progress;
 		}
 	}
 	else if (waveform == TRIANGLE) {

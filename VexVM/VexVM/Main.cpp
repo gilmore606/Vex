@@ -83,7 +83,7 @@ void makeDemoPrims() {
 	flameSprite = new Sprite(3, &gpu);
 	flameSprite->scale(0.4f, 0.4f);
 	engineSound = apu.getVoice();
-	engineSound->Patch(127, 255, 4, 4, 255, 15, 4, 4, 0, 0);
+	engineSound->Patch(127, 255, 15, 20, 220, 30, 4, 4, 0, 0);
 	thrusting = false;
 }
 
@@ -133,7 +133,7 @@ void moveDemoPrims(float delta) {
 			thrustTime = 0.0f;
 		}
 		if (!thrusting) {
-			engineSound->Trigger(700.0, 127, 1.0, 0.5);
+			engineSound->Trigger(100.0, 127);
 			thrusting = true;
 		}
 	} else {
