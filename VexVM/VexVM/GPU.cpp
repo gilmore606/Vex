@@ -118,12 +118,21 @@ GPUSpriteTicket GPU::createSprite(int image) {
 	return ticket;
 }
 
-GPUSpriteTicket GPU::createText(int font, std::string* text, float r, float g, float b, float charSpacing, float lineSpacing) {
+GPUSpriteTicket GPU::createText(int font, std::string* text, Color color, float charSpacing, float lineSpacing) {
 	int id = reserveSprite();
 	GPUSprite* sprite = &sprites[id];
-	sprite->allocateLines(fonts[font]->countLinesInText(text));
+	sprite->gpu = this;
+	drawText(sprite, font, text, color, charSpacing, lineSpacing);
 
-	// draw glyphs into sprite
+	GPUSpriteTicket ticket;
+	ticket.gpuSprite = sprite;
+	ticket.gpuSpriteID = id;
+	return ticket;
+}
+
+
+void GPU::drawText(GPUSprite* sprite, int font, std::string* text, Color color, float charSpacing, float lineSpacing) {
+	sprite->allocateLines(fonts[font]->countLinesInText(text));
 	int linec = 0;
 	float hoff = 0.0f;
 	float voff = 0.0f;
@@ -139,7 +148,7 @@ GPUSpriteTicket GPU::createText(int font, std::string* text, float r, float g, f
 			float maxx = 0.0f;
 			for (int j = 0; j < glyph->size(); j++) {
 				Line* l = &glyph->at(j);
-				sprite->writeLine(linec, l->x1 + hoff, l->y1 + voff, l->x2 + hoff, l->y2 + voff, r, g, b);
+				sprite->writeLine(linec, l->x1 + hoff, l->y1 + voff, l->x2 + hoff, l->y2 + voff, color.r, color.g, color.b);
 				linec++;
 				if (l->x1 < minx) { minx = l->x1; }
 				if (l->x1 > maxx) { maxx = l->x1; }
@@ -149,11 +158,6 @@ GPUSpriteTicket GPU::createText(int font, std::string* text, float r, float g, f
 			hoff += (maxx - minx) + charSpacing;
 		}
 	}
-
-	GPUSpriteTicket ticket;
-	ticket.gpuSprite = sprite;
-	ticket.gpuSpriteID = id;
-	return ticket;
 }
 
 void GPU::destroySprite(int id) {
@@ -311,7 +315,7 @@ void GPU::Assemble() {
 	pointsVB.Reset();
 	linesVB.Reset();
 	for (int i = 0; i < pointc; i++) {
-		points[i].PushData(pointsVB.vertdata, &pointsVB.vertdatac, settings.ASPECT_RATIO);  // internals exposed for speed
+		points[i].PushData(pointsVB.vertdata, &pointsVB.vertdatac, settings.ASPECT_RATIO); 
 	}
 	for (int i = 0; i < linec; i++) {
 		lines[i].PushData(linesVB.vertdata, &linesVB.vertdatac, settings.ASPECT_RATIO);

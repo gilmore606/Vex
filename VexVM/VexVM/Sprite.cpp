@@ -14,7 +14,7 @@ Sprite::Sprite(int image, GPU* gpu) {
 Sprite::Sprite(std::string* text, int font, GPU* gpu, float r, float g, float b,
 		float charSpacing, float lineSpacing) {
 
-	GPUSpriteTicket ticket = gpu->createText(font, text, r, g, b, charSpacing, lineSpacing);
+	GPUSpriteTicket ticket = gpu->createText(font, text, Color(r, g, b), charSpacing, lineSpacing);
 	gpuSprite = ticket.gpuSprite;
 	gpuSpriteID = ticket.gpuSpriteID;
 }

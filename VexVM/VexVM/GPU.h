@@ -69,7 +69,8 @@ public:
 	void loadImage(Image* image);
 	void loadFont(Font* font);
 	GPUSpriteTicket createSprite(int image);
-	GPUSpriteTicket createText(int font, std::string* text, float r, float g, float b, float charSpacing, float lineSpacing);
+	GPUSpriteTicket createText(int font, std::string* text, Color color, float charSpacing, float lineSpacing);
+	void drawText(GPUSprite* sprite, int font, std::string* text, Color color, float charSpacing = 0.2f, float lineSpacing = 1.1f);
 	void destroySprite(int id);
 	void spawnParticle(int image, Pos p, Vec v, Vec vv, Color color0, Color color1, 
 		Vec scale0, Vec scale1, float rot, float rotv, float lifetime);

@@ -196,7 +196,7 @@ void handleButton(int input) {
 	if (input == 52) { gpu.toggleLayer(1); }
 	if (input == 53) { gpu.toggleLayer(2); }
 	if (input == 54) { gridSprite.setVisible(!gridSprite.visible()); }
-	if (input == 55) { apu.Reset(); }
+	if (input == 55) { apu.PlaySong(1, 0.5f, 0.5f, false); }
 }
 void handleSwitch(int input, bool isDown) { }
 
@@ -249,8 +249,6 @@ int main() {
 	textSprite3.moveTo(-0.9f, 0.1f);
 	textSprite4.scale(0.03f, 0.03f);
 	textSprite4.moveTo(0.6f, 0.9f);
-
-	apu.PlaySong(1, 0.5f, 0.5f, true);
 	
 
 	// MAIN LOOP
