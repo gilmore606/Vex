@@ -11,6 +11,9 @@ Voice::Voice() {
 	osc2->enabled = true;
 	osc1->waveform = TRIANGLE;
 	osc2->waveform = TRIANGLE;
+	osc1->pwidth = 0.5;
+	osc2->pwidth = 0.5;
+	oscMix = 0.5;
 	pitchBend = 8192;
 	osc1->setBend(1.0);
 	osc2->setBend(1.0);
@@ -19,18 +22,28 @@ Voice::Voice() {
 	ccVol = 1.0;
 	ccExp = 0.0;
 
+	distortion = 0.0;
+	filter = LOWPASS_24;
+	filterF = 0.8;
+	filterQ = 0.1;
+	adsrFilter = new ADSR();
+	adsrFilterAmount = 0.5;
+
+	lfo = new LFO();
+	lfo->osc.setBend(1.0);
+	lfo->osc.pwidth = 0.5;
+	lfo->osc.enabled = true;
+	adsrAux = new ADSR();
+
 	filtermem = 0.0;
+	filterbuf0 = 0.0;
+	filterbuf1 = 0.0;
+	filterbuf2 = 0.0;
+	filterbuf3 = 0.0;
 }
 
 void Voice::Reset() {
 
-}
-
-void Voice::setADSR(double a, double d, double s, double r) {
-	adsrMain->a = a;
-	adsrMain->d = d;
-	adsrMain->s = s;
-	adsrMain->r = r;
 }
 
 void Voice::Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase) {

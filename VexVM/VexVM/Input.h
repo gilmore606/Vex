@@ -25,10 +25,11 @@ public:
 	void HandleKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 	bool isPressed(int id);
 
+	bool isShift, isAlt, isCtrl;
+
 private:
 	VEXControl* controls;
 	bool* status;
-	bool isShift, isAlt, isCtrl;
 
 	void (*buttonCallback)(int);
 	void (*switchCallback)(int, bool);

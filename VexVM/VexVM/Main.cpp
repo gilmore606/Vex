@@ -183,7 +183,7 @@ int handleAudio(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return apu.genSamples(outBuffer, inBuffer, nFrames, streamTime, status, userData);
 }
 void handleMIDI(double deltatime, std::vector<unsigned char>* message, void* userData) {
-	apu.receiveMIDI(deltatime, message, userData);
+	apu.receiveMIDI(deltatime, message, userData, &input);
 }
 
 // Proxy callback for Input

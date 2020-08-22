@@ -9,6 +9,8 @@ constexpr auto SAMPLE_RATE = 44100;
 #include <vector>
 #include <list>
 
+class Input;
+
 class APU{
 public:
 	APU();
@@ -24,7 +26,7 @@ public:
 
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);
-	void receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData);
+	void receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData, Input* input);
 
 
 private:
@@ -33,6 +35,7 @@ private:
 	std::list<Song*> playing;
 	std::list<Voice*> voices;
 	Song* livesong;
+	int lastLiveNote;
 
 	RtAudio* adac;
 	RtMidiIn* midi;
