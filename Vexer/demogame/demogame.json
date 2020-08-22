@@ -241,6 +241,12 @@
                 "name": "shoot",
                 "waves": [ "NOISE", "NOISE" ],
                 "adsr": [ 0, 25, 0, 0 ]
+            },
+            {
+                "name": "engine",
+                "waves": [ "NOISE", "NOISE" ],
+                "adsr": [ 4, 1, 127, 30 ],
+                "phase": 60
             }
 	    ],
 	"songs": [
@@ -251,5 +257,11 @@
                 "volumes": [ 200, 200, 200, 200 ],
                 "pans": [ 128, 60, 190, 128 ]
             }
-        ]
+        ],
+    "voices": [
+        {
+            "id": "1",
+            "instrument": "engine"
+        }
+    ]
 }

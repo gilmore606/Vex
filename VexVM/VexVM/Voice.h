@@ -210,7 +210,7 @@ private:
 inline void Voice::genSample() {
 
 	double bufvol = velocity * ccVol * volume * songVolume;
-	double pitchmod = 0.0;
+	double bufpitch = freq;
 	double bufoscmix = oscMix;
 	double bufpwidth1 = osc1->pwidth;
 	double bufpwidth2 = osc2->pwidth;
@@ -231,14 +231,15 @@ inline void Voice::genSample() {
 			bufdist += adsrAuxAmt * (*nextadsr); break;
 		case M_LFO_AMT:
 			buflfoamt = buflfoamt * (1.0 - adsrAuxAmt) + buflfoamt * adsrAuxAmt * (*nextadsr); break;
+		case M_PITCH:
+			bufpitch += adsrAuxAmt * (*nextadsr) * freq;
 	}
 
 	// Apply LFO modulator
 	double* nextlfo = lfo->osc.nextSample();
 	switch (lfo->target) {
 		case M_PITCH:
-			pitchmod = *nextlfo * freq * buflfoamt;
-			osc1->setFreq(freq + pitchmod); osc2->setFreq(freq + pitchmod); break;
+			bufpitch += *nextlfo * freq * buflfoamt; break;
 		case M_VOLUME:
 			bufvol -= buflfoamt * (*nextlfo + 1.0); break;
 		case M_PW1:
@@ -256,6 +257,8 @@ inline void Voice::genSample() {
 	}
 	osc1->bufpwidth = bufpwidth1 > 0.95 ? 0.95 : (bufpwidth1 < 0.05 ? 0.05 : bufpwidth1);
 	osc2->bufpwidth = bufpwidth2 > 0.95 ? 0.95 : (bufpwidth2 < 0.05 ? 0.05 : bufpwidth2);
+	osc1->setFreq(bufpitch); 
+	osc2->setFreq(bufpitch);
 
 	// Mix the raw oscillators
 	if (osc1->enabled && !osc2->enabled) samplebuf = *osc1->nextSample();
