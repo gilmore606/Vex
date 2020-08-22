@@ -6,6 +6,9 @@ enum Waveform { TRIANGLE, SAWTOOTH, PULSE, SINE, NOISE };
 enum Filter { NO_FILTER, LOWPASS_12, HIGHPASS_12, BANDPASS_12, LOWPASS_24, HIGHPASS_24, BANDPASS_24 };
 enum ModTarget { M_PITCH, M_VOLUME, M_PW1, M_PW2, M_OSCMIX, M_DIST, M_FILTER, M_LFO_AMT, M_LFO_FREQ };
 
+const static double transposeTable[13] = { 0.0, 0.59463, 0.122462, 0.189207, 0.259921, 0.334839, 0.414213,
+	0.498307, 0.587401, 0.681792, 0.781797, 0.887748, 1.0 };
+
 inline static double noise() {
 	return static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 }
@@ -17,8 +20,11 @@ public:
 	double pwidth;
 	double detune;
 	double phase;
+	int transpose;  // -12/+12 semis
+
 	double bendFactor;
 	double bufpwidth;
+	void reset();
 	void setFreq(double freq);
 	void setBend(double bend);
 	double* nextSample();
@@ -32,8 +38,15 @@ private:
 	void setStep();
 };
 
+inline void OSC::reset() {
+	level = 0.0;
+	progress = 0.0;
+	noiseProgress = 0.0;
+}
+
 inline void OSC::setFreq(double freq) {
-	this->freq = freq;
+	this->freq = freq + ((transpose > 0) ? (transposeTable[transpose] * freq)
+		: (0 - (transposeTable[-transpose] + 1.0) * freq * 0.5));
 	level = phase;
 	setStep();
 }
@@ -105,8 +118,11 @@ inline void ADSR::Trigger() {
 	active = true;
 	stage = 0;
 	astep = (1.0 / a) * (1.0 / 44100.0);
+	astep = astep > 0.5 ? 0.5 : astep;
 	dstep = (1.0 / d) * (1.0 / 44100.0);
+	dstep = dstep > 0.5 ? 0.5 : dstep;
 	rstep = (1.0 / r) * (1.0 / 44100.0);
+	rstep = rstep > 0.5 ? 0.5 : rstep;
 }
 inline void ADSR::Release() {
 	if (active && (stage < 3)) stage = 3;
@@ -166,6 +182,8 @@ public:
 	double adsrFilterAmount;
 	LFO* lfo;
 	ADSR* adsrAux;
+	double adsrAuxAmt;
+	ModTarget adsrAuxTarget;
 	double echoLevel;  // 0.0-1.0 level
 	double echoTime;   // 0.0-1.0 second
 	double echoRegen;  // 0.0-1.0 regen
@@ -198,32 +216,48 @@ inline void Voice::genSample() {
 	double bufpwidth2 = osc2->pwidth;
 	double bufdist = distortion;
 	double buffilter = filterF;
+	double buflfoamt = lfo->amount;
 
-	// Apply LFO
+	// Apply ADSR modulator
+	double* nextadsr = (*adsrAux).nextLevel();
+	switch (adsrAuxTarget) {
+		case M_PW1:
+			bufpwidth1 += adsrAuxAmt * (*nextadsr); break;
+		case M_PW2:
+			bufpwidth2 += adsrAuxAmt * (*nextadsr); break;
+		case M_OSCMIX:
+			bufoscmix += adsrAuxAmt * (*nextadsr); break;
+		case M_DIST:
+			bufdist += adsrAuxAmt * (*nextadsr); break;
+		case M_LFO_AMT:
+			buflfoamt = buflfoamt * (1.0 - adsrAuxAmt) + buflfoamt * adsrAuxAmt * (*nextadsr); break;
+	}
+
+	// Apply LFO modulator
 	double* nextlfo = lfo->osc.nextSample();
 	switch (lfo->target) {
 		case M_PITCH:
-			pitchmod = *nextlfo * freq * lfo->amount;
+			pitchmod = *nextlfo * freq * buflfoamt;
 			osc1->setFreq(freq + pitchmod); osc2->setFreq(freq + pitchmod); break;
 		case M_VOLUME:
-			bufvol -= lfo->amount * (*nextlfo + 1.0); break;
+			bufvol -= buflfoamt * (*nextlfo + 1.0); break;
 		case M_PW1:
-			bufpwidth1 += lfo->amount * (*nextlfo); break;
+			bufpwidth1 += buflfoamt * (*nextlfo); break;
 		case M_PW2:
-			bufpwidth2 += lfo->amount * (*nextlfo); break;
+			bufpwidth2 += buflfoamt * (*nextlfo); break;
 		case M_OSCMIX:
-			bufoscmix += lfo->amount * *nextlfo; break;
+			bufoscmix += buflfoamt * *nextlfo; break;
 		case M_DIST:
-			bufdist += lfo->amount * *nextlfo; break;
+			bufdist += buflfoamt * *nextlfo; break;
 		case M_FILTER:
-			buffilter += lfo->amount * *nextlfo;
+			buffilter += buflfoamt * *nextlfo;
 			buffilter = buffilter > 0.99 ? 0.99 : (buffilter < 0.01 ? 0.01 : buffilter);
 			break;
 	}
 	osc1->bufpwidth = bufpwidth1 > 0.95 ? 0.95 : (bufpwidth1 < 0.05 ? 0.05 : bufpwidth1);
 	osc2->bufpwidth = bufpwidth2 > 0.95 ? 0.95 : (bufpwidth2 < 0.05 ? 0.05 : bufpwidth2);
 
-	// Average the raw oscillators
+	// Mix the raw oscillators
 	if (osc1->enabled && !osc2->enabled) samplebuf = *osc1->nextSample();
 	else if (osc2->enabled && !osc1->enabled) samplebuf = *osc2->nextSample();
 	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
@@ -263,14 +297,13 @@ inline void Voice::genSample() {
 	if (echoc > echosize) echoc = 0;
 	samplebuf += echobuf[returnc];
 
+	// Clamp
+	samplebuf = samplebuf > 1.0 ? 1.0 : (samplebuf < -1.0 ? -1.0 : samplebuf);
+
 	// Apply final grungefilter
 	samplebuf = (samplebuf + filtermem) / 2.0;
 	filtermem = samplebuf;
 	outsample = samplebuf;
-
-	// Clamp
-	samplebuf = samplebuf > 1.0 ? 1.0 : (samplebuf < -1.0 ? -1.0 : samplebuf);
-
 }
 
 inline void Voice::Trigger(double freq, int vel, double volume, double pan) {
@@ -283,6 +316,8 @@ inline void Voice::Trigger(double freq, int vel, double volume, double pan) {
 	Trigger();
 }
 inline void Voice::Trigger() {
+	osc1->reset();
+	osc2->reset();
 	adsrMain->Trigger();
 	adsrFilter->Trigger();
 	adsrAux->Trigger();

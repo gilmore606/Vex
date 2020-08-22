@@ -17,6 +17,8 @@ Voice::Voice() {
 	pitchBend = 8192;
 	osc1->setBend(1.0);
 	osc2->setBend(1.0);
+	osc1->transpose = 0;
+	osc2->transpose = 0;
 	ccPan = 0.5;
 	ccMod = 0.0;
 	ccVol = 1.0;
@@ -34,6 +36,7 @@ Voice::Voice() {
 	lfo->osc.pwidth = 0.5;
 	lfo->osc.enabled = true;
 	adsrAux = new ADSR();
+	adsrAuxAmt = 0.0;
 
 	filtermem = 0.0;
 	filterbuf0 = 0.0;
@@ -67,7 +70,7 @@ void Voice::Patch(double pan, double volume, double a, double d, double s, doubl
 void Voice::Patch(int pan, int volume, int a, int d, int s, int r, int wave1, int wave2, int detune, int phase) {
 	Patch(
 		intToDouble(pan, 1.0), intToDouble(volume, 1.0),
-		intToDouble(a, 2.0), intToDouble(d, 3.0), intToDouble(s, 1.0), intToDouble(r, 3.0),
+		intToDouble(a, 0.5), intToDouble(d, 3.0), intToDouble(s, 1.0), intToDouble(r, 3.0),
 		(Waveform)wave1, (Waveform)wave2, intToDouble(detune, 20.0), intToDouble(phase, 0.5)
 	);
 }
