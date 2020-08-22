@@ -40,6 +40,10 @@ Voice::Voice() {
 	filterbuf1 = 0.0;
 	filterbuf2 = 0.0;
 	filterbuf3 = 0.0;
+
+	echobuf = new double[echosize];
+	for (int i = 0; i < echosize; i++) { echobuf[i] = 0.0; }
+	echoc = 0;
 }
 
 void Voice::Reset() {

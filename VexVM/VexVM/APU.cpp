@@ -214,9 +214,13 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		Voice voice;
 		voice.Patch(0.5, 1.0, 0.01, 0.3, 0.4, 1.0, PULSE, SINE, 0.1, 0.0);
 		voice.lfo->osc.waveform = TRIANGLE;
-		voice.lfo->osc.setFreq(4.0);
-		voice.lfo->amount = 0.3;
+		voice.lfo->osc.setFreq(2.0);
+		voice.lfo->amount = 0.1;
 		voice.lfo->target = M_FILTER;
+		voice.echoLevel = 0.4;
+		voice.echoTime = 0.3;
+		voice.echoRegen = 0.7;
+
 		livesong->addVoice(voice);
 		std::cout << "APU detected " << ports << " MIDI in, opened port 0 for listen" << std::endl;
 	}

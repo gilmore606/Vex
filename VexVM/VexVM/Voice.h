@@ -161,12 +161,14 @@ public:
 	double oscMix;      // 0.0 all osc1 1.0 all osc2
 	double distortion;  // 0.0 for none, 2.0-5.0 mild, 7.0+ heavy
 	Filter filter;
-	double filterF, filterQ;
+	double filterF, filterQ;    // F 0.0-1.0  Q 0.0-4.0+
 	ADSR* adsrFilter;
 	double adsrFilterAmount;
 	LFO* lfo;
 	ADSR* adsrAux;
-
+	double echoLevel;  // 0.0-1.0 level
+	double echoTime;   // 0.0-1.0 second
+	double echoRegen;  // 0.0-1.0 regen
 
 	double songPan;
 	double outsample;
@@ -180,6 +182,9 @@ private:
 	double freq;
 
 	double filterbuf0, filterbuf1, filterbuf2, filterbuf3;
+	double* echobuf;
+	int echoc;
+	const int echosize = 44100;
 
 	double intToDouble(int b, double max);
 };
@@ -224,8 +229,10 @@ inline void Voice::genSample() {
 	else if (!osc1->enabled && !osc2->enabled) samplebuf = 0.0;
 	else samplebuf = (*osc1->nextSample() * (1.0 - bufoscmix) + *osc2->nextSample() * bufoscmix) / 2.0;
 
+
 	// Distortion
 	// TODO: find a distortion algorithm!
+
 
 	// Filter
 	if (filter != NO_FILTER) {
@@ -248,6 +255,14 @@ inline void Voice::genSample() {
 	// Adjust volume
 	samplebuf *= *(*adsrMain).nextLevel() * bufvol;
 
+	// Echo
+	int returnc = echoc - (echoTime * echosize);
+	returnc = returnc < 0 ? (returnc + echosize) : returnc;
+	echobuf[echoc] = samplebuf * echoLevel + echobuf[returnc] * echoRegen;
+	echoc++;
+	if (echoc > echosize) echoc = 0;
+	samplebuf += echobuf[returnc];
+
 	// Apply final grungefilter
 	samplebuf = (samplebuf + filtermem) / 2.0;
 	filtermem = samplebuf;
@@ -255,6 +270,7 @@ inline void Voice::genSample() {
 
 	// Clamp
 	samplebuf = samplebuf > 1.0 ? 1.0 : (samplebuf < -1.0 ? -1.0 : samplebuf);
+
 }
 
 inline void Voice::Trigger(double freq, int vel, double volume, double pan) {
