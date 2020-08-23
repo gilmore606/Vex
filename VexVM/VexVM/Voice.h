@@ -4,7 +4,7 @@
 
 enum Waveform { TRIANGLE, SAWTOOTH, PULSE, SINE, NOISE };
 enum Filter { NO_FILTER, LOWPASS_12, HIGHPASS_12, BANDPASS_12, LOWPASS_24, HIGHPASS_24, BANDPASS_24 };
-enum ModTarget { M_PITCH, M_VOLUME, M_PW1, M_PW2, M_OSCMIX, M_DIST, M_FILTER, M_LFO_AMT, M_LFO_FREQ };
+enum ModTarget { M_PITCH, M_VOLUME, M_PW1, M_PW2, M_OSCMIX, M_DIST, M_FILTER, M_LFO_AMT, M_LFO_FREQ, M_PHASE };
 
 const static double transposeTable[13] = { 0.0, 0.59463, 0.122462, 0.189207, 0.259921, 0.334839, 0.414213,
 	0.498307, 0.587401, 0.681792, 0.781797, 0.887748, 1.0 };
@@ -34,6 +34,7 @@ private:
 	double level = 0.0;
 	double step;
 	double progress = 0.0;
+	double progressbuf;
 	double noiseProgress = 0.0;
 	void setStep();
 };
@@ -47,7 +48,6 @@ inline void OSC::reset() {
 inline void OSC::setFreq(double freq) {
 	this->freq = freq + ((transpose > 0) ? (transposeTable[transpose] * freq)
 		: (0 - (transposeTable[-transpose] + 1.0) * freq * 0.5));
-	level = phase;
 	setStep();
 }
 
@@ -63,6 +63,7 @@ inline void OSC::setStep() {
 inline double* OSC::nextSample() {
 	progress += step;
 	if (progress > 1.0) progress -= 1.0;
+	progressbuf = progress + phase;
 	if (waveform == NOISE) {
 		noiseProgress += step;
 		if (noiseProgress > 0.2) {
@@ -71,21 +72,21 @@ inline double* OSC::nextSample() {
 		}
 	}
 	else if (waveform == TRIANGLE) {
-		if (progress < 0.5) {
-			level = (progress * 4.0) - 1.0;
+		if (progressbuf < 0.5) {
+			level = (progressbuf * 4.0) - 1.0;
 		} else {
-			level = ((1.0 - progress) * 4.0) - 1.0;
+			level = ((1.0 - progressbuf) * 4.0) - 1.0;
 		}
 	} else if (waveform == SAWTOOTH) {
-		level = (progress * 2.0) - 1.0;
+		level = (progressbuf * 2.0) - 1.0;
 	} else if (waveform == PULSE) {
-		if (progress > bufpwidth) {
+		if (progressbuf > bufpwidth) {
 			level = 1.0;
 		} else {
 			level = -1.0;
 		}
 	} else if (waveform == SINE) {
-		level = std::sin(progress * 6.28318);
+		level = std::sin(progressbuf * 6.28318);
 	}
 	return &level;
 }
@@ -255,6 +256,7 @@ inline void Voice::genSample() {
 	double bufdist = distortion;
 	double buffilter = filterF;
 	double buflfoamt = lfo->amount;
+	double bufphase = osc2->phase;
 
 	// Apply ADSR modulator
 	double* nextadsr = (*adsrAux).nextLevel();
@@ -271,6 +273,8 @@ inline void Voice::genSample() {
 			buflfoamt = buflfoamt * (1.0 - adsrAuxAmt) + buflfoamt * adsrAuxAmt * (*nextadsr); break;
 		case M_PITCH:
 			bufpitch += adsrAuxAmt * (*nextadsr) * freq;
+		case M_PHASE:
+			bufphase = adsrAuxAmt * (*nextadsr) * 0.5;
 	}
 
 	// Apply LFO modulator
@@ -292,11 +296,14 @@ inline void Voice::genSample() {
 			buffilter += buflfoamt * *nextlfo;
 			buffilter = buffilter > 0.99 ? 0.99 : (buffilter < 0.01 ? 0.01 : buffilter);
 			break;
+		case M_PHASE:
+			bufphase = buflfoamt * *nextlfo * 0.5; break;
 	}
 	osc1->bufpwidth = bufpwidth1 > 0.95 ? 0.95 : (bufpwidth1 < 0.05 ? 0.05 : bufpwidth1);
 	osc2->bufpwidth = bufpwidth2 > 0.95 ? 0.95 : (bufpwidth2 < 0.05 ? 0.05 : bufpwidth2);
 	osc1->setFreq(bufpitch); 
 	osc2->setFreq(bufpitch);
+	osc2->phase = bufphase;
 
 	// Mix the raw oscillators
 	if (osc1->enabled && !osc2->enabled) samplebuf = *osc1->nextSample();
