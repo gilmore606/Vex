@@ -60,7 +60,16 @@ inline void Song::advanceTime(double sec) {
 	}
 	if (notecursor >= notecount) {
 		if (loop) { Reset(); }
-		else { done = true; }
+		else {
+			done = true;
+			int i = 0;
+			while (i < voices.size()) {
+				if (voices[i].outsample > 0.001) {
+					done = false;
+				}
+				i++;
+			}
+		}
 	}
 }
 

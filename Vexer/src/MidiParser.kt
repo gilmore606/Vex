@@ -51,46 +51,61 @@ class Note(
     }
 }
 
-class MidiParser(val filepath: String, val instrumentCount: Int, val fVerbose: Boolean) {
+class MidiParser(val song: Song, val filepath: String, val instrumentCount: Int, val fVerbose: Boolean) {
 
     val outBytes = ArrayList<UByte>()
 
     fun parse() {
 
-        val sequence = MidiSystem.getSequence(File(filepath))
-
         val events = ArrayList<Note>()
-        for (track in sequence.getTracks()) {
-            if (fVerbose) println("  MIDI track size: " + track.size())
-            for (i in 0..track.size()-1) {
-                val message = track.get(i).message.message
-                val len = track.get(i).message.length
-                val time = track.get(i).tick
-                val status = message[0] + 256
-                var data1: UByte = 0.toUByte()
-                var data2: UByte = 0.toUByte()
-                if (len > 1) data1 = message[1].toUByte()
-                if (len > 2) data2 = message[2].toUByte()
-                val note = when (status) {
-                    in 128..143 -> Note(NoteType.NOTE_OFF, status-128, data1, data2, time)
-                    in 144..159 -> Note(NoteType.NOTE_ON, status-144, data1, data2, time)
-                    in 160..175 -> Note(NoteType.POLY_AFTER, status-160, data1, data2, time)
-                    in 176..191 -> Note(NoteType.CONTROL_CHANGE, status-176, data1, data2, time)
-                    in 192..207 -> Note(NoteType.PROGRAM_CHANGE, status-192, data1, data2, time)
-                    in 208..223 -> Note(NoteType.CHANNEL_AFTER, status-208, data1, data2, time)
-                    in 224..239 -> Note(NoteType.PITCH_BEND, status-224, data1, data2, time)
-                    else -> Note(NoteType.SYSEX, status, data1, data2, time)
+        var resolution = 192
+        if (song.notes.size > 0) {
+            song.notes.forEach {
+                events.add(Note(when (it.event) {
+                    "NOTE_ON" -> NoteType.NOTE_ON
+                    "NOTE_OFF" -> NoteType.NOTE_OFF
+                    "CONTROL_CHANGE" -> NoteType.CONTROL_CHANGE
+                    "PITCH_BEND" -> NoteType.PITCH_BEND
+                    else -> throw RuntimeException("illegal note type")
+                }, it.chan, it.d1.toUByte(), it.d2.toUByte(), it.tick.toLong()))
+            }
+        } else {
+            val sequence = MidiSystem.getSequence(File(filepath))
+            resolution = sequence.resolution
+            for (track in sequence.getTracks()) {
+                if (fVerbose) println("  MIDI track size: " + track.size())
+                for (i in 0..track.size() - 1) {
+                    val message = track.get(i).message.message
+                    val len = track.get(i).message.length
+                    val time = track.get(i).tick
+                    val status = message[0] + 256
+                    var data1: UByte = 0.toUByte()
+                    var data2: UByte = 0.toUByte()
+                    if (len > 1) data1 = message[1].toUByte()
+                    if (len > 2) data2 = message[2].toUByte()
+                    val note = when (status) {
+                        in 128..143 -> Note(NoteType.NOTE_OFF, status - 128, data1, data2, time)
+                        in 144..159 -> Note(NoteType.NOTE_ON, status - 144, data1, data2, time)
+                        in 160..175 -> Note(NoteType.POLY_AFTER, status - 160, data1, data2, time)
+                        in 176..191 -> Note(NoteType.CONTROL_CHANGE, status - 176, data1, data2, time)
+                        in 192..207 -> Note(NoteType.PROGRAM_CHANGE, status - 192, data1, data2, time)
+                        in 208..223 -> Note(NoteType.CHANNEL_AFTER, status - 208, data1, data2, time)
+                        in 224..239 -> Note(NoteType.PITCH_BEND, status - 224, data1, data2, time)
+                        else -> Note(NoteType.SYSEX, status, data1, data2, time)
+                    }
+                    if ((note.type == NoteType.SYSEX) && (note.data1 == 81.toUByte()) && (note.data2 == 3.toUByte())) {
+                        note.type = NoteType.TEMPO
+                        var tempo = message[3].toInt() * 65536 + message[4].toInt() * 256 + message[5];
+                        tempo = tempo / 1000;
+                        note.data1 = (tempo / 256).toUByte()
+                        note.data2 = (tempo - note.data1.toInt() * 256).toUByte()
+                    }
+                    events.add(note)
                 }
-                if ((note.type == NoteType.SYSEX) && (note.data1 == 81.toUByte()) && (note.data2 == 3.toUByte())) {
-                    note.type = NoteType.TEMPO
-                    var tempo = message[3].toInt() * 65536 + message[4].toInt() * 256 + message[5];
-                    tempo = tempo / 1000;
-                    note.data1 = (tempo / 256).toUByte()
-                    note.data2 = (tempo - note.data1.toInt() * 256).toUByte()
-                }
-                events.add(note)
             }
         }
+
+
         // Interleave all events sequentially
         events.sortBy { it.time }
 
@@ -119,7 +134,6 @@ class MidiParser(val filepath: String, val instrumentCount: Int, val fVerbose: B
         outBytes.add(count2.toUByte())
 
         // Write ticks-per-beat as 2 bytes
-        val resolution = sequence.resolution
         val res0 = (resolution % 256)
         val res1 = (resolution - res0) / 256
         outBytes.add(res0.toUByte())

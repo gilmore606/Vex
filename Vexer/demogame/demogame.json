@@ -251,6 +251,21 @@
                 "lfoTarget": "M_NOTARGET"
             },
             {
+                "name": "explode",
+                "adsr": [ 0, 255, 70, 255 ],
+                "wave": [ "NOISE", "NOISE" ],
+                "transpose": [ 0, 7 ],
+                "filter": "LOWPASS_12",
+                "filterF": 25,
+                "filterQ": 100,
+                "adsrFilter": [ 0, 160, 127, 220 ],
+                "adsrFilterAmount": 75,
+                "adsrAux": [ 0, 120, 0, 0 ],
+                "adsrAuxAmount": 160,
+                "adsrAuxTarget": "M_PITCH",
+                "echo": [ 127, 75, 180 ]
+            },
+            {
                 "name": "softpad",
                 "wave": [ "TRIANGLE", "SINE" ],
                 "adsr": [ 40, 15, 70, 60 ],
@@ -281,6 +296,16 @@
                 "voices": [ "piano", "piano", "piano", "piano" ],
                 "volumes": [ 200, 200, 200, 200 ],
                 "pans": [ 128, 60, 190, 128 ]
+            },
+            {
+                "id": "2",
+                "notes": [
+                    { "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 40, "d2": 127 },
+                    { "tick": 80, "chan": 0, "event": "NOTE_OFF", "d1": 40, "d2": 0 }
+                ],
+                "voices": [ "explode" ],
+                "volumes": [ 255 ],
+                "pans": [ 128 ]
             }
         ]
 }

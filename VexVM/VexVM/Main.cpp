@@ -84,7 +84,7 @@ void makeDemoPrims() {
 	flameSprite = new Sprite(3, &gpu);
 	flameSprite->scale(0.4f, 0.4f);
 	engineSound = apu.getVoice();
-	engineSound->Patch(127, 255, 15, 20, 220, 30, 4, 4, 0, 0);
+	engineSound->Patch(127, 120, 15, 20, 220, 30, 4, 4, 0, 0);
 	engineSound->filter = LOWPASS_12;
 	thrusting = false;
 }
@@ -158,6 +158,7 @@ void moveDemoPrims(float delta) {
 
 	// Did we crash?
 	if ((shipsp->x() != 0.0f) && (shipsp->y() != 0.0f) && shipsp->colliders()[0].id > 0) {
+		apu.PlaySong(2, 1.0f, 0.5f, false);
 		for (int i = 0; i < 8; i++) {
 			gpu.spawnParticle(6, shipsp->colliders()[0].p, 
 				rot2vec(randFloat() * 6.25f) * (randFloat() * 0.1f + 0.1f) + shipsp->v() * 0.5f, 
@@ -174,6 +175,7 @@ void moveDemoPrims(float delta) {
 		}
 		shipsp->moveTo(0.0f, 0.0f);
 		shipsp->setVector(0.0f, 0.0f);
+		thrusting = false;
 	}
 }
 

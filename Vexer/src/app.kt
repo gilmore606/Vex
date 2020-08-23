@@ -67,7 +67,7 @@ fun main() {
     // Write songs, replacing voice names with compiled instruments
 
     gameConfig.songs.forEach { song ->
-        val midi = MidiParser(sourceDir + "/" + song.file, song.voices.size, fVerbose)
+        val midi = MidiParser(song, sourceDir + "/" + song.file, song.voices.size, fVerbose)
         midi.parse()
         midi.writeToFile(outFile, song, outInstruments)
     }
