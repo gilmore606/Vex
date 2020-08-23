@@ -36,18 +36,8 @@ void Song::Read(ROMReader* rom) {
 
 	if (!rom->expectMarker("INS")) throw "expected instruments after song";
 	for (int i = 0; i < voicecount; i++) {
-		int w1 = rom->nextInt();
-		int w2 = rom->nextInt();
-		int a = rom->nextInt();
-		int d = rom->nextInt();
-		int s = rom->nextInt();
-		int r = rom->nextInt();
-		int dt = rom->nextInt();
-		int ph = rom->nextInt();
-		int v = rom->nextInt();
-		int p = rom->nextInt();
 		Voice voice;
-		voice.Patch(p, v, a, d, s, r, w1, w2, dt, ph);
+		voice.Read(rom);
 		addVoice(voice);
 	}
 	std::cout << "  read " << voicecount << " instruments" << std::endl;

@@ -40,7 +40,6 @@ struct DemoRock {
 };
 std::vector<DemoRock> demoRocks;
 DemoRock demoShip;
-float thrustTime;
 Sprite gridSprite;
 Sprite* flameSprite;
 struct DemoShot {
@@ -50,6 +49,8 @@ std::list<DemoShot> demoShots;
 
 Voice* engineSound;
 bool thrusting;
+double smokeTime;
+double thrustTime;
 
 // Proxy callback for GPU
 void onResize(GLFWwindow* window, int w, int h) {
@@ -84,6 +85,7 @@ void makeDemoPrims() {
 	flameSprite->scale(0.4f, 0.4f);
 	engineSound = apu.getVoice();
 	engineSound->Patch(127, 255, 15, 20, 220, 30, 4, 4, 0, 0);
+	engineSound->filter = LOWPASS_12;
 	thrusting = false;
 }
 
@@ -125,20 +127,25 @@ void moveDemoPrims(float delta) {
 	if (input.isPressed(2)) {
 		demoShip.sprite->setVector(demoShip.sprite->v() + rot2vec(demoShip.sprite->rot() + 1.5707) * delta * 0.6f);
 		flameSprite->setVisible(true);
-		thrustTime += delta;
-		if (thrustTime > 0.1f) {
+		smokeTime += delta;
+		if (smokeTime > 0.1) {
 			gpu.spawnParticle(5, demoShip.sprite->p(), rot2vec(demoShip.sprite->rot() - 1.5707) * 0.2f, Vec(0.0f, 0.0f),
 				Color(0.1f, 0.1f, 0.1f), Color(0.02f, 0.02f, 0.02f), Vec(0.02f, 0.02f), Vec(0.002f, 0.002f), 
 					randFloat() * 2.7f, randFloat() + 3.0f, 1.0f + randFloat());
-			thrustTime = 0.0f;
+			smokeTime = 0.0;
 		}
 		if (!thrusting) {
-			engineSound->Trigger(100.0, 127);
+			engineSound->Trigger(200.0, 127);
 			thrusting = true;
+			thrustTime = 0.0;
+		}
+		else {
+			thrustTime += delta;
+			engineSound->setFreq(200.0 + thrustTime * 100.0);
 		}
 	} else {
 		flameSprite->setVisible(false);
-		thrustTime = 0.0f;
+		smokeTime = 0.0;
 		if (thrusting) {
 			engineSound->Release();
 			thrusting = false;

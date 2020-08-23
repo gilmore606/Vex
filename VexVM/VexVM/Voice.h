@@ -1,10 +1,11 @@
 #pragma once
 
 #include <iostream>
+class ROMReader;
 
 enum Waveform { TRIANGLE, SAWTOOTH, PULSE, SINE, NOISE };
 enum Filter { NO_FILTER, LOWPASS_12, HIGHPASS_12, BANDPASS_12, LOWPASS_24, HIGHPASS_24, BANDPASS_24 };
-enum ModTarget { M_PITCH, M_VOLUME, M_PW1, M_PW2, M_OSCMIX, M_DIST, M_FILTER, M_LFO_AMT, M_LFO_FREQ, M_PHASE };
+enum ModTarget { M_NOTARGET, M_PITCH, M_VOLUME, M_PW1, M_PW2, M_OSCMIX, M_DIST, M_FILTER, M_LFO_AMT, M_LFO_FREQ, M_PHASE };
 
 const static double transposeTable[13] = { 0.0, 0.59463, 0.122462, 0.189207, 0.259921, 0.334839, 0.414213,
 	0.498307, 0.587401, 0.681792, 0.781797, 0.887748, 1.0 };
@@ -116,8 +117,8 @@ private:
 	double a, d, s, r;
 	double acoef, dcoef, rcoef;
 	double abase, dbase, rbase;
-	const double targetRatioA = 0.3;
-	const double targetRatioDR = 0.0001;
+	const double targetRatioA = 0.9;
+	const double targetRatioDR = 0.00001;
 	double level;
 	unsigned int stage;
 
@@ -197,10 +198,12 @@ class Voice {
 public:
 	Voice();
 
+	void Read(ROMReader* rom);
 	void genSample();
 	void Reset();
 	void Trigger();
 	void Trigger(double freq, int vel, double volume = 1.0, double pan = 0.5);
+	void setFreq(double freq);
 	void Release();
 	void Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase);
 	void Patch(int pan, int volume, int a, int d, int s, int r, int wave1, int wave2, int detune, int phase);
@@ -369,6 +372,11 @@ inline void Voice::Trigger() {
 	adsrMain->Trigger();
 	adsrFilter->Trigger();
 	adsrAux->Trigger();
+}
+inline void Voice::setFreq(double freq) {
+	this->freq = freq;
+	osc1->setFreq(freq);
+	osc2->setFreq(freq);
 }
 inline void Voice::Release() {
 	adsrMain->Release();

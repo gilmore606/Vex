@@ -221,30 +221,55 @@
 	"instruments": [
             {
                 "name": "piano",
-                "waves": [ "PULSE", "SINE" ],
-                "adsr": [ 3, 90, 80, 80 ],
+                "adsr": [ 3, 90, 40, 80 ],
+                "wave": [ "PULSE", "SINE" ],
+                "pulseWidth": [ 70, 0 ],
                 "detune": 15
             },
             {
+                "name": "kicktom",
+                "adsr": [ 0, 127, 0, 65 ],
+                "wave": [ "SINE", "NOISE" ],
+                "pulseWidth": [ 0, 0 ],
+                "transpose": [ 0, 12 ],
+                "oscMix": 80,
+                "detune": 0,
+                "phase": 0,
+                "distortion": 2,
+                "filter": "LOwPASS_24",
+                "filterF": 90,
+                "filterQ": 30,
+                "adsrFilter": [ 0, 60, 0, 0 ],
+                "adsrFilterAmount": 200,
+                "adsrAux": [ 127, 25, 255, 0 ],
+                "adsrAuxAmount": -90,
+                "adsrAuxTarget": "PITCH",
+                "echo": [ 0, 0, 0 ],
+                "lfoFreq": 0,
+                "lfoWave": "TRIANGLE",
+                "lfoAmount": 0,
+                "lfoTarget": "M_NOTARGET"
+            },
+            {
                 "name": "softpad",
-                "waves": [ "TRIANGLE", "SINE" ],
+                "wave": [ "TRIANGLE", "SINE" ],
                 "adsr": [ 40, 15, 70, 60 ],
                 "detune": 5,
                 "phase": 15
             },
             {
                 "name": "drum",
-                "waves": [ "NOISE", "NOISE" ],
+                "wave": [ "NOISE", "NOISE" ],
                 "adsr": [ 0, 8, 0, 0 ]
             },
             {
                 "name": "shoot",
-                "waves": [ "NOISE", "NOISE" ],
+                "wave": [ "NOISE", "NOISE" ],
                 "adsr": [ 0, 25, 0, 0 ]
             },
             {
                 "name": "engine",
-                "waves": [ "NOISE", "NOISE" ],
+                "wave": [ "NOISE", "NOISE" ],
                 "adsr": [ 4, 1, 127, 30 ],
                 "phase": 60
             }
@@ -257,11 +282,5 @@
                 "volumes": [ 200, 200, 200, 200 ],
                 "pans": [ 128, 60, 190, 128 ]
             }
-        ],
-    "voices": [
-        {
-            "id": "1",
-            "instrument": "engine"
-        }
-    ]
+        ]
 }

@@ -1,5 +1,6 @@
 #include "Voice.h"
 #include <cmath>
+#include "ROMReader.h"
 
 Voice::Voice() { 
 	volume = 1.0f;
@@ -49,6 +50,53 @@ Voice::Voice() {
 	echoc = 0;
 }
 
+void Voice::Read(ROMReader* rom) {
+	int marker = rom->nextInt();
+	if (marker != 254) {
+		std::cout << "  expected instrument marker -- PANIC" << marker << std::endl;
+		throw "instrument decoder fail";
+	}
+	std::cout << "  reading instrument" << std::endl;
+	osc1->waveform = (Waveform)rom->nextInt();
+	osc2->waveform = (Waveform)rom->nextInt();
+	osc1->pwidth = rom->nextInt() * 0.5;
+	osc2->pwidth = rom->nextInt() * 0.5;
+	osc1->transpose = rom->nextInt() - 12;
+	osc2->transpose = rom->nextInt() - 12;
+	adsrMain->setA((rom->nextInt() / 255.0) * 3.0);
+	adsrMain->setD((rom->nextInt() / 255.0) * 3.0);
+	adsrMain->setS((rom->nextInt() / 255.0) * 1.0);
+	adsrMain->setR((rom->nextInt() / 255.0) * 3.0);
+	osc2->detune = (rom->nextInt() / 255.0) * 10.0;
+	osc2->phase = (rom->nextInt() / 255.0) * 0.5;
+	oscMix = (rom->nextInt() / 255.0) * 1.0;
+	distortion = (rom->nextInt() / 255.0) * 1.0;
+	filter = (Filter)rom->nextInt();
+	filterF = (rom->nextInt() / 255.0) * 1.0;
+	filterQ = (rom->nextInt() / 255.0) * 1.0;
+	adsrFilter->setA((rom->nextInt() / 255.0) * 3.0);
+	adsrFilter->setD((rom->nextInt() / 255.0) * 3.0);
+	adsrFilter->setS((rom->nextInt() / 255.0) * 1.0);
+	adsrFilter->setR((rom->nextInt() / 255.0) * 3.0);
+	adsrFilterAmount = (rom->nextInt() / 255.0) * 1.0;
+	echoLevel = (rom->nextInt() / 255.0) * 1.0;
+	echoTime = (rom->nextInt() / 255.0) * 1.0;
+	echoRegen = (rom->nextInt() / 255.0) * 1.0;
+	lfo->osc.setFreq((rom->nextInt() / 255.0) * 10.0);
+	lfo->osc.waveform = (Waveform)rom->nextInt();
+	lfo->amount = (rom->nextInt() / 255.0) * 1.0;
+	lfo->target = (ModTarget)rom->nextInt();
+	adsrAux->setA((rom->nextInt() / 255.0) * 3.0);
+	adsrAux->setD((rom->nextInt() / 255.0) * 3.0);
+	adsrAux->setS((rom->nextInt() / 255.0) * 1.0);
+	adsrAux->setR((rom->nextInt() / 255.0) * 3.0);
+	adsrAuxAmt = ((rom->nextInt() - 127) / 128.0) * 1.0;
+	adsrAuxTarget = (ModTarget)rom->nextInt();
+
+	songVolume = (rom->nextInt() / 255.0) * 1.0;
+	songPan = (rom->nextInt() / 255.0) * 1.0;
+}
+
 void Voice::Reset() {
 
 }
@@ -61,6 +109,8 @@ void Voice::Patch(double pan, double volume, double a, double d, double s, doubl
 	this->osc2->waveform = wave2;
 	this->osc2->detune = detune;
 	this->osc2->phase = phase;
+	this->osc1->reset();
+	this->osc2->reset();
 }
 
 // Patch using integer values from ROM

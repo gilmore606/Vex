@@ -121,7 +121,10 @@ void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, voi
 			livesong->voices[0].filterQ = (double)note->data2 / 128.0;
 		}
 		if (note->data1 == 19) {
-			livesong->voices[0].distortion = (double)note->data2 / 16.0;
+			livesong->voices[0].osc1->pwidth = (double)note->data2 / 128.0;
+		}
+		if (note->data1 == 2) {
+			livesong->voices[0].osc2->pwidth = (double)note->data2 / 128.0;
 		}
 	}
 
@@ -212,27 +215,23 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		livesong->volume = 1.0;
 		livesong->pan = 0.5;
 		Voice voice;
-		voice.Patch(0.5, 1.0, 0.0, 0.6, 0.0, 0.3, SINE, NOISE, 0.0, 0.0);
-		voice.oscMix = 0.3;
-		voice.osc2->transpose = 12;
+		voice.Patch(0.5, 1.0, 4.0, 0.0, 0.0, 4.0, PULSE, PULSE, 0.0, 0.05);
+		voice.filter = LOWPASS_12;
+		voice.filterF = 0.8;
+		voice.oscMix = 0.5;
+		voice.osc2->transpose = 0;
 		voice.lfo->osc.waveform = TRIANGLE;
-		voice.lfo->osc.setFreq(6.0);
+		voice.lfo->osc.setFreq(4.0);
 		voice.lfo->amount = 0.0;
-		voice.lfo->target = M_FILTER;
-		voice.adsrFilter->a = 0.0;
-		voice.adsrFilter->d = 0.2;
-		voice.adsrFilter->s = 0.0;
-		voice.adsrFilter->r = 0.0;
-		voice.adsrFilterAmount = 0.8;
-		voice.adsrAux->a = 0.5;
-		voice.adsrAux->d = 0.1;
-		voice.adsrAux->s = 1.0;
-		voice.adsrAux->r = 0.0;
-		voice.adsrAuxAmt = -0.6;
+		voice.lfo->target = M_PW1;
+		voice.adsrFilter->set(4.0, 2.0, 0.5, 0.5);
+		voice.adsrFilterAmount = 0.0;
+		voice.adsrAux->set(0.1, 1.0, 0.0, 0.0);
+		voice.adsrAuxAmt = 0.0;
 		voice.adsrAuxTarget = M_PITCH;
 		voice.echoLevel = 0.0;
-		voice.echoTime = 0.6;
-		voice.echoRegen = 0.7;
+		voice.echoTime = 0.7;
+		voice.echoRegen = 0.2;
 
 		livesong->addVoice(voice);
 		std::cout << "APU detected " << ports << " MIDI in, opened port 0 for listen" << std::endl;
