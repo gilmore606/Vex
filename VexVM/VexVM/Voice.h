@@ -97,57 +97,95 @@ public:
 	ModTarget target;
 
 private:
-
 };
 
 class ADSR {
 public:
 	bool active;
-	double a, d, s, r;
+	void setA(double rate);
+	void setD(double rate);
+	void setS(double level);
+	void setR(double rate);
+	void set(double a, double d, double s, double r);
 	void Trigger();
 	void Release();
 	double* nextLevel();
 
 private:
-	double astep, dstep, rstep;
+	double a, d, s, r;
+	double acoef, dcoef, rcoef;
+	double abase, dbase, rbase;
+	const double targetRatioA = 0.3;
+	const double targetRatioDR = 0.0001;
 	double level;
 	unsigned int stage;
+
+	double calcCoef(double rate, double targetRatio);
 };
+
+inline double ADSR::calcCoef(double rate, double targetRatio) {
+	return (rate <= 0) ? 0.0 : exp(-log((1.0 + targetRatio) / targetRatio) / rate);
+}
+
+inline void ADSR::setA(double rate) {
+	a = rate;
+	acoef = calcCoef(rate * 44100.0, targetRatioA);
+	abase = (1.0 + targetRatioA) * (1.0 - acoef);
+}
+inline void ADSR::setD(double rate) {
+	d = rate;
+	dcoef = calcCoef(rate * 44100.0, targetRatioDR);
+	dbase = (s - targetRatioDR) * (1.0 - dcoef);
+}
+inline void ADSR::setS(double level) {
+	s = level;
+	dbase = (s - targetRatioDR) * (1.0 - dcoef);
+}
+inline void ADSR::setR(double rate) {
+	r = rate;
+	rcoef = calcCoef(rate * 44100.0, targetRatioDR);
+	rbase = -targetRatioDR * (1.0 - rcoef);
+}
+inline void ADSR::set(double a, double d, double s, double r) {
+	setA(a);
+	setD(d);
+	setS(s);
+	setR(r);
+}
 
 inline void ADSR::Trigger() {
 	active = true;
 	stage = 0;
-	astep = (1.0 / a) * (1.0 / 44100.0);
-	astep = astep > 0.5 ? 0.5 : astep;
-	dstep = (1.0 / d) * (1.0 / 44100.0);
-	dstep = dstep > 0.5 ? 0.5 : dstep;
-	rstep = (1.0 / r) * (1.0 / 44100.0);
-	rstep = rstep > 0.5 ? 0.5 : rstep;
 }
 inline void ADSR::Release() {
 	if (active && (stage < 3)) stage = 3;
 }
 inline double* ADSR::nextLevel() {
-	if (!active) {
-		level = 0.0;
-	} else if (stage == 0) { // a
-		level += astep;
+	if (!active) { level = 0.0; return &level; }
+	switch (stage) {
+	case 0:
+		level = abase + level * acoef;
 		if (level >= 1.0) {
 			level = 1.0;
 			stage = 1;
 		}
-	} else if (stage == 1) { // d
-		level -= dstep;
+		break;
+	case 1:
+		level = dbase + level * dcoef;
 		if (level <= s) {
 			level = s;
 			stage = 2;
 		}
-	} else if (stage == 2) { // s
-		level = s;
-		if (level <= 0.0000001) active = false;
-	} else if (stage == 3) { // r
-		level -= rstep;
-		if (level <= 0.0000001) active = false;
+		break;
+	case 2:
+		break;
+	case 3:
+		level = rbase + level * rcoef;
+		if (level <= 0.0) {
+			level = 0.0;
+			active = false;
+		}
+		break;
 	}
 	return &level;
 }

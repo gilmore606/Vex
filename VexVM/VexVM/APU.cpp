@@ -103,16 +103,16 @@ void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, voi
 			adsr = livesong->voices[0].adsrFilter;
 		}
 		if (note->data1 == 74) {
-			adsr->a = (double)note->data2 / 64.0;
+			adsr->setA((double)note->data2 / 32.0);
 		}
 		if (note->data1 == 71) {
-			adsr->d = (double)note->data2 / 64.0;
+			adsr->setD((double)note->data2 / 32.0);
 		}
 		if (note->data1 == 81) {
-			adsr->s = (double)note->data2 / 128.0;
+			adsr->setS((double)note->data2 / 128.0);
 		}
 		if (note->data1 == 91) {
-			adsr->r = (double)note->data2 / 32.0;
+			adsr->setR((double)note->data2 / 32.0);
 		}
 		if (note->data1 == 16) {
 			livesong->voices[0].filterF = (double)note->data2 / 128.0;

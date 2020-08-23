@@ -25,11 +25,11 @@ Voice::Voice() {
 	ccExp = 0.0;
 
 	distortion = 0.0;
-	filter = LOWPASS_24;
+	filter = NO_FILTER;
 	filterF = 0.8;
 	filterQ = 0.1;
 	adsrFilter = new ADSR();
-	adsrFilterAmount = 0.5;
+	adsrFilterAmount = 0.0;
 
 	lfo = new LFO();
 	lfo->osc.setBend(1.0);
@@ -54,10 +54,7 @@ void Voice::Reset() {
 }
 
 void Voice::Patch(double pan, double volume, double a, double d, double s, double r, Waveform wave1, Waveform wave2, double detune, double phase) {
-	adsrMain->a = a;
-	adsrMain->d = d;
-	adsrMain->s = s;
-	adsrMain->r = r;
+	adsrMain->set(a, d, s, r);
 	this->pan = pan;
 	this->volume = volume;
 	this->osc1->waveform = wave1;
@@ -70,7 +67,7 @@ void Voice::Patch(double pan, double volume, double a, double d, double s, doubl
 void Voice::Patch(int pan, int volume, int a, int d, int s, int r, int wave1, int wave2, int detune, int phase) {
 	Patch(
 		intToDouble(pan, 1.0), intToDouble(volume, 1.0),
-		intToDouble(a, 0.5), intToDouble(d, 3.0), intToDouble(s, 1.0), intToDouble(r, 3.0),
+		intToDouble(a, 3.0), intToDouble(d, 3.0), intToDouble(s, 1.0), intToDouble(r, 3.0),
 		(Waveform)wave1, (Waveform)wave2, intToDouble(detune, 20.0), intToDouble(phase, 0.5)
 	);
 }
