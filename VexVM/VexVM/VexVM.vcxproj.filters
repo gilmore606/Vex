@@ -19,6 +19,9 @@
     <Filter Include="Audio">
       <UniqueIdentifier>{a29dc69e-375c-4a4d-a900-af78ecb41419}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CPU">
+      <UniqueIdentifier>{646ca388-95bc-442f-a5df-2d381065e430}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -34,9 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ROMReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scheduler.cpp">
@@ -93,15 +93,18 @@
     <ClCompile Include="dependencies\rtmidi-4.0.0\RtMidi.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
+    <ClCompile Include="CPU.cpp">
+      <Filter>CPU</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoGame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ROMReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scheduler.h">
@@ -163,6 +166,12 @@
     </ClInclude>
     <ClInclude Include="dependencies\rtmidi-4.0.0\RtMidi.h">
       <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="CPU.h">
+      <Filter>CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoGame.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

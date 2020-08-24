@@ -24,6 +24,7 @@ public:
 	float tint();
 	bool visible();
 	Collider* colliders();
+	int id();
 	void setCollision(bool value);
 	void setVisible(bool value);
 	void moveTo(float x, float y);

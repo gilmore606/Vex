@@ -32,6 +32,10 @@ void Sprite::setColor(float r, float g, float b, float tint) {
 	gpuSprite->tint = tint;
 }
 
+int Sprite::id() {
+	return gpuSpriteID;
+}
+
 void Sprite::Destroy() {
 	gpuSprite->Destroy(gpuSpriteID);
 }

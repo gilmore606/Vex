@@ -11,16 +11,18 @@ public:
 
 	void Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input);
 	void LoadCode(std::string name);
-	void Boot();
+	virtual void Boot();
 
-	void OnUpdate(float deltaTime);
-	void OnInput(int input);
+	virtual void OnUpdate(float deltaTime);
+	virtual void OnInput(int input);
 
-	void Stop();
+	virtual void Stop();
 
-private:
+protected:
 	Scheduler* scheduler;
 	GPU* gpu;
 	APU* apu;
 	Input* input;
+
+private:
 };

@@ -1,0 +1,12 @@
+settings:
+	font = otarisans
+
+controls:
+
+on start:
+	goto attract
+
+screen attract:
+	on start:
+		print("hello world!", (0.1, 0.1), 0.5)
+		sound("hello")
