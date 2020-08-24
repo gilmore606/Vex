@@ -14,9 +14,11 @@ You can [download an .exe demo](https://raw.githubusercontent.com/gilmore606/Vex
 
 # Updates
 
-8/19: Particles!
+8/23: APU: the synth is fully fleshed out, with 2 oscillators, a low/high/bandpass filter, and an LFO + ADSR modulator per voice.  Sound effects are made in the ROM as very short songs -- the shoot song, the explode song, etc.  For fun and ease of auditioning patches I added MIDI input.
 
-8/18: Collision detection!
+8/19: Particles!  Particles are just fire-and-forget sprites that can have acceleration, color shift, scale change, and rotation.
+
+8/18: Collision detection!  Rather than do traditional mathy detection, I just drew all the lines on a buffer using the sprite IDs, and checked for hits on draw.
 
 8/17: GPU: we can render >10,000 lines (or >1,000 sprites) at 60fps with pretty good vector simulation.  APU: we can play 8+ voice MIDI files with 2-osc ADSR synths that kinda sound like a POKEY chip.
 
