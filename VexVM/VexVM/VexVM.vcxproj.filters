@@ -99,6 +99,9 @@
     <ClCompile Include="DemoGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DemoSynth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -171,6 +174,9 @@
       <Filter>CPU</Filter>
     </ClInclude>
     <ClInclude Include="DemoGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoSynth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

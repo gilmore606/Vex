@@ -4,6 +4,7 @@
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
+class Note;
 
 class CPU {
 public:
@@ -15,6 +16,7 @@ public:
 
 	virtual void OnUpdate(float deltaTime);
 	virtual void OnInput(int input);
+	virtual void OnMIDI(Note* note);
 
 	virtual void Stop();
 

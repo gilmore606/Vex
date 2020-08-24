@@ -32,10 +32,10 @@ public:
 	double speed;
 	long notecount;
 	int resolution;
-	std::vector<Voice> voices;
+	std::vector<Voice*> voices;
 
 	Song(int id);
-	void addVoice(Voice voice);
+	void addVoice(Voice* voice);
 	void Read(ROMReader* rom);
 	void Reset();
 	void setTempo(int tempo);
@@ -64,7 +64,7 @@ inline void Song::advanceTime(double sec) {
 			done = true;
 			int i = 0;
 			while (i < voices.size()) {
-				if (voices[i].outsample > 0.001) {
+				if (voices[i]->outsample > 0.001) {
 					done = false;
 				}
 				i++;
@@ -76,26 +76,26 @@ inline void Song::advanceTime(double sec) {
 inline void Song::playNote(Note* note) {
 	std::cout << note->channel << "  " << note->type << "  " << note->data1 << "," << note->data2 << std::endl;
 	if (note->type == NOTE_ON) {
-		voices[note->channel].Trigger(notefreqs[note->data1], note->data2, volume, pan);
+		voices[note->channel]->Trigger(notefreqs[note->data1], note->data2, volume, pan);
 	}
 	else if (note->type == NOTE_OFF) {
-		voices[note->channel].Release();
+		voices[note->channel]->Release();
 	}
 	else if (note->type == PITCH_BEND) {
-		voices[note->channel].PitchBend(note->data1 + note->data2 * 128);
+		voices[note->channel]->PitchBend(note->data1 + note->data2 * 128);
 	}
 	else if (note->type == CONTROL_CHANGE) {
 		if (note->data1 == 1) {
-			voices[note->channel].ccMod = (double)note->data2 / 127.0;
+			voices[note->channel]->ccMod = (double)note->data2 / 127.0;
 		}
 		else if (note->data1 == 7) {
-			voices[note->channel].ccVol = (double)note->data2 / 127.0;
+			voices[note->channel]->ccVol = (double)note->data2 / 127.0;
 		}
 		else if (note->data1 == 10) {
-			voices[note->channel].ccPan = (double)note->data2 / 127.0;
+			voices[note->channel]->ccPan = (double)note->data2 / 127.0;
 		}
 		else if (note->data1 == 11) {
-			voices[note->channel].ccExp = (double)note->data2 / 127.0;
+			voices[note->channel]->ccExp = (double)note->data2 / 127.0;
 		}
 	}
 }

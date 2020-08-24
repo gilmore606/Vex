@@ -3,15 +3,20 @@
 #include <iostream>
 #include "util.cpp"
 #include "Input.h"
+#include "CPU.h"
 
 APU::APU() { 
 	started = false;
-	livesong = nullptr;
 	midi = nullptr;
 	adac = nullptr;
 	lastTime = glfwGetTime();
 	time = lastTime;
 	deltaTime = 0.0;
+}
+
+void APU::Connect(CPU* cpu, Input* input) {
+	this->cpu = cpu;
+	this->input = input;
 }
 
 void APU::Reset() { 
@@ -35,7 +40,7 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		// make a sample for every voice of every song
 		for (auto const& s : playing) {
 			for (int i = 0; i < s->voices.size(); i++) {
-				s->voices[i].genSample();
+				s->voices[i]->genSample();
 			}
 		}
 		// make a sample for every solo voice
@@ -48,7 +53,7 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 			// add up panned samples of every voice of every song
 			for (auto const& s : playing) {
 				for (int i = 0; i < s->voices.size(); i++) {
-					Voice* v = &s->voices[i];
+					Voice* v = s->voices[i];
 					if (j == 0) {
 						sample += v->outsample * (1.0 - sumPans(v->pan, v->ccPan, v->songPan));
 					} else {
@@ -64,13 +69,6 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 					sample += v->outsample * sumPans(v->pan, v->ccPan, v->songPan);
 				}
 			}
-			// add livesong voices
-			if (livesong != nullptr) {
-				for (int i = 0; i < livesong->voices.size(); i++) {
-					livesong->voices[i].genSample();
-					sample += livesong->voices[i].outsample;
-				}
-			}
 			// clamp
 			sample = sample > 1.0 ? 1.0 : (sample < -1.0 ? -1.0 : sample);
 			*buffer++ = sample;
@@ -80,7 +78,7 @@ int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return 0;
 }
 
-void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData, Input* input) {
+void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData) {
 	Note* note = new Note();
 	note->channel = 0;
 	note->type = SYSEX;
@@ -91,44 +89,8 @@ void APU::receiveMIDI(double deltatime, std::vector<unsigned char>* message, voi
 	if (type >= 224 && type <= 239) { note->type = PITCH_BEND; }
 	note->data1 = (int)message->at(1);
 	note->data2 = (int)message->at(2);
-	if (note->type == NOTE_ON && note->data2 == 0 && note->data1 == lastLiveNote) {
-		note->type = NOTE_OFF;
-	}
-	if (note->type == NOTE_ON && note->data2 > 0) {
-		lastLiveNote = note->data1;
-	}
-	if (note->type == CONTROL_CHANGE) {
-		ADSR* adsr = livesong->voices[0].adsrMain;
-		if (input->isShift) {
-			adsr = livesong->voices[0].adsrFilter;
-		}
-		if (note->data1 == 74) {
-			adsr->setA((double)note->data2 / 32.0);
-		}
-		if (note->data1 == 71) {
-			adsr->setD((double)note->data2 / 32.0);
-		}
-		if (note->data1 == 81) {
-			adsr->setS((double)note->data2 / 128.0);
-		}
-		if (note->data1 == 91) {
-			adsr->setR((double)note->data2 / 32.0);
-		}
-		if (note->data1 == 16) {
-			livesong->voices[0].filterF = (double)note->data2 / 128.0;
-		}
-		if (note->data1 == 80) {
-			livesong->voices[0].filterQ = (double)note->data2 / 128.0;
-		}
-		if (note->data1 == 19) {
-			livesong->voices[0].osc1->pwidth = (double)note->data2 / 128.0;
-		}
-		if (note->data1 == 2) {
-			livesong->voices[0].osc2->pwidth = (double)note->data2 / 128.0;
-		}
-	}
-
-	livesong->playNote(note);
+	
+	cpu->OnMIDI(note);
 }
 
 
@@ -211,30 +173,6 @@ void APU::Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned i
 		midi->openPort(0);
 		midi->setCallback(midiCallback);
 		midi->ignoreTypes(true, true, true);
-		livesong = new Song(999);
-		livesong->volume = 1.0;
-		livesong->pan = 0.5;
-		Voice voice;
-		voice.Patch(0.5, 1.0, 1.1, 3.0, 0.0, 3.0, SINE, PULSE, 0.0, 0.0);
-		voice.filter = NO_FILTER;
-		voice.filterF = 0.9;
-		voice.filterQ = 0.0;
-		voice.oscMix = 0.3;
-		voice.osc2->transpose = 12;
-		voice.lfo->osc.waveform = SAWTOOTH;
-		voice.lfo->osc.setFreq(6.4);
-		voice.lfo->amount = 0.7;
-		voice.lfo->target = M_PITCH;
-		voice.adsrFilter->set(0.0, 0.4, 0.5, 2.0);
-		voice.adsrFilterAmount = 0.0;
-		voice.adsrAux->set(1.3, 0.0, 1.0, 3.0);
-		voice.adsrAuxAmt = 0.8;
-		voice.adsrAuxTarget = M_PITCH;
-		voice.echoLevel = 0.0;
-		voice.echoTime = 0.8;
-		voice.echoRegen = 0.5;
-
-		livesong->addVoice(voice);
 		std::cout << "APU detected " << ports << " MIDI in, opened port 0 for listen" << std::endl;
 	}
 }

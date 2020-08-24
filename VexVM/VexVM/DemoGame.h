@@ -21,6 +21,7 @@ public:
 	void Boot();
 	void OnUpdate(float deltaTime);
 	void OnInput(int input);
+	void OnMIDI(Note* note);
 	void Stop();
 
 	Voice* engineSound;

@@ -14,8 +14,10 @@
 #include "Input.h"
 #include "Vector.h"
 #include "DemoGame.h"
+#include "DemoSynth.h"
 
 //CPU* cpu;
+//DemoSynth* cpu;
 DemoGame* cpu;
 GPU* gpu;
 APU* apu;
@@ -38,7 +40,7 @@ int handleAudio(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	return apu->genSamples(outBuffer, inBuffer, nFrames, streamTime, status, userData);
 }
 void handleMIDI(double deltatime, std::vector<unsigned char> * message, void* userData) {
-	apu->receiveMIDI(deltatime, message, userData, input);
+	apu->receiveMIDI(deltatime, message, userData);
 }
 
 // Proxy callback for Input
@@ -63,6 +65,7 @@ int main() {
 
 	scheduler = new Scheduler();
 	//cpu = new CPU();
+	//cpu = new DemoSynth();
 	cpu = new DemoGame();
 	gpu = new GPU(windowWidth, windowHeight);
 	window = gpu->Setup(onResize);
@@ -79,6 +82,7 @@ int main() {
 	input->Add(55, BUTTON, GLFW_KEY_F5);
 
 	cpu->Connect(scheduler, gpu, apu, input);
+	apu->Connect(cpu, input);
 
 	// Read ROM file
 	ROMReader reader = ROMReader("data/demogame.vexo");

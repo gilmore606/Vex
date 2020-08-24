@@ -10,11 +10,13 @@ constexpr auto SAMPLE_RATE = 44100;
 #include <list>
 
 class Input;
+class CPU;
 
 class APU{
 public:
 	APU();
 
+	void Connect(CPU* cpu, Input* input);
 	void Setup(int (*proxyCallback)(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData),
 		void (*midiCallback)(double deltatime, std::vector<unsigned char>* message, void* userData));
@@ -26,7 +28,7 @@ public:
 
 	int genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 		double streamTime, RtAudioStreamStatus status, void* userData);
-	void receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData, Input* input);
+	void receiveMIDI(double deltatime, std::vector<unsigned char>* message, void* userData);
 
 
 private:
@@ -34,9 +36,9 @@ private:
 	std::vector<Song*> songs;
 	std::list<Song*> playing;
 	std::list<Voice*> voices;
-	Song* livesong;
-	int lastLiveNote;
 
+	CPU* cpu;
+	Input* input;
 	RtAudio* adac;
 	RtMidiIn* midi;
 	unsigned int bufferSize = 512;

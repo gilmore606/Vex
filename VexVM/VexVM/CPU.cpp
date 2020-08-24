@@ -31,6 +31,10 @@ void CPU::OnInput(int input) {
 	// run onInput in my executor
 }
 
+void CPU::OnMIDI(Note* note) {
+
+}
+
 void CPU::Stop() {
 
 }

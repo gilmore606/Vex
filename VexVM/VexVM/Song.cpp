@@ -36,14 +36,14 @@ void Song::Read(ROMReader* rom) {
 
 	if (!rom->expectMarker("INS")) throw "expected instruments after song";
 	for (int i = 0; i < voicecount; i++) {
-		Voice voice;
-		voice.Read(rom);
+		Voice* voice = new Voice();
+		voice->Read(rom);
 		addVoice(voice);
 	}
 	std::cout << "  read " << voicecount << " instruments" << std::endl;
 }
 
-void Song::addVoice(Voice voice) {
+void Song::addVoice(Voice* voice) {
 	voices.push_back(voice);
 }
 

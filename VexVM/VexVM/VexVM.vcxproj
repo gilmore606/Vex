@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="APU.cpp" />
     <ClCompile Include="DemoGame.cpp" />
+    <ClCompile Include="DemoSynth.cpp" />
     <ClCompile Include="dependencies\rtmidi-4.0.0\RtMidi.cpp" />
     <ClCompile Include="Voice.cpp" />
     <ClCompile Include="CPU.cpp" />
@@ -183,6 +184,7 @@
   <ItemGroup>
     <ClInclude Include="APU.h" />
     <ClInclude Include="DemoGame.h" />
+    <ClInclude Include="DemoSynth.h" />
     <ClInclude Include="dependencies\rtmidi-4.0.0\RtMidi.h" />
     <ClInclude Include="Voice.h" />
     <ClInclude Include="Collider.h" />

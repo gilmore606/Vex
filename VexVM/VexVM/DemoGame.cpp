@@ -127,6 +127,10 @@ void DemoGame::OnInput(int input) {
 	if (input == 54) { gridSprite.setVisible(!gridSprite.visible()); }
 }
 
+void DemoGame::OnMIDI(Note* note) {
+
+}
+
 void DemoGame::OnUpdate(float delta) {
 	std::list<DemoShot>::iterator iter = demoShots.begin();
 	std::list<DemoShot>::iterator end = demoShots.end();
