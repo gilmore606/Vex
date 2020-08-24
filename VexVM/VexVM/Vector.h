@@ -25,6 +25,12 @@ struct Pos {
 	Pos() { }
 	Pos(float x, float y) { this->x = x; this->y = y; }
 	float x = 0.0f, y = 0.0f;
+	inline Pos operator + (Pos const& obj) {
+		Pos res;
+		res.x = x + obj.x;
+		res.y = y + obj.y;
+		return res;
+	}
 	inline Pos operator + (Vec const& obj) {
 		Pos res;
 		res.x = x + obj.dx;

@@ -259,12 +259,37 @@
                 "filterF": 25,
                 "filterQ": 100,
                 "adsrFilter": [ 0, 160, 127, 220 ],
-                "adsrFilterAmount": 75,
+                "adsrFilterAmount": 180,
                 "adsrAux": [ 0, 120, 0, 0 ],
-                "adsrAuxAmount": 160,
+                "adsrAuxAmount": 70,
                 "adsrAuxTarget": "M_PITCH",
                 "echo": [ 127, 75, 180 ]
             },
+            {
+                "name": "shoot",
+                "adsr": [ 4, 90, 0, 90 ],
+                "wave": [ "TRIANGLE", "SAWTOOTH" ],
+                "transpose": [ 0, 5 ],
+                "oscMix": 70,
+                "adsrAux": [ 0, 80, 0, 0 ],
+                "adsrAuxAmount": 110,
+                "adsrAuxTarget": "M_PITCH",
+                "echo": [ 110, 25, 150 ]
+            },
+            {
+                "name": "hyperspace",
+                "adsr": [ 110, 255, 0, 255 ],
+                "wave": [ "SINE", "PULSE" ],
+                "transpose": [ 0, 12 ],
+                "oscMix": 80,
+                "lfoWave": "SAWTOOTH",
+                "lfoFreq": 140,
+                "lfoAmount": 140,
+                "lfoTarget": "M_PITCH",
+                "adsrAux": [ 80, 255, 100, 255 ],
+                "adsrAuxAmount": 110,
+                "adsrAuxTarget": "M_PITCH"
+            }
             {
                 "name": "softpad",
                 "wave": [ "TRIANGLE", "SINE" ],
@@ -276,11 +301,6 @@
                 "name": "drum",
                 "wave": [ "NOISE", "NOISE" ],
                 "adsr": [ 0, 8, 0, 0 ]
-            },
-            {
-                "name": "shoot",
-                "wave": [ "NOISE", "NOISE" ],
-                "adsr": [ 0, 25, 0, 0 ]
             },
             {
                 "name": "engine",
@@ -300,10 +320,40 @@
             {
                 "id": "2",
                 "notes": [
-                    { "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 40, "d2": 127 },
-                    { "tick": 80, "chan": 0, "event": "NOTE_OFF", "d1": 40, "d2": 0 }
+                    { "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 50, "d2": 127 },
+                    { "tick": 160, "chan": 0, "event": "NOTE_OFF", "d1": 50, "d2": 0 }
                 ],
                 "voices": [ "explode" ],
+                "volumes": [ 255 ],
+                "pans": [ 128 ]
+            },
+            {
+                "id": "3",
+                "notes": [
+                    { "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 85, "d2": 127 },
+                    { "tick": 80, "chan": 0, "event": "NOTE_OFF", "d1": 85, "d2": 0 }
+                ],
+                "voices": [ "shoot" ],
+                "volumes": [ 70 ],
+                "pans": [ 128 ]
+            },
+            {
+                "id": "4",
+                "notes": [
+                    { "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 70, "d2": 90 },
+                    { "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 70, "d2": 0 }
+                ],
+                "voices": [ "explode" ],
+                "volumes": [ 255 ],
+                "pans": [ 128 ]
+            },
+            {
+                "id": "5",
+                "notes":[
+                    { "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 50, "d2": 100 },
+                    { "tick": 400, "chan": 0, "event": "NOTE_OFF", "d1": 50, "d2": 0 }
+                ],
+                "voices": [ "hyperspace" ],
                 "volumes": [ 255 ],
                 "pans": [ 128 ]
             }

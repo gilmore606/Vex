@@ -93,9 +93,9 @@ void makeDemoStars() {
 	for (int i = 0; i < DEMO_POINTS; i++) {
 		float x = (randFloat() - 0.5f) * 2.0f;
 		float y = (randFloat() - 0.5f) * 2.0f;
-		float r = randFloat() * 0.4f;
-		float g = randFloat() * 0.7f;
-		float b = randFloat() * 1.9f;
+		float r = randFloat() * 0.2f;
+		float g = randFloat() * 0.5f;
+		float b = randFloat() * 1.3f;
 		float size = randFloat() * 3.5f + 1.0f;
 		demoPoints[i].gpupoint = gpu.addPoint(x, y, r, g, b, size);
 		demoPoints[i].z = (randFloat() * 0.4f) + 0.2f;
@@ -181,8 +181,8 @@ void moveDemoPrims(float delta) {
 
 void moveDemoStars(float delta) {
 	for (int i = 0; i < DEMO_POINTS; i++) {
-		demoPoints[i].gpupoint->x = wrapCoord(demoPoints[i].gpupoint->x + demoPoints[i].z * -demoShip.sprite->v().dx * delta * 6.0);
-		demoPoints[i].gpupoint->y = wrapCoord(demoPoints[i].gpupoint->y + demoPoints[i].z * -demoShip.sprite->v().dy * delta * 6.0);
+		demoPoints[i].gpupoint->x = wrapCoord(demoPoints[i].gpupoint->x + demoPoints[i].z * -demoShip.sprite->v().dx * delta * 3.0);
+		demoPoints[i].gpupoint->y = wrapCoord(demoPoints[i].gpupoint->y + demoPoints[i].z * -demoShip.sprite->v().dy * delta * 3.0);
 	}
 }
 
@@ -202,6 +202,7 @@ void handleKey(GLFWwindow* window, int key, int scancode, int action, int mods) 
 
 void fireDemoShot() {
 	if (demoShots.size() > 4) { return; }
+	apu.PlaySong(3, 0.5f, 0.5f, false);
 	Sprite* sp = new Sprite(4, &gpu);
 	sp->moveTo(demoShip.sprite->p() + rot2vec((demoShip.sprite->rot() + 1.5707)) * 0.025f);
 	sp->setVector(rot2vec((demoShip.sprite->rot() + 1.5707)) * 0.8f);
@@ -211,9 +212,33 @@ void fireDemoShot() {
 	demoShots.push_back(shot);
 }
 
+void fireDemoHyperspace() {
+	apu.PlaySong(5, 0.5f, 0.5f, false);
+	Sprite* sp = demoShip.sprite;
+	for (int i = 0; i < 6; i++) {
+		gpu.spawnParticle(0, sp->p() + sp->v() * 0.05f * i, sp->v() * (0.7f + 0.1f * i), sp->v() * -0.4f, 
+			Color(0.3f, 1.3f - i * 0.2f, 0.4f), Color(0.0f, 0.0f, 0.0f),
+			Vec(0.1f, 0.1f), Vec(3.0f + i * 2.6f, 3.0f + i * 1.7f), sp->rot(), 0.0f, 0.3f);
+	}
+	for (int i = 0; i < 8; i++) {
+		gpu.spawnParticle(5, sp->p() + Pos((randFloat() - 0.5f) * 0.1f, (randFloat() - 0.5f) * 0.1f), 
+			sp->v() * 0.4f, Vec((randFloat() - 0.5f) * 0.3f, (randFloat() - 0.5f) * 0.3f),
+			Color(0.1f, 0.1f, 0.1f), Color(0.02f, 0.02f, 0.02f), Vec(0.02f, 0.02f), Vec(0.002f, 0.002f),
+			randFloat() * 2.7f, randFloat() + 3.0f, 1.0f + randFloat());
+	}
+	demoShip.sprite->moveTo(Pos(randFloat() - 0.5f, randFloat() - 0.5f));
+	demoShip.sprite->setVector(Vec(0.0f, 0.0f));
+	for (int i = 0; i < 8; i++) {
+		gpu.spawnParticle(5, sp->p() + Pos((randFloat() - 0.5f) * 0.1f, (randFloat() - 0.5f) * 0.1f),
+			sp->v() * 0.4f, Vec((randFloat() - 0.5f) * 0.3f, (randFloat() - 0.5f) * 0.3f),
+			Color(0.1f, 0.1f, 0.1f), Color(0.02f, 0.02f, 0.02f), Vec(0.02f, 0.02f), Vec(0.002f, 0.002f),
+			randFloat() * 2.7f, randFloat() + 3.0f, 1.0f + randFloat());
+	}
+}
+
 void handleButton(int input) {
 	if (input == 3) { fireDemoShot(); }
-
+	if (input == 5) { fireDemoHyperspace(); }
 	if (input == 999) { gpu.ToggleFullscreen(); }
 	cpu.OnInput(input);
 
