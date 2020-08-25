@@ -31,7 +31,7 @@ inline static double sumPans(double p1, double p2, double p3) {
 int APU::genSamples(void* outBuffer, void* inBuffer, unsigned int nFrames,
 	double streamTime, RtAudioStreamStatus status, void* userData) {
 
-	unsigned int i, j, v;
+	unsigned int i, j;
 	double* buffer = (double*)outBuffer;
 	if (status) std::cout << "APU stream underflow detected" << std::endl;
 	double sample;

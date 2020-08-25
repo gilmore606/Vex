@@ -4,6 +4,15 @@
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
+#include "Codechunk.h"
+#include "Opcodes.h"
+#include "Values.h"
+
+#define READ_BYTE() (*ip++)
+#define READ_INT() (*ip++ + ((*ip++)<<8))
+
+const static int STACK_MAX = 256;
+
 class Note;
 
 class CPU {
@@ -26,5 +35,26 @@ protected:
 	APU* apu;
 	Input* input;
 
+	Codechunk* chunk;
+	uint8_t* ip;
+
+	Value stack[STACK_MAX];
+	Value* stacktop;
+
+	void run(Codechunk* code);
+
 private:
+	inline void push(Value value);
+	inline Value pop();
 };
+
+
+inline void CPU::push(Value value) {
+	*stacktop = value;
+	stacktop++;
+}
+inline Value CPU::pop() {
+	stacktop--;
+	return *stacktop;
+}
+

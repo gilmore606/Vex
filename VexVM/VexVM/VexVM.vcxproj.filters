@@ -102,6 +102,9 @@
     <ClCompile Include="DemoSynth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Codechunk.cpp">
+      <Filter>CPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -178,6 +181,15 @@
     </ClInclude>
     <ClInclude Include="DemoSynth.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Opcodes.h">
+      <Filter>CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Values.h">
+      <Filter>CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Codechunk.h">
+      <Filter>CPU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

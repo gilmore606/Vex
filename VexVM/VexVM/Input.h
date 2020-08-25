@@ -5,12 +5,12 @@
 
 enum VEXInputType { BUTTON, SWITCH };
 
-typedef struct VEXControl {
+typedef struct {
 	int id;
 	VEXInputType type;
-	GLuint key = GLFW_KEY_UNKNOWN;
-	bool isPressed = false;
-};
+	GLuint key;
+	bool isPressed;
+} VEXControl;
 
 class Input
 {
