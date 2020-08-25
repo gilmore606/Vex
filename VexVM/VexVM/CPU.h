@@ -9,7 +9,7 @@
 #include "Values.h"
 
 #define READ_BYTE() (*ip++)
-#define READ_INT() (*ip++ + ((*ip++)<<8))
+#define READ_I16() (*ip++ + ((*ip++)>>8))
 
 const static int STACK_MAX = 256;
 
@@ -42,19 +42,20 @@ protected:
 	Value* stacktop;
 
 	void run(Codechunk* code);
+	
+	void stackDump();
 
 private:
-	inline void push(Value value);
-	inline Value pop();
+	inline void push(Value value) {
+		*stacktop = value;
+		stacktop++;
+	}
+	inline Value pop() {
+		stacktop--;
+		return *stacktop;
+	}
 };
 
 
-inline void CPU::push(Value value) {
-	*stacktop = value;
-	stacktop++;
-}
-inline Value CPU::pop() {
-	stacktop--;
-	return *stacktop;
-}
+
 
