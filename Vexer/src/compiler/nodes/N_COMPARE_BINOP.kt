@@ -55,12 +55,12 @@ class N_NOTEQUAL(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_COMPARE_BINOP(arg1, 
     override fun codeInt(coder: Coder) { coder.code(Opcode.OP_EQI); coder.code(Opcode.OP_NOT) }
 }
 class N_GREATER(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_COMPARE_BINOP(arg1, arg2) {
-    override fun codeFloat(coder: Coder) { coder.code(Opcode.OP_GEF) }
-    override fun codeInt(coder: Coder) { coder.code(Opcode.OP_GEI) }
+    override fun codeFloat(coder: Coder) { coder.code(Opcode.OP_GTF) }
+    override fun codeInt(coder: Coder) { coder.code(Opcode.OP_GTI) }
 }
 class N_LESS(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_COMPARE_BINOP(arg1, arg2) {
-    override fun codeFloat(coder: Coder) { coder.code(Opcode.OP_LEF) }
-    override fun codeInt(coder: Coder) { coder.code(Opcode.OP_LEI) }
+    override fun codeFloat(coder: Coder) { coder.code(Opcode.OP_LTF) }
+    override fun codeInt(coder: Coder) { coder.code(Opcode.OP_LTI) }
 }
 class N_GREATER_EQUAL(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_COMPARE_BINOP(arg1, arg2) {
     override fun codeFloat(coder: Coder) { coder.code(Opcode.OP_GEF) }

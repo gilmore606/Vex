@@ -34,6 +34,22 @@ void Code::Read(ROMReader* rom) {
 	}
 	std::cout << "  read " << constc << " constants" << std::endl;
 
+	// read entry points
+
+	if (!rom->expectMarker("ENTRY")) throw "expected entry point block";
+	int entryc = rom->nextInt();
+	for (int i = 0; i < entryc; i++) {
+		entriesRel.push_back(rom->next3Int());
+	}
+
+	// read jump points
+
+	if (!rom->expectMarker("JUMP")) throw "expected jump point block";
+	int jumpc = rom->next2Int();
+	for (int i = 0; i < jumpc; i++) {
+		jumpsRel.push_back(rom->next3Int());
+	}
+
 	// read bytecode
 
 	if (!rom->expectMarker("BC")) throw "expected bytecode block";
@@ -44,5 +60,13 @@ void Code::Read(ROMReader* rom) {
 	}
 	std::cout << "  read " << codec << " bytecode instructions" << std::endl;
 
-	// TODO: build jump table
+	// build jump and entry tables
+
+	for (int i = 0; i < entryc; i++) {
+		entries.push_back(code + entriesRel[i]);
+	}
+	for (int i = 0; i < jumpc; i++) {
+		jumps.push_back(code + jumpsRel[i]);
+	}
+
 }
