@@ -2,6 +2,8 @@
 
 #include <vector>
 #include "Values.h"
+#include "string"
+
 class ROMReader;
 
 class Code {
@@ -13,8 +15,14 @@ public:
 	std::vector<Value> constants;
 	std::vector<Value> variables;
 	std::vector<uint8_t*> entries;  // pointers into code
+	std::vector<std::string> entryLabels;
 	std::vector<uint8_t*> jumps;  // pointers into code
 
+	uint8_t* entryStart;
+	uint8_t* entryUpdate;
+	uint8_t* entryInput;
+
+	Code();
 	void Read(ROMReader* rom);
 
 private:

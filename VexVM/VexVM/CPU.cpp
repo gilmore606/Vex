@@ -19,11 +19,7 @@ void CPU::LoadCode(Code* code) {
 
 void CPU::Boot() {
 
-	this->ip = code->code;
-	this->stacktop = stack;
-
-	// run entrypoint 'start'
-	run();
+	run(code->entryStart);
 
 }
 
@@ -32,12 +28,14 @@ void CPU::OnUpdate(float deltaTime) {
 
 	// put deltatime on stack
 	// run entrypoint 'update'
+	run(code->entryUpdate);
 }
 
 void CPU::OnInput(int input) {
 	// add to the handler queue:
 	// 'put input on stack'
 	// 'jump to onInput handler'
+	run(code->entryInput);
 }
 
 void CPU::OnMIDI(Note* note) {
@@ -53,7 +51,11 @@ void CPU::stackDump() {
 
 }
 
-void CPU::run() {
+void CPU::run(uint8_t* address) {
+	if (address == nullptr) { return; }
+	this->ip = address;
+	this->stacktop = stack;
+
 	Value v, v1, v2;
 	int adr;
 	float f, vl, fac;

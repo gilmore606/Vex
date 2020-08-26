@@ -16,8 +16,6 @@ class Coder(
 
         ast[0].code(this)
 
-        code(OP_DEBUG)
-        code(OP_EXIT)
     }
 
     fun code(op: Opcode) {
@@ -31,11 +29,13 @@ class Coder(
         outBytes.add(b1.toUByte())
     }
 
-    // Nodes call this back during codegen to register
-    fun addEntryPoint(addr: Int, name: String) {
+    // Nodes call this back during codegen to register entry / jump points
+    fun addEntryPoint(name: String) {
+        val addr = outBytes.size
         entries[name] = addr
     }
-    fun addJumpPoint(addr: Int): Int {
+    fun addJumpPoint(): Int {
+        val addr = outBytes.size
         jumps.add(addr)
         return jumps.size - 1
     }
@@ -55,7 +55,7 @@ class Coder(
         // 1 byte for entry count
         outFile.writeByte(entries.size.toUByte())
         entries.keys.forEach {
-            //outFile.writeString(it)
+            outFile.writeString(it)
             outFile.write3ByteInt(entries[it]!!)
         }
 

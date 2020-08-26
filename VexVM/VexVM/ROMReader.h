@@ -26,6 +26,7 @@ public:
 	int next2Int();
 	int next3Int();
 	float next2Float();
+	std::string nextString();
 	bool expectMarker(std::string expected);
 	std::string getMarker();
 

@@ -162,7 +162,9 @@ open class Node {
             return l
         }
         override fun code(coder: Coder) {
+            coder.addEntryPoint(name)
             code.code(coder)
+            coder.code(OP_EXIT)
         }
     }
 

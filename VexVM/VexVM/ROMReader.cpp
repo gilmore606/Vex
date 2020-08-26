@@ -79,6 +79,19 @@ float ROMReader::next2Float() {
 	return ((float)i / 65536.0f) * 2.0f - 1.0f;
 }
 
+std::string ROMReader::nextString() {
+	BYTE b1, b2;
+	std::string s = std::string();
+	b1 = next();
+	b2 = next();
+	if (b1 != 254) { throw "file format error"; }
+	while (b2 != 254) {
+		s.push_back(b2);
+		b2 = next();
+	}
+	return s;
+}
+
 bool ROMReader::expectMarker(std::string expected) {
 	std::string marker = getMarker();
 	return marker.compare(expected) == 0;
@@ -90,10 +103,7 @@ std::string ROMReader::getMarker() {
 	marker = "";
 	b1 = next();
 	b2 = next();
-	if (b1 != 255) {
-		std::cout << b1 << std::endl;
-		throw "file format error";
-	}
+	if (b1 != 255) { throw "file format error"; }
 	while (b2 != 255) {
 		marker.push_back(b2);
 		b2 = next();

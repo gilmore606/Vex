@@ -68,6 +68,14 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
         }
     }
 
+    fun writeString(s: String) {
+        writeByte(254.toUByte())
+        for (i in 0 until s.length) {
+            writeByte(s[i].toByte().toUByte())
+        }
+        writeByte(254.toUByte())
+    }
+
     fun writeValue(v: Value) {
         when (v.type) {
             // nil  1 byte = 0 (nil type)

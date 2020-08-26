@@ -1,6 +1,14 @@
 #include "Code.h"
 #include "ROMReader.h"
 
+Code::Code() {
+	entryStart = nullptr;
+	entryUpdate = nullptr;
+	entryInput = nullptr;
+	codec = 0;
+	code = nullptr;
+}
+
 Value Code::readVal(ROMReader* rom) {
 	Value c;
 	switch (rom->next()) {
@@ -39,6 +47,7 @@ void Code::Read(ROMReader* rom) {
 	if (!rom->expectMarker("ENTRY")) throw "expected entry point block";
 	int entryc = rom->nextInt();
 	for (int i = 0; i < entryc; i++) {
+		entryLabels.push_back(rom->nextString());
 		entriesRel.push_back(rom->next3Int());
 	}
 
@@ -63,7 +72,11 @@ void Code::Read(ROMReader* rom) {
 	// build jump and entry tables
 
 	for (int i = 0; i < entryc; i++) {
-		entries.push_back(code + entriesRel[i]);
+		uint8_t* point = code + entriesRel[i];
+		entries.push_back(point);
+		if (entryLabels[i] == "start") { entryStart = point; }
+		if (entryLabels[i] == "update") { entryUpdate = point; }
+		if (entryLabels[i] == "input") { entryInput = point; }
 	}
 	for (int i = 0; i < jumpc; i++) {
 		jumps.push_back(code + jumpsRel[i]);

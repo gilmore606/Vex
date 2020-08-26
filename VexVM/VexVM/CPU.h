@@ -41,7 +41,7 @@ protected:
 	Value stack[STACK_MAX];
 	Value* stacktop;
 
-	void run();
+	void run(uint8_t* address);
 	
 	void stackDump();
 
