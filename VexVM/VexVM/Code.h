@@ -2,8 +2,9 @@
 
 #include <vector>
 #include "Values.h"
+class ROMReader;
 
-class Codechunk {
+class Code {
 public:
 
 	uint8_t* code;
@@ -13,7 +14,8 @@ public:
 	std::vector<Value> variables;
 	std::vector<uint8_t*> jumps;  // pointers into code
 
+	void Read(ROMReader* rom);
+
 private:
-
+	Value readVal(ROMReader* rom);
 };
-

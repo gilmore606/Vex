@@ -21,9 +21,12 @@ data class Control(
 
     fun keyToGL(k: String): Int = when (k) {
         "esc" -> 256
+        "escape" -> 256
         "backspace" -> 259
         "insert" -> 260
+        "ins" -> 260
         "delete" -> 261
+        "del" -> 261
         "right" -> 262
         "left" -> 263
         "down" -> 264
@@ -55,6 +58,18 @@ data class Control(
         "`" -> 96
         "enter" -> 257
         "tab" -> 258
+        "f1" -> 290
+        "f2" -> 291
+        "f3" -> 292
+        "f4" -> 293
+        "f5" -> 294
+        "f6" -> 295
+        "f7" -> 296
+        "f8" -> 297
+        "f9" -> 298
+        "f10" -> 299
+        "f11" -> 300
+        "f12" -> 301
         else -> {
             if (k.length > 1) throw RuntimeException("invalid key spec")
             (k.get(0).toInt() - 32)

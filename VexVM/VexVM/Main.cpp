@@ -16,9 +16,9 @@
 #include "DemoGame.h"
 #include "DemoSynth.h"
 
-//CPU* cpu;
+CPU* cpu;
 //DemoSynth* cpu;
-DemoGame* cpu;
+//DemoSynth* cpu;
 GPU* gpu;
 APU* apu;
 Input* input;
@@ -64,9 +64,9 @@ int main() {
 	// Setup devices
 
 	scheduler = new Scheduler();
-	//cpu = new CPU();
+	cpu = new CPU();
 	//cpu = new DemoSynth();
-	cpu = new DemoGame();
+	//cpu = new DemoGame();
 	gpu = new GPU(windowWidth, windowHeight);
 	window = gpu->Setup(onResize);
 	apu = new APU();
@@ -85,7 +85,7 @@ int main() {
 	apu->Connect(cpu, input);
 
 	// Read ROM file
-	ROMReader reader = ROMReader("data/demogame.vexo");
+	ROMReader reader = ROMReader("data/boot.vexo");
 	reader.Read(cpu, gpu, apu, input);
 
 	// Boot

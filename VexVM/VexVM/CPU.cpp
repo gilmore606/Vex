@@ -13,22 +13,27 @@ void CPU::Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input) {
 	this->input = input;
 }
 
-void CPU::LoadCode(std::string name) {
-
+void CPU::LoadCode(Code* code) {
+	this->code = code;
 }
 
 void CPU::Boot() {
-	// start the first executor, set scene to start, run onstart
+
+	run();
+
 }
 
 void CPU::OnUpdate(float deltaTime) {
-	// if my current executor is still running, throw it on the running queue, get a new executor
-	// run onUpdate in my executor
+	// run handler queue first
+
+	// 'put deltatime on stack'
+	// 'jump to onUpdate handler'
 }
 
 void CPU::OnInput(int input) {
-	// if my current executor is still running, throw it on the running queue, get a new executor
-	// run onInput in my executor
+	// add to the handler queue:
+	// 'put input on stack'
+	// 'jump to onInput handler'
 }
 
 void CPU::OnMIDI(Note* note) {
@@ -47,9 +52,9 @@ void CPU::stackDump() {
 
 }
 
-void CPU::run(Codechunk* chunk) {
-	this->chunk = chunk;
-	this->ip = chunk->code;
+void CPU::run() {
+
+	this->ip = code->code;
 	this->stacktop = stack;
 
 	for (;;) {
@@ -75,41 +80,66 @@ void CPU::run(Codechunk* chunk) {
 			// Values
 
 		case OP_VAR:    // arg2: index of var
-			push(chunk->variables[READ_I16()]);
+			push(code->variables[READ_I16()]);
 			break;
 
 		case OP_CONST:   // arg2: index of constant
-			push(chunk->constants[READ_I16()]);
+			push(code->constants[READ_I16()]);
 			break;
 
 		case OP_RANDF:
-			push(NUMBER_VAL(rand()));
 			break;
 
 		case OP_RANDI:
-			push(NUMBER_VAL((int)(rand() * (double)AS_NUMBER(pop()))));
 			break;
 
 		case OP_SETVAR:   // arg2: index of var
-			chunk->variables[READ_I16()] = pop();
+			code->variables[READ_I16()] = pop();
 			break;
 
 			// Math
 
-		case OP_ADD:
-			push(NUMBER_VAL(AS_NUMBER(pop()) + AS_NUMBER(pop())));
+		case OP_ADDI:
+			push(INT_VAL(AS_INT(pop()) + AS_INT(pop())));
 			break;
-		case OP_SUB:
-			push(NUMBER_VAL(AS_NUMBER(pop()) - AS_NUMBER(pop())));
+		case OP_SUBI:
+			push(INT_VAL(AS_INT(pop()) - AS_INT(pop())));
 			break;
-		case OP_MULT:
-			push(NUMBER_VAL(AS_NUMBER(pop()) * AS_NUMBER(pop())));
+		case OP_MULTI:
+			push(INT_VAL(AS_INT(pop()) * AS_INT(pop())));
 			break;
-		case OP_DIV:
-			push(NUMBER_VAL(AS_NUMBER(pop()) / AS_NUMBER(pop())));
+		case OP_DIVI:
+			push(INT_VAL(AS_INT(pop()) / AS_INT(pop())));
 			break;
-		case OP_NEG:
-			push(NUMBER_VAL(-AS_NUMBER(pop())));
+		case OP_NEGI:
+			push(INT_VAL(-AS_INT(pop())));
+			break;
+		case OP_ADDF:
+			push(FLOAT_VAL(AS_FLOAT(pop()) + AS_FLOAT(pop())));
+			break;
+		case OP_SUBF:
+			push(FLOAT_VAL(AS_FLOAT(pop()) - AS_FLOAT(pop())));
+			break;
+		case OP_MULTF:
+			push(FLOAT_VAL(AS_FLOAT(pop()) * AS_FLOAT(pop())));
+			break;
+		case OP_DIVF:
+			push(FLOAT_VAL(AS_FLOAT(pop()) / AS_FLOAT(pop())));
+			break;
+		case OP_NEGF:
+			push(FLOAT_VAL(-AS_FLOAT(pop())));
+			break;
+		case OP_I2F:
+			push(FLOAT_VAL((float)AS_INT(pop())));
+			break;
+		case OP_F2I:
+			push(INT_VAL((int)AS_FLOAT(pop())));
+			break;
+
+			// Vector math
+
+		case OP_VADDV:
+			
 			break;
 
 			// Logic
@@ -118,44 +148,46 @@ void CPU::run(Codechunk* chunk) {
 			push(BOOL_VAL(!AS_BOOL(pop())));
 			break;
 		case OP_GT:
-			push(BOOL_VAL(AS_NUMBER(pop()) > AS_NUMBER(pop())));
+			push(BOOL_VAL(AS_INT(pop()) > AS_INT(pop())));
 			break;
 		case OP_GE:
-			push(BOOL_VAL(AS_NUMBER(pop()) >= AS_NUMBER(pop())));
+			push(BOOL_VAL(AS_INT(pop()) >= AS_INT(pop())));
 			break;
 		case OP_LT:
-			push(BOOL_VAL(AS_NUMBER(pop()) < AS_NUMBER(pop())));
+			push(BOOL_VAL(AS_INT(pop()) < AS_INT(pop())));
 			break;
 		case OP_LE:
-			push(BOOL_VAL(AS_NUMBER(pop()) <= AS_NUMBER(pop())));
+			push(BOOL_VAL(AS_INT(pop()) <= AS_INT(pop())));
 			break;
 		case OP_EQ:
-			push(BOOL_VAL(AS_NUMBER(pop()) == AS_NUMBER(pop())));
+			push(BOOL_VAL(AS_INT(pop()) == AS_INT(pop())));
 			break;
 
 			// Flow control
 
 		case OP_JUMP:   // arg2: index of jump
-			ip = chunk->jumps[READ_I16()];
+			ip = code->jumps[READ_I16()];
 			break;
 
 		case OP_IF:   // arg2: index of jump
 			adr = READ_I16();
 			if (!AS_BOOL(pop())) {
-				ip = chunk->jumps[adr];
+				ip = code->jumps[adr];
 			}
 			break;
 
 			// I/O
 
 		case OP_SONG:
-			apu->PlaySong(AS_NUMBER(pop()), AS_NUMBER(pop()), AS_NUMBER(pop()), AS_BOOL(pop()));
+			apu->PlaySong(AS_INT(pop()), 1.0, 0.5, false);
 			break;
 
 		case OP_INPUT:
-			push(BOOL_VAL(input->isPressed(AS_NUMBER(pop()))));
+			push(BOOL_VAL(input->isPressed(AS_INT(pop()))));
 			break;
 
+		case OP_BUTTON:
+			push(BOOL_VAL(input->wasPressed(AS_INT(pop()))));
 		}
 	}
 }

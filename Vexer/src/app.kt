@@ -11,7 +11,7 @@ fun main() {
     println("")
 
     val startTime = System.currentTimeMillis()
-    val romName = "demogame"
+    val romName = "boot"
     val fVerbose = true
     val sourceDir = romName
 

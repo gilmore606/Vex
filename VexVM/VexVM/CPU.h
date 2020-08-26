@@ -4,7 +4,7 @@
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
-#include "Codechunk.h"
+#include "Code.h"
 #include "Opcodes.h"
 #include "Values.h"
 
@@ -20,7 +20,7 @@ public:
 	CPU();
 
 	void Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input);
-	void LoadCode(std::string name);
+	void LoadCode(Code* code);
 	virtual void Boot();
 
 	virtual void OnUpdate(float deltaTime);
@@ -35,17 +35,18 @@ protected:
 	APU* apu;
 	Input* input;
 
-	Codechunk* chunk;
+	Code* code;
 	uint8_t* ip;
 
 	Value stack[STACK_MAX];
 	Value* stacktop;
 
-	void run(Codechunk* code);
+	void run();
 	
 	void stackDump();
 
 private:
+
 	inline void push(Value value) {
 		*stacktop = value;
 		stacktop++;
@@ -55,7 +56,3 @@ private:
 		return *stacktop;
 	}
 };
-
-
-
-

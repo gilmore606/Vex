@@ -1,3 +1,5 @@
+import compiler.Value
+import compiler.ValueType
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -47,6 +49,15 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
         outBytes.add(b1.toUByte())
     }
 
+    fun write3ByteInt(i: Int) {
+        val b0 = (i % 256)
+        val b1 = ((i - b0) / 256) % 256
+        val b2 = (i - (b1 * 256 + b0)) / 65536
+        outBytes.add(b0.toUByte())
+        outBytes.add(b1.toUByte())
+        outBytes.add(b2.toUByte())
+    }
+
     fun writeFloats(floats: ArrayList<Float>) {
         floats.forEach { f ->
             var s = f
@@ -54,6 +65,23 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
             if (f <= -1.0f) s = -0.9999f
             val i = ((s + 1.0f) * 0.5f * 65536.0f).toInt()
             write2ByteInt(i)
+        }
+    }
+
+    fun writeValue(v: Value) {
+        when (v.type) {
+            // nil  1 byte = 0 (nil type)
+            ValueType.VAL_NIL -> {
+                writeByte(0.toUByte()) // type nil
+            }
+            // bool  1 byte = 1 (false) 2 (true)
+            ValueType.VAL_BOOL -> {
+                writeByte(if (v.boolean) 2.toUByte() else 1.toUByte()) // type boolfalse (1) or booltrue (2)
+            } // int   4 bytes = 3 (int type) + 3 LSB byte int
+            ValueType.VAL_INT -> {
+                writeByte(3.toUByte()) // type int
+                write3ByteInt(v.integer)
+            }
         }
     }
 }

@@ -1,5 +1,8 @@
 package compiler
 
+import compiler.Opcode.*
+
+
 sealed class Node {
 
     var linePos = 0
@@ -14,10 +17,29 @@ sealed class Node {
         printMine(lvl + 1)
     }
     open fun printMine(lvl: Int) { }
+    open fun generate(coder: Coder) { }
+    open fun flatten(): ArrayList<Node> {
+        val l = ArrayList<Node>();
+        l.add(this)
+        return l
+    }
+
+    // Nodes
+
+    // Values
 
     abstract class EXPRESSION: Node()
+
     abstract class VALUE: EXPRESSION()
-    abstract class LITERAL: VALUE()
+
+    abstract class LITERAL: VALUE() {
+        var constID: Int = 0
+        override fun generate(coder: Coder) {
+            coder.code(OP_CONST)
+            coder.arg2i(constID)
+        }
+    }
+
     abstract class VARREF: VALUE()
 
     class BOOLEAN(val value: Boolean): LITERAL() {
@@ -47,6 +69,9 @@ sealed class Node {
         }
     }
 
+
+    // Operators
+
     abstract class UNOP(val arg: EXPRESSION): EXPRESSION() {
         override fun printMine(lvl: Int) {
             arg.print(lvl)
@@ -59,6 +84,12 @@ sealed class Node {
         override fun printMine(lvl: Int) {
             arg1.print(lvl)
             arg2.print(lvl)
+        }
+        override fun flatten(): ArrayList<Node> {
+            val l = super.flatten()
+            l.addAll(arg1.flatten())
+            l.addAll(arg2.flatten())
+            return l
         }
     }
     class ADD(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
@@ -75,6 +106,8 @@ sealed class Node {
     class LOGIC_GREATER_EQUAL(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
     class LOGIC_LESS_EQUAL(arg1: EXPRESSION, arg2: EXPRESSION): BINOP(arg1, arg2)
 
+
+    // Statements
 
     abstract class STATEMENT: Node()
 
@@ -107,6 +140,21 @@ sealed class Node {
         }
     }
 
+    class SOUND(val soundid: EXPRESSION): STATEMENT() {
+        override fun printMine(lvl: Int) {
+            soundid.print(lvl)
+        }
+        override fun flatten(): ArrayList<Node> {
+            val l = super.flatten()
+            l.addAll(soundid.flatten())
+            return l
+        }
+        override fun generate(coder: Coder) {
+            soundid.generate(coder)
+            coder.code(OP_SONG)
+        }
+    }
+
 
     abstract class BLOCK: Node()
 
@@ -119,17 +167,41 @@ sealed class Node {
         override fun printMine(lvl: Int) {
             statements.forEach { it.print(lvl) }
         }
+        override fun flatten(): ArrayList<Node> {
+            val l = super.flatten()
+            statements.forEach { l.addAll(it.flatten()) }
+            return l
+        }
+        override fun generate(coder: Coder) {
+            statements.forEach { it.generate(coder) }
+        }
     }
     class FUNCTION(val name: String, val code: CODEBLOCK): BLOCK() {
         override fun toString() = super.toString() + " (" + name + ")"
         override fun printMine(lvl: Int) {
             code.print(lvl)
         }
+        override fun flatten(): ArrayList<Node> {
+            val l = super.flatten()
+            l.addAll(code.flatten())
+            return l
+        }
+        override fun generate(coder: Coder) {
+            code.generate(coder)
+        }
     }
 
     class PROGRAM(val blocks: List<BLOCK>): Node() {
         override fun printMine(lvl: Int) {
             blocks.forEach { it.print(lvl) }
+        }
+        override fun flatten(): ArrayList<Node> {
+            val l = super.flatten()
+            blocks.forEach { l.addAll(it.flatten()) }
+            return l
+        }
+        override fun generate(coder: Coder) {
+            blocks.forEach { it.generate(coder) }
         }
     }
 }

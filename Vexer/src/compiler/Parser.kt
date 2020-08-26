@@ -60,6 +60,7 @@ class Parser(
                 this,
                 "expected : after method declaration"
             )
+            if (fVerbose) println("parsing codeblock " + handler)
             return Node.FUNCTION(handler.string, Node.CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
         } else if (nextToken().type == COLON) {
             tossNextToken()
@@ -97,6 +98,7 @@ class Parser(
         repeat (depth) { if (nextToken(it).type != INDENT) return null }
         repeat (depth) { tossNextToken() }
 
+        parseSound()?.also { return it }
         parseRepeat(depth)?.also { return it }
         parseEach(depth)?.also { return it }
         parseAssign()?.also { return it }
@@ -104,31 +106,27 @@ class Parser(
         return null
     }
 
+    fun parseSound(): Node.SOUND? {
+        if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("sound"))) return null
+        tossNextToken()
+        val id = parseExpression() ?: throw ParseException(this, "expected sound id expression")
+        if (fVerbose) println("parsed sound()")
+        return Node.SOUND(id).also { it.tag(this) }
+    }
+
     fun parseAssign(): Node.ASSIGN? {
         if (!nextTokenIs(IDENTIFIER)) return null
-        val identifier = parseIdentifier() ?: throw ParseException(
-            this,
-            "not a valid statement"
-        )
-        if (identifier !is Node.VARREF) throw ParseException(
-            this,
-            "left side of assignment must be a variable or propref"
-        )
+        val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
+        if (identifier !is Node.VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
         tossNextToken()
-        val expression = parseExpression() ?: throw ParseException(
-            this,
-            "expected expression on right side of assignment"
-        )
+        val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
         return Node.ASSIGN(identifier, expression).also { it.tag(this) }
     }
 
     fun parseRepeat(depth: Int): Node.REPEAT? {
         if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("repeat"))) return null
         tossNextToken()
-        val count = parseExpression() ?: throw ParseException(
-            this,
-            "expected count expression for repeat block"
-        )
+        val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
         expectToken(COLON, "expected colon after repeat count expression")
         val code = parseCodeblock(depth + 1)
         return Node.REPEAT(count, Node.CODEBLOCK(code)).also { it.tag(this) }

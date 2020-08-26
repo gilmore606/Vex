@@ -36,7 +36,7 @@ void ROMReader::Read(CPU* cpu, GPU* gpu, APU* apu, Input* input) {
 			if (marker.compare("SNG") == 0) {
 				apu->LoadSong(readSong(std::stoi(resourceName)));
 			} else if (marker.compare("COD") == 0) {
-				//cpu->loadCode(readCode(resourceName);
+				cpu->LoadCode(readCode());
 			} else if (marker.compare("CTR") == 0) {
 				readControls(input);
 			} else if (marker.compare("IMG") == 0) {
@@ -107,8 +107,10 @@ Song* ROMReader::readSong(int id) {
 	return song;
 }
 
-void ROMReader::readCode() {
-	std::cout << "reading code [PLACEHOLDER]..." << std::endl;
+Code* ROMReader::readCode() {
+	Code* code = new Code();
+	code->Read(this);
+	return code;
 }
 
 void ROMReader::readControls(Input* input) {

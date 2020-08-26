@@ -8,6 +8,7 @@
 #include "Sprite.h"
 #include "Input.h"
 #include "CPU.h"
+#include "Code.h"
 #include "APU.h"
 #include "GPU.h"
 #include "Font.h"
@@ -31,7 +32,7 @@ public:
 private:
 	
 	Song* readSong(int id);
-	void readCode();
+	Code* readCode();
 	void readControls(Input* input);
 	void readInstr();
 	Image* readImage(int id);
