@@ -33,7 +33,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
             nextChar = inStream.read()
         }
 
-        // Let peeper find method names
+        // Peep for method names
         peeper = Peeper(lexer.outBuffer, fVerbose)
         peeper.peep()
 
@@ -49,17 +49,26 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
         }
         if (fVerbose) parser.dumpTree()
 
-        // Desugar syntax
-        salter = Salter(parser.ast)
-        salter.salt()
+        try {
 
-        // Fill in symbols and types
-        meaner = Meaner(parser.ast, fVerbose)
-        meaner.mean()
+            // Desugar syntax
+            salter = Salter(parser.ast)
+            salter.salt()
 
-        // Generate code
-        coder = Coder(parser.ast)
-        coder.generate()
+            // Fill in symbols and types
+            meaner = Meaner(parser.ast, fVerbose)
+            meaner.mean()
+
+            // Generate code
+            coder = Coder(parser.ast)
+            coder.generate()
+
+        } catch (e: CompileException) {
+            println("")
+            println("Compile error at line ???: ")
+            println("  " + e.m)
+            throw RuntimeException(e.m)
+        }
     }
 
     fun writeToFile(outFile: OutFile) {
@@ -75,3 +84,5 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
 class LexException(val lexer: Lexer, val m: String): Exception(m)
 
 class ParseException(val parser: Parser, val m: String): Exception(m)
+
+class CompileException(val m: String): Exception(m)

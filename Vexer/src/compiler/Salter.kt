@@ -1,6 +1,6 @@
 package compiler
 
-import compiler.Node.*
+import compiler.nodes.Node
 
 class Salter (
         val ast: ArrayList<Node>

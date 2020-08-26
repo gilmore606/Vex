@@ -19,93 +19,93 @@ class Lexer(val fVerbose: Boolean) {
         }
         if (inType != null) {
             when (inType) {
-                ASSIGN ->
-                    if (c == '=') emit(Token(EQUALS)) else finish(
+                T_ASSIGN ->
+                    if (c == '=') emit(Token(T_EQUALS)) else finish(
                         Token(
-                            ASSIGN
+                            T_ASSIGN
                         ), c)
-                NOTEQUALS ->
-                    if (c == '=') emit(Token(NOTEQUALS)) else finish(
+                T_NOTEQUALS ->
+                    if (c == '=') emit(Token(T_NOTEQUALS)) else finish(
                         Token(
-                            BANG
+                            T_BANG
                         ), c)
-                GREATER_THAN ->
-                    if (c == '=') emit(Token(GREATER_EQUAL)) else finish(
+                T_GREATER_THAN ->
+                    if (c == '=') emit(Token(T_GREATER_EQUAL)) else finish(
                         Token(
-                            GREATER_THAN
+                            T_GREATER_THAN
                         ), c)
-                LESS_THAN ->
-                    if (c == '=') emit(Token(LESS_EQUAL)) else finish(
+                T_LESS_THAN ->
+                    if (c == '=') emit(Token(T_LESS_EQUAL)) else finish(
                         Token(
-                            LESS_THAN
+                            T_LESS_THAN
                         ), c)
-                ADD -> when (c) {
-                    '=' -> emit(Token(ADD_ASSIGN))
-                    '+' -> emit(Token(INCREMENT))
-                    else -> finish(Token(ADD), c)
+                T_ADD -> when (c) {
+                    '=' -> emit(Token(T_ADD_ASSIGN))
+                    '+' -> emit(Token(T_INCREMENT))
+                    else -> finish(Token(T_ADD), c)
                 }
-                SUBTRACT -> when (c) {
-                    '=' -> emit(Token(SUBTRACT_ASSIGN))
-                    '-' -> emit(Token(DECREMENT))
-                    else -> finish(Token(SUBTRACT), c)
+                T_SUBTRACT -> when (c) {
+                    '=' -> emit(Token(T_SUBTRACT_ASSIGN))
+                    '-' -> emit(Token(T_DECREMENT))
+                    else -> finish(Token(T_SUBTRACT), c)
                 }
-                DIVIDE ->
-                    if (c == '/') inType = COMMENT else finish(Token(DIVIDE), c)
-                LOGIC_OR ->
-                    if (c == '|') emit(Token(LOGIC_OR)) else throw LexException(
+                T_DIVIDE ->
+                    if (c == '/') inType = T_COMMENT else finish(Token(T_DIVIDE), c)
+                T_LOGIC_OR ->
+                    if (c == '|') emit(Token(T_LOGIC_OR)) else throw LexException(
                         this,
                         "expected ||"
                     )
-                LOGIC_AND ->
-                    if (c == '&') emit(Token(LOGIC_AND)) else throw LexException(
+                T_LOGIC_AND ->
+                    if (c == '&') emit(Token(T_LOGIC_AND)) else throw LexException(
                         this,
                         "expected &&"
                     )
-                STRING ->
-                    if (c == '"') emit(Token(STRING)) else inBuf += c
-                COMMENT ->
-                    if (c == '\n') emit(Token(COMMENT)) else inBuf += c
-                INTEGER -> when (c) {
-                    '.' -> { inType = FLOAT; inBuf += c }
+                T_STRING ->
+                    if (c == '"') emit(Token(T_STRING)) else inBuf += c
+                T_COMMENT ->
+                    if (c == '\n') emit(Token(T_COMMENT)) else inBuf += c
+                T_INTEGER -> when (c) {
+                    '.' -> { inType = T_FLOAT; inBuf += c }
                     in '0'..'9' -> { inBuf += c }
-                    else -> finish(Token(INTEGER, "", inBuf.toInt()), c)
+                    else -> finish(Token(T_INTEGER, "", inBuf.toInt()), c)
                 }
-                FLOAT -> when (c) {
+                T_FLOAT -> when (c) {
                     in '0'..'9' -> { inBuf += c }
-                    else -> finish(Token(FLOAT, "", 0, inBuf.toFloat()), c)
+                    else -> finish(Token(T_FLOAT, "", 0, inBuf.toFloat()), c)
                 }
-                IDENTIFIER ->
-                    if (isIdentChar(c)) inBuf += c else finish(Token(IDENTIFIER, inBuf), c)
-                INDENT ->
+                T_IDENTIFIER ->
+                    if (isIdentChar(c)) inBuf += c else finish(Token(T_IDENTIFIER, inBuf), c)
+                T_INDENT ->
                     if (c == ' ') {
-                        if (spaceCount == 3) emit(Token(INDENT)) else spaceCount++
+                        if (spaceCount == 3) emit(Token(T_INDENT)) else spaceCount++
                     } else finish(null, c)
                 else -> { }
             }
         } else {
             when (c) {
-                '(' -> emit(Token(PAREN_OPEN))
-                ')' -> emit(Token(PAREN_CLOSE))
-                ':' -> emit(Token(COLON))
-                ',' -> emit(Token(COMMA))
-                '=' -> begin(ASSIGN)
-                '>' -> begin(GREATER_THAN)
-                '<' -> begin(LESS_THAN)
-                '+' -> begin(ADD)
-                '-' -> begin(SUBTRACT)
-                '*' -> emit(Token(MULTIPLY))
-                '/' -> begin(DIVIDE)
-                '.' -> emit(Token(DOTJOIN))
-                '!' -> begin(NOTEQUALS)
-                '"' -> begin(STRING)
-                '^' -> emit(Token(POWER))
-                '\t' -> emit(Token(INDENT))
-                '|' -> begin(LOGIC_OR)
-                '&' -> begin(LOGIC_AND)
-                ' ' -> { spaceCount = 1 ; begin(INDENT) }
-                in '0'..'9' -> begin(INTEGER, c)
+                '(' -> emit(Token(T_PAREN_OPEN))
+                ')' -> emit(Token(T_PAREN_CLOSE))
+                ':' -> emit(Token(T_COLON))
+                ',' -> emit(Token(T_COMMA))
+                '=' -> begin(T_ASSIGN)
+                '>' -> begin(T_GREATER_THAN)
+                '<' -> begin(T_LESS_THAN)
+                '+' -> begin(T_ADD)
+                '-' -> begin(T_SUBTRACT)
+                '*' -> emit(Token(T_MULTIPLY))
+                '/' -> begin(T_DIVIDE)
+                '.' -> emit(Token(T_DOTJOIN))
+                '!' -> begin(T_NOTEQUALS)
+                '"' -> begin(T_STRING)
+                '^' -> emit(Token(T_POWER))
+                '\t' -> emit(Token(T_INDENT))
+                '|' -> begin(T_LOGIC_OR)
+                '&' -> begin(T_LOGIC_AND)
+                ' ' -> { spaceCount = 1 ; begin(T_INDENT) }
+                in '0'..'9' -> begin(T_INTEGER, c)
                 else -> {
-                    if (isIdentChar(c)) begin(IDENTIFIER, c)
+                    if (isIdentChar(c)) begin(T_IDENTIFIER, c)
                 }
             }
         }
@@ -127,7 +127,7 @@ class Lexer(val fVerbose: Boolean) {
     fun emit(token: Token) {
         inBuf = ""
         inType = null
-        if (token.type == COMMENT) return
+        if (token.type == T_COMMENT) return
         token.linePos = linePos
         token.charPos = charPos
         outBuffer.add(token)

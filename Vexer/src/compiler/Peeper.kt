@@ -29,12 +29,12 @@ class Peeper(
         tokens.forEach { t ->
             when (state) {
                 State.WATCHING -> {
-                    if ((t.type == IDENTIFIER) && (t.string.equals("to"))) {
+                    if ((t.type == T_IDENTIFIER) && (t.string.equals("to"))) {
                         state = State.GOT_TO
                     }
                 }
                 State.GOT_TO -> {
-                    if (t.type != IDENTIFIER) {
+                    if (t.type != T_IDENTIFIER) {
                         state = State.WATCHING
                     } else {
                         state = State.GOT_NAME
@@ -42,9 +42,9 @@ class Peeper(
                     }
                 }
                 State.GOT_NAME -> {
-                    if (t.type == COLON) {
+                    if (t.type == T_COLON) {
                         finishFunction()
-                    } else if (t.type != IDENTIFIER) {
+                    } else if (t.type != T_IDENTIFIER) {
                         state = State.WATCHING
                     } else {
                         functionArgs.add(t.string)

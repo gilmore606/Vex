@@ -1,38 +1,37 @@
 package compiler
 
 enum class TokenType {
-    PAREN_OPEN,
-    PAREN_CLOSE,
-    COLON,
-    ASSIGN,             // =
-    EQUALS,             // ==
-    NOTEQUALS,          // !=
-    GREATER_THAN,       // >
-    LESS_THAN,          // <
-    GREATER_EQUAL,      // >=
-    LESS_EQUAL,         // <=
-    ADD,                // +
-    SUBTRACT,           // -
-    ADD_ASSIGN,         // +=
-    SUBTRACT_ASSIGN,    // -=
-    INCREMENT,                // ++
-    DECREMENT,                // --
-    MULTIPLY,               // *
-    DIVIDE,                // /
-    DOTJOIN,            // .
-    BANG,               // !
-    POWER,              // ^
-    LOGIC_OR,           // ||
-    LOGIC_AND,          // &&
-    COMMA,              // ,
-    IDENTIFIER,
-    RESERVED,
-    INDENT,
-    COMMENT,
-    STRING,
-    INTEGER,
-    FLOAT,
-    EOP
+    T_PAREN_OPEN,
+    T_PAREN_CLOSE,
+    T_COLON,
+    T_ASSIGN,             // =
+    T_EQUALS,             // ==
+    T_NOTEQUALS,          // !=
+    T_GREATER_THAN,       // >
+    T_LESS_THAN,          // <
+    T_GREATER_EQUAL,      // >=
+    T_LESS_EQUAL,         // <=
+    T_ADD,                // +
+    T_SUBTRACT,           // -
+    T_ADD_ASSIGN,         // +=
+    T_SUBTRACT_ASSIGN,    // -=
+    T_INCREMENT,                // ++
+    T_DECREMENT,                // --
+    T_MULTIPLY,               // *
+    T_DIVIDE,                // /
+    T_DOTJOIN,            // .
+    T_BANG,               // !
+    T_POWER,              // ^
+    T_LOGIC_OR,           // ||
+    T_LOGIC_AND,          // &&
+    T_COMMA,              // ,
+    T_IDENTIFIER,
+    T_INDENT,
+    T_COMMENT,
+    T_STRING,
+    T_INTEGER,
+    T_FLOAT,
+    T_EOP
 }
 
 data class Token(

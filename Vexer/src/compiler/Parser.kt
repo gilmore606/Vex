@@ -1,6 +1,9 @@
 package compiler
 
 import compiler.TokenType.*
+import compiler.nodes.Node
+import compiler.nodes.Node.*
+import compiler.nodes.*
 import java.lang.RuntimeException
 
 class Parser(
@@ -30,7 +33,7 @@ class Parser(
         return t
     }
     fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(
-        EOP
+        T_EOP
     ) else tokens[skip]
     fun nextTokenIs(type: TokenType) = nextToken().type == type
     fun nextTokensAre(vararg types: TokenType): Boolean {
@@ -45,27 +48,27 @@ class Parser(
     // Parsing functions
 
     fun parse() {
-        val blocks = ArrayList<Node.BLOCK>()
+        val blocks = ArrayList<N_BLOCK>()
         while (tokens.isNotEmpty()) {
             blocks.add(parseTop())
         }
-        ast.add(Node.PROGRAM(blocks))
+        ast.add(N_PROGRAM(blocks))
     }
 
-    fun parseTop(): Node.BLOCK {
+    fun parseTop(): N_BLOCK {
         val token = getToken()
         if (token.string.equals("to")) {
             val handler = getToken()
-            if (getToken().type != COLON) throw ParseException(
+            if (getToken().type != T_COLON) throw ParseException(
                 this,
-                "expected : after method declaration"
+                "expected colon after method declaration"
             )
             if (fVerbose) println("parsing codeblock " + handler)
-            return Node.FUNCTION(handler.string, Node.CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
-        } else if (nextToken().type == COLON) {
+            return N_FUNCTION(handler.string, N_CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
+        } else if (nextToken().type == T_COLON) {
             tossNextToken()
             return when  {
-                token.string.equals("settings") -> Node.SETTINGS(parseSettings())
+                token.string.equals("settings") -> N_SETTINGS(parseSettings())
                 else -> throw ParseException(this, "unknown top-level block type")
             }
         } else throw ParseException(
@@ -74,11 +77,11 @@ class Parser(
         )
     }
 
-    fun parseSettings(): List<Node.ASSIGN> {
-        val assigns = ArrayList<Node.ASSIGN>()
+    fun parseSettings(): List<N_ASSIGN> {
+        val assigns = ArrayList<N_ASSIGN>()
         while (true) {
             val nextAssign = parseStatement(1) ?: return assigns
-            if (nextAssign !is Node.ASSIGN) throw ParseException(
+            if (nextAssign !is N_ASSIGN) throw ParseException(
                 this,
                 "only assignments allowed in settings block"
             )
@@ -86,16 +89,16 @@ class Parser(
         }
     }
 
-    fun parseCodeblock(depth: Int): List<Node.STATEMENT> {
-        val statements = ArrayList<Node.STATEMENT>()
+    fun parseCodeblock(depth: Int): List<N_STATEMENT> {
+        val statements = ArrayList<N_STATEMENT>()
         while (true) {
             val nextStatement = parseStatement(depth) ?: return statements
             statements.add(nextStatement)
         }
     }
 
-    fun parseStatement(depth: Int): Node.STATEMENT? {
-        repeat (depth) { if (nextToken(it).type != INDENT) return null }
+    fun parseStatement(depth: Int): N_STATEMENT? {
+        repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
         repeat (depth) { tossNextToken() }
 
         parseSound()?.also { return it }
@@ -106,89 +109,89 @@ class Parser(
         return null
     }
 
-    fun parseSound(): Node.SOUND? {
-        if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("sound"))) return null
+    fun parseSound(): N_SOUND? {
+        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("sound"))) return null
         tossNextToken()
         val id = parseExpression() ?: throw ParseException(this, "expected sound id expression")
         if (fVerbose) println("parsed sound()")
-        return Node.SOUND(id).also { it.tag(this) }
+        return N_SOUND(id).also { it.tag(this) }
     }
 
-    fun parseAssign(): Node.ASSIGN? {
-        if (!nextTokenIs(IDENTIFIER)) return null
+    fun parseAssign(): N_ASSIGN? {
+        if (!nextTokenIs(T_IDENTIFIER)) return null
         val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
-        if (identifier !is Node.VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
+        if (identifier !is N_VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
         tossNextToken()
         val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
-        return Node.ASSIGN(identifier, expression).also { it.tag(this) }
+        return N_ASSIGN(identifier, expression).also { it.tag(this) }
     }
 
-    fun parseRepeat(depth: Int): Node.REPEAT? {
-        if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("repeat"))) return null
+    fun parseRepeat(depth: Int): N_REPEAT? {
+        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("repeat"))) return null
         tossNextToken()
         val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
-        expectToken(COLON, "expected colon after repeat count expression")
+        expectToken(T_COLON, "expected colon after repeat count expression")
         val code = parseCodeblock(depth + 1)
-        return Node.REPEAT(count, Node.CODEBLOCK(code)).also { it.tag(this) }
+        return N_REPEAT(count, N_CODEBLOCK(code)).also { it.tag(this) }
     }
 
-    fun parseEach(depth: Int): Node.EACH? {
-        if (!(nextTokenIs(IDENTIFIER) && nextToken().string.equals("each"))) return null
+    fun parseEach(depth: Int): N_EACH? {
+        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("each"))) return null
         tossNextToken()
         val iterator = parseValue() ?: throw ParseException(
             this,
             "expected iterator name for each loop"
         )
-        if (!(iterator is Node.VARIABLE)) throw ParseException(
+        if (!(iterator is N_VARIABLE)) throw ParseException(
             this,
             "cannot each-iterate anything but a variable name"
         )
-        expectToken(COLON, "expected colon after each iterator name")
+        expectToken(T_COLON, "expected colon after each iterator name")
         val code = parseCodeblock(depth + 1)
-        return Node.EACH(iterator, Node.CODEBLOCK(code)).also { it.tag(this) }
+        return N_EACH(iterator, N_CODEBLOCK(code)).also { it.tag(this) }
     }
 
-    fun parseExpression(): Node.EXPRESSION? {
+    fun parseExpression(): N_EXPRESSION? {
         return parseAndOr()
     }
 
-    fun parseAndOr(): Node.EXPRESSION? {
+    fun parseAndOr(): N_EXPRESSION? {
         var leftExpr = parseEquality() ?: return null
-        while (nextTokenOneOf(LOGIC_AND, LOGIC_OR)) {
+        while (nextTokenOneOf(T_LOGIC_AND, T_LOGIC_OR)) {
             val operator = getToken()
             val rightExpr = parseEquality()
             if (rightExpr != null) {
-                leftExpr = if (operator.type == LOGIC_AND) Node.LOGIC_AND(leftExpr, rightExpr).also { it.tag(this) }
-                else Node.LOGIC_OR(leftExpr, rightExpr).also { it.tag(this) }
+                leftExpr = if (operator.type == T_LOGIC_AND) N_LOGIC_AND(leftExpr, rightExpr).also { it.tag(this) }
+                else N_LOGIC_OR(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
     }
 
-    fun parseEquality(): Node.EXPRESSION? {
+    fun parseEquality(): N_EXPRESSION? {
         var leftExpr = parseComparison() ?: return null
-        while (nextTokenOneOf(EQUALS, NOTEQUALS)) {
+        while (nextTokenOneOf(T_EQUALS, T_NOTEQUALS)) {
             val operator = getToken()
             val rightExpr = parseComparison()
             if (rightExpr != null) {
-                leftExpr = if (operator.type == EQUALS) Node.LOGIC_EQUAL(leftExpr, rightExpr).also { it.tag(this) }
-                else Node.LOGIC_NOTEQUAL(leftExpr, rightExpr).also { it.tag(this) }
+                leftExpr = if (operator.type == T_EQUALS) N_EQUAL(leftExpr, rightExpr).also { it.tag(this) }
+                else N_NOTEQUAL(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
     }
 
-    fun parseComparison(): Node.EXPRESSION? {
+    fun parseComparison(): N_EXPRESSION? {
         var leftExpr = parseAddition() ?: return null
-        while (nextTokenOneOf(GREATER_THAN, GREATER_EQUAL, LESS_THAN, LESS_EQUAL)) {
+        while (nextTokenOneOf(T_GREATER_THAN, T_GREATER_EQUAL, T_LESS_THAN, T_LESS_EQUAL)) {
             val operator = getToken()
             val rightExpr = parseAddition()
             if (rightExpr != null) {
                 leftExpr = when (operator.type) {
-                    GREATER_THAN -> Node.LOGIC_GREATER(leftExpr, rightExpr).also { it.tag(this) }
-                    GREATER_EQUAL -> Node.LOGIC_GREATER_EQUAL(leftExpr, rightExpr).also { it.tag(this) }
-                    LESS_THAN -> Node.LOGIC_LESS(leftExpr, rightExpr).also { it.tag(this) }
-                    LESS_EQUAL -> Node.LOGIC_LESS_EQUAL(leftExpr, rightExpr).also { it.tag(this) }
+                    T_GREATER_THAN -> N_GREATER(leftExpr, rightExpr).also { it.tag(this) }
+                    T_GREATER_EQUAL -> N_GREATER_EQUAL(leftExpr, rightExpr).also { it.tag(this) }
+                    T_LESS_THAN -> N_LESS(leftExpr, rightExpr).also { it.tag(this) }
+                    T_LESS_EQUAL -> N_LESS_EQUAL(leftExpr, rightExpr).also { it.tag(this) }
                     else -> throw RuntimeException()
                 }
             }
@@ -196,69 +199,69 @@ class Parser(
         return leftExpr
     }
 
-    fun parseAddition(): Node.EXPRESSION? {
+    fun parseAddition(): N_EXPRESSION? {
         var leftExpr = parsePower() ?: return null
-        while (nextTokenOneOf(ADD, SUBTRACT)) {
+        while (nextTokenOneOf(T_ADD, T_SUBTRACT)) {
             val operator = getToken()
             val rightExpr = parsePower()
             if (rightExpr != null) {
-                leftExpr = if (operator.type == ADD) Node.ADD(leftExpr, rightExpr).also { it.tag(this) }
-                else Node.SUBTRACT(leftExpr, rightExpr).also { it.tag(this) }
+                leftExpr = if (operator.type == T_ADD) N_ADD(leftExpr, rightExpr).also { it.tag(this) }
+                else N_SUBTRACT(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
     }
 
-    fun parsePower(): Node.EXPRESSION? {
+    fun parsePower(): N_EXPRESSION? {
         var leftExpr = parseMultiplication() ?: return null
-        while (nextTokenIs(POWER)) {
+        while (nextTokenIs(T_POWER)) {
             tossNextToken()
             val rightExpr = parseMultiplication()
             if (rightExpr != null) {
-                leftExpr = Node.POWER(leftExpr, rightExpr).also { it.tag(this) }
+                leftExpr = N_POWER(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
     }
 
-    fun parseMultiplication(): Node.EXPRESSION? {
+    fun parseMultiplication(): N_EXPRESSION? {
         var leftExpr = parseUnary() ?: return null
-        while (nextTokenOneOf(MULTIPLY, DIVIDE)) {
+        while (nextTokenOneOf(T_MULTIPLY, T_DIVIDE)) {
             val operator = getToken()
             val rightExpr = parseUnary()
             if (rightExpr != null) {
-                leftExpr = if (operator.type == MULTIPLY) Node.MULTIPLY(leftExpr, rightExpr).also { it.tag(this) }
-                else Node.DIVIDE(leftExpr, rightExpr).also { it.tag(this) }
+                leftExpr = if (operator.type == T_MULTIPLY) N_MULTIPLY(leftExpr, rightExpr).also { it.tag(this) }
+                else N_DIVIDE(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
     }
 
-    fun parseUnary(): Node.EXPRESSION? {
-        if (nextTokenOneOf(BANG, SUBTRACT)) {
+    fun parseUnary(): N_EXPRESSION? {
+        if (nextTokenOneOf(T_BANG, T_SUBTRACT)) {
             val operator = getToken()
             val rightExpr = parseUnary() ?: throw ParseException(
                 this,
                 "expected value after unary operator"
             )
-            return if (operator.type == BANG) Node.INVERSE(rightExpr).also { it.tag(this) }
-                else Node.NEGATE(rightExpr).also { it.tag(this) }
+            return if (operator.type == T_BANG) N_INVERSE(rightExpr).also { it.tag(this) }
+                else N_NEGATE(rightExpr).also { it.tag(this) }
         }
         return parseValue()
     }
 
-    fun parseValue(): Node.EXPRESSION? {
-        if (nextTokenIs(IDENTIFIER)) return parseIdentifier()
-        if (nextTokenIs(STRING)) return Node.STRING(getToken().string).also { it.tag(this) }
-        if (nextTokenIs(INTEGER)) return Node.INTEGER(getToken().int).also { it.tag(this) }
-        if (nextTokenIs(FLOAT)) return Node.FLOAT(getToken().float).also { it.tag(this) }
-        if (nextTokenIs(PAREN_OPEN)) {
+    fun parseValue(): N_EXPRESSION? {
+        if (nextTokenIs(T_IDENTIFIER)) return parseIdentifier()
+        if (nextTokenIs(T_STRING)) return N_STRING(getToken().string).also { it.tag(this) }
+        if (nextTokenIs(T_INTEGER)) return N_INTEGER(getToken().int).also { it.tag(this) }
+        if (nextTokenIs(T_FLOAT)) return N_FLOAT(getToken().float).also { it.tag(this) }
+        if (nextTokenIs(T_PAREN_OPEN)) {
             tossNextToken()
             val expr = parseExpression() ?: throw ParseException(
                 this,
                 "expected expression inside parens"
             )
-            if (getToken().type != PAREN_CLOSE) throw ParseException(
+            if (getToken().type != T_PAREN_CLOSE) throw ParseException(
                 this,
                 "missing close paren"
             )
@@ -267,28 +270,19 @@ class Parser(
         return null
     }
 
-    fun parseIdentifier(): Node.VALUE? {
-        if (!nextTokenIs(IDENTIFIER)) return null
+    fun parseIdentifier(): N_VALUE? {
+        if (!nextTokenIs(T_IDENTIFIER)) return null
         val ident = getToken()
-        if (ident.string.equals("true")) return Node.BOOLEAN(true).also { it.tag(this) }
-        if (ident.string.equals("false")) return Node.BOOLEAN(false).also { it.tag(this) }
-        if (nextTokenIs(PAREN_OPEN)) {
-            tossNextToken()
-            return Node.CALL(ident.string, parseArglist()).also { it.tag(this) }
-        }
-        if (nextTokenIs(DOTJOIN)) {
-            tossNextToken()
-            val propname = expectToken(IDENTIFIER, "expected identifier for property reference")
-            return Node.PROPREF(ident.string, propname.string).also { it.tag(this) }
-        }
-        return Node.VARIABLE(ident.string).also { it.tag(this) }
+        if (ident.string.equals("true")) return N_BOOLEAN(true).also { it.tag(this) }
+        if (ident.string.equals("false")) return N_BOOLEAN(false).also { it.tag(this) }
+        return N_VARIABLE(ident.string).also { it.tag(this) }
     }
 
-    fun parseArglist(): List<Node.EXPRESSION> {
-        val args = ArrayList<Node.EXPRESSION>()
-        while (!nextTokenIs(PAREN_CLOSE)) {
+    fun parseArglist(): List<N_EXPRESSION> {
+        val args = ArrayList<N_EXPRESSION>()
+        while (!nextTokenIs(T_PAREN_CLOSE)) {
             parseExpression()?.also { args.add(it) }
-            if (nextTokenIs(COMMA)) tossNextToken()
+            if (nextTokenIs(T_COMMA)) tossNextToken()
         }
         tossNextToken()
         return args

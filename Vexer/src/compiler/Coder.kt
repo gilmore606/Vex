@@ -2,18 +2,19 @@ package compiler
 
 import OutFile
 import compiler.Opcode.*
-import compiler.ValueType.*
-import compiler.Value
+import compiler.nodes.Node
 
 class Coder(
         val ast: ArrayList<Node>
 ) {
 
     val outBytes = ArrayList<UByte>()
+    val entries = HashMap<String,Int>()
+    val jumps = ArrayList<Int>()
 
     fun generate() {
 
-        ast[0].generate(this)
+        ast[0].code(this)
 
         code(OP_DEBUG)
         code(OP_EXIT)
@@ -30,6 +31,15 @@ class Coder(
         outBytes.add(b1.toUByte())
     }
 
+    // Nodes call this back during codegen to register
+    fun addEntryPoint(addr: Int, name: String) {
+        entries[name] = addr
+    }
+    fun addJumpPoint(addr: Int): Int {
+        jumps.add(addr)
+        return jumps.size - 1
+    }
+
     fun writeToFile(outFile: OutFile, constants: ArrayList<Value>) {
 
         // Write constants
@@ -38,6 +48,23 @@ class Coder(
         outFile.write2ByteInt(constants.size)
         constants.forEach {
             outFile.writeValue(it)
+        }
+
+        // Write entries
+        outFile.writeMarker("ENTRY")
+        // 1 byte for entry count
+        outFile.writeByte(entries.size.toUByte())
+        entries.keys.forEach {
+            //outFile.writeString(it)
+            outFile.write3ByteInt(entries[it]!!)
+        }
+
+        // Write jumps
+        outFile.writeMarker("JUMP")
+        // 2 bytes for jump count
+        outFile.write2ByteInt(jumps.size)
+        jumps.forEach {
+            outFile.write3ByteInt(it)
         }
 
         // Write code

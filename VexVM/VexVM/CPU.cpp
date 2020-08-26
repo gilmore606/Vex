@@ -3,7 +3,7 @@
 #include <iostream>
 
 CPU::CPU() {
-	std::cout << "CPU missing; default to demo rom" << std::endl;
+	std::cout << "CPU core online" << std::endl;
 }
 
 void CPU::Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input) {
@@ -19,6 +19,10 @@ void CPU::LoadCode(Code* code) {
 
 void CPU::Boot() {
 
+	this->ip = code->code;
+	this->stacktop = stack;
+
+	// run entrypoint 'start'
 	run();
 
 }
@@ -26,8 +30,8 @@ void CPU::Boot() {
 void CPU::OnUpdate(float deltaTime) {
 	// run handler queue first
 
-	// 'put deltatime on stack'
-	// 'jump to onUpdate handler'
+	// put deltatime on stack
+	// run entrypoint 'update'
 }
 
 void CPU::OnInput(int input) {
@@ -44,22 +48,17 @@ void CPU::Stop() {
 
 }
 
-// any Executor can 'wait' and be tagged with a wake time
-// cpu.onUpdate checks for executors ready to wake
-
 
 void CPU::stackDump() {
 
 }
 
 void CPU::run() {
-
-	this->ip = code->code;
-	this->stacktop = stack;
-
+	Value v, v1, v2;
+	int adr;
+	float f, vl, fac;
 	for (;;) {
 		uint8_t ins;
-		int adr;
 		switch (ins = READ_BYTE()) {
 
 			// System
@@ -77,6 +76,10 @@ void CPU::run() {
 			stackDump();
 			break;
 
+		case OP_WAIT:
+
+			break;
+
 			// Values
 
 		case OP_VAR:    // arg2: index of var
@@ -88,13 +91,19 @@ void CPU::run() {
 			break;
 
 		case OP_RANDF:
+
 			break;
 
 		case OP_RANDI:
+
 			break;
 
 		case OP_SETVAR:   // arg2: index of var
 			code->variables[READ_I16()] = pop();
+			break;
+
+		case OP_SETSYS:    // arg2: index of system setting
+
 			break;
 
 			// Math
@@ -129,17 +138,64 @@ void CPU::run() {
 		case OP_NEGF:
 			push(FLOAT_VAL(-AS_FLOAT(pop())));
 			break;
+
+			// Type conversion
+
 		case OP_I2F:
 			push(FLOAT_VAL((float)AS_INT(pop())));
 			break;
 		case OP_F2I:
 			push(INT_VAL((int)AS_FLOAT(pop())));
 			break;
+		case OP_V2F:
+			v = pop();
+			push(FLOAT_VAL(std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1])));
+			break;
+		case OP_B2I:
+			push(INT_VAL(AS_BOOL(pop()) ? 1 : 0));
+			break;
+		case OP_N2I:
+			pop();
+			push(INT_VAL(0));
+			break;
 
 			// Vector math
 
-		case OP_VADDV:
-			
+		case OP_NEGV:
+			v = pop();
+			push(VECTOR_VAL(-v.as.vector[0], -v.as.vector[1]));
+			break;
+		case OP_ADDV:
+			v1 = pop();
+			v2 = pop();
+			push(VECTOR_VAL(v1.as.vector[0] + v2.as.vector[0], v1.as.vector[1] + v2.as.vector[1]));
+			break;
+		case OP_MULTV:
+			v1 = pop();
+			v2 = pop();
+			push(VECTOR_VAL(v1.as.vector[0] * v2.as.vector[0], v1.as.vector[1] * v2.as.vector[1]));
+			break;
+		case OP_DIVV:
+			v1 = pop();
+			v2 = pop();
+			push(VECTOR_VAL(v1.as.vector[0] / v2.as.vector[0], v1.as.vector[1] / v2.as.vector[1]));
+			break;
+		case OP_ADDVF:
+			v = pop();
+			f = AS_FLOAT(pop());
+			vl = (std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1]));
+			fac = (vl + f) / vl;
+			push(VECTOR_VAL(v.as.vector[0] * fac, v.as.vector[1] * fac));
+			break;
+		case OP_MULTVF:
+			v = pop();
+			f = AS_FLOAT(pop());
+			push(VECTOR_VAL(v.as.vector[0] * f, v.as.vector[1] * f));
+			break;
+		case OP_DIVVF:
+			v = pop();
+			f = AS_FLOAT(pop());
+			push(VECTOR_VAL(v.as.vector[0] / f, v.as.vector[1] / f));
 			break;
 
 			// Logic
@@ -147,20 +203,44 @@ void CPU::run() {
 		case OP_NOT:
 			push(BOOL_VAL(!AS_BOOL(pop())));
 			break;
-		case OP_GT:
+		case OP_OR:
+			push(BOOL_VAL(AS_BOOL(pop()) || AS_BOOL(pop())));
+			break;
+		case OP_AND:
+			push(BOOL_VAL(AS_BOOL(pop()) && AS_BOOL(pop())));
+			break;
+
+			// Comparison
+
+		case OP_GTI:
 			push(BOOL_VAL(AS_INT(pop()) > AS_INT(pop())));
 			break;
-		case OP_GE:
+		case OP_GEI:
 			push(BOOL_VAL(AS_INT(pop()) >= AS_INT(pop())));
 			break;
-		case OP_LT:
+		case OP_LTI:
 			push(BOOL_VAL(AS_INT(pop()) < AS_INT(pop())));
 			break;
-		case OP_LE:
+		case OP_LEI:
 			push(BOOL_VAL(AS_INT(pop()) <= AS_INT(pop())));
 			break;
-		case OP_EQ:
+		case OP_EQI:
 			push(BOOL_VAL(AS_INT(pop()) == AS_INT(pop())));
+			break;
+		case OP_GTF:
+			push(BOOL_VAL(AS_FLOAT(pop()) > AS_FLOAT(pop())));
+			break;
+		case OP_GEF:
+			push(BOOL_VAL(AS_FLOAT(pop()) >= AS_FLOAT(pop())));
+			break;
+		case OP_LTF:
+			push(BOOL_VAL(AS_FLOAT(pop()) < AS_FLOAT(pop())));
+			break;
+		case OP_LEF:
+			push(BOOL_VAL(AS_FLOAT(pop()) <= AS_FLOAT(pop())));
+			break;
+		case OP_EQF:
+			push(BOOL_VAL(AS_FLOAT(pop()) == AS_FLOAT(pop())));
 			break;
 
 			// Flow control
