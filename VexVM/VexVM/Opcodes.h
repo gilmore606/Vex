@@ -11,6 +11,7 @@ typedef enum {
 
 	OP_JUMP,     // Unconditional jump
 	OP_IF,       // Jump if stack bool = false
+	OP_LOOP,     // Jump if var < stacktop
 
 	OP_VAR,      // Get var
 	OP_CONST,    // Get const
@@ -29,21 +30,20 @@ typedef enum {
 	OP_MULTF,    // f * f
 	OP_DIVF,     // f / f
 	OP_NEGF,     // -f
-
-	OP_I2F,      // convert int to float
-	OP_F2I,      // convert float to int
-	OP_V2F,      // convert vector to float
-	OP_B2I,      // convert boolean to int
-	OP_N2I,      // convert nil to int (0)
-
 	OP_NEGV,     // -v
 	OP_ADDV,     // v + v
 	OP_MULTV,	 // v * v
 	OP_DIVV,	 // v / v
 
 	OP_ADDVF,    // v + f
-	OP_MULTVF,   // v * f
-	OP_DIVVF,    // v / f
+	OP_MULTVF,   // v * f (dot product, produce float)
+	OP_DIVVF,    // v / f (????)
+
+	OP_I2F,      // int to float
+	OP_F2I,      // float to int (trunc)
+	OP_V2F,      // vector to float (length)
+	OP_B2I,      // boolean to int (0, 1)
+	OP_N2I,      // nil to int (0)
 
 	OP_NOT,      // !bool
 	OP_OR,       // bool || bool
@@ -61,6 +61,8 @@ typedef enum {
 	OP_EQF,      // f == f
 
 	OP_SONG,     // Play song (id=stacktop)
+	OP_SPRITE,   // Create sprite
+	OP_PARTI,    // Create particle
 
 	OP_INPUT,    // Get value of input (id=stacktop)
 	OP_BUTTON,   // Get pressed-this-frame status of button (id=stacktop)

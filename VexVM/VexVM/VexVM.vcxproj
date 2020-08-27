@@ -160,6 +160,7 @@
     <ClCompile Include="DemoGame.cpp" />
     <ClCompile Include="DemoSynth.cpp" />
     <ClCompile Include="dependencies\rtmidi-4.0.0\RtMidi.cpp" />
+    <ClCompile Include="Task.cpp" />
     <ClCompile Include="Voice.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="dependencies\rtaudio-5.1.0\RtAudio.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="DemoSynth.h" />
     <ClInclude Include="dependencies\rtmidi-4.0.0\RtMidi.h" />
     <ClInclude Include="Opcodes.h" />
+    <ClInclude Include="Task.h" />
     <ClInclude Include="Values.h" />
     <ClInclude Include="Voice.h" />
     <ClInclude Include="Collider.h" />

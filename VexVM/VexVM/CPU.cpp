@@ -3,6 +3,7 @@
 #include <iostream>
 
 CPU::CPU() {
+	this->elapsed = 0.0;
 	std::cout << "CPU core online" << std::endl;
 }
 
@@ -18,17 +19,23 @@ void CPU::LoadCode(Code* code) {
 }
 
 void CPU::Boot() {
-
 	run(code->entryStart);
-
 }
 
 void CPU::OnUpdate(float deltaTime) {
-	// run handler queue first
-
-	// put deltatime on stack
-	// run entrypoint 'update'
-	run(code->entryUpdate);
+	elapsed += deltaTime;
+	std::vector<Task> undone;
+	for (int i = 0; i < tasks.size(); i++) {
+		Task task = tasks[i];
+		if (task.waketime <= elapsed) {
+			resume(task);
+		} else {
+			undone.push_back(task);
+		}
+	}
+	tasks = undone;
+	// put deltatime on stack and run entrypoint 'update'
+	// run(code->entryUpdate);
 }
 
 void CPU::OnInput(int input) {
@@ -38,13 +45,9 @@ void CPU::OnInput(int input) {
 	run(code->entryInput);
 }
 
-void CPU::OnMIDI(Note* note) {
+void CPU::OnMIDI(Note* note) { }
 
-}
-
-void CPU::Stop() {
-
-}
+void CPU::Stop() { }
 
 
 void CPU::stackDump() {
@@ -54,10 +57,10 @@ void CPU::stackDump() {
 void CPU::run(uint8_t* address) {
 	if (address == nullptr) { return; }
 	this->ip = address;
-	this->stacktop = stack;
+	this->stacktop = stack;  // clear the stack
 
 	Value v, v1, v2;
-	int adr;
+	int adr, adr2;
 	float f, vl, fac;
 	for (;;) {
 		uint8_t ins;
@@ -79,8 +82,8 @@ void CPU::run(uint8_t* address) {
 			break;
 
 		case OP_WAIT:
-
-			break;
+			tasks.push_back(Task(ip, (double)AS_INT(pop()) / 1000.0 + elapsed));
+			return;
 
 			// Values
 
@@ -172,12 +175,12 @@ void CPU::run(uint8_t* address) {
 			v2 = pop();
 			push(VECTOR_VAL(v1.as.vector[0] + v2.as.vector[0], v1.as.vector[1] + v2.as.vector[1]));
 			break;
-		case OP_MULTV:
+		case OP_MULTV:   // dot product
 			v1 = pop();
 			v2 = pop();
-			push(VECTOR_VAL(v1.as.vector[0] * v2.as.vector[0], v1.as.vector[1] * v2.as.vector[1]));
+			push(FLOAT_VAL(v1.as.vector[0] * v2.as.vector[0] + v1.as.vector[1] * v2.as.vector[1]));
 			break;
-		case OP_DIVV:
+		case OP_DIVV:    // ??? replace with something useful
 			v1 = pop();
 			v2 = pop();
 			push(VECTOR_VAL(v1.as.vector[0] / v2.as.vector[0], v1.as.vector[1] / v2.as.vector[1]));
@@ -189,7 +192,7 @@ void CPU::run(uint8_t* address) {
 			fac = (vl + f) / vl;
 			push(VECTOR_VAL(v.as.vector[0] * fac, v.as.vector[1] * fac));
 			break;
-		case OP_MULTVF:
+		case OP_MULTVF:  
 			v = pop();
 			f = AS_FLOAT(pop());
 			push(VECTOR_VAL(v.as.vector[0] * f, v.as.vector[1] * f));
@@ -247,21 +250,36 @@ void CPU::run(uint8_t* address) {
 
 			// Flow control
 
-		case OP_JUMP:   // arg2: index of jump
-			ip = code->jumps[READ_I16()];
+		case OP_JUMP:   
+			ip = code->jumps[READ_I16()];  // arg2: index of jump
 			break;
 
-		case OP_IF:   // arg2: index of jump
-			adr = READ_I16();
+		case OP_IF:   
+			adr = READ_I16(); // arg2: index of jump
 			if (!AS_BOOL(pop())) {
 				ip = code->jumps[adr];
 			}
 			break;
 
+		case OP_LOOP:   
+			adr = READ_I16(); // arg2: index of var
+			adr2 = READ_I16(); // arg2: index of jump
+			if (AS_INT(code->variables[adr]) < AS_INT(pop())) {
+				ip = code->jumps[adr2];
+			}
+
 			// I/O
 
 		case OP_SONG:
 			apu->PlaySong(AS_INT(pop()), 1.0, 0.5, false);
+			break;
+
+		case OP_SPRITE:
+
+			break;
+
+		case OP_PARTI:
+
 			break;
 
 		case OP_INPUT:
@@ -272,4 +290,9 @@ void CPU::run(uint8_t* address) {
 			push(BOOL_VAL(input->wasPressed(AS_INT(pop()))));
 		}
 	}
+}
+
+void CPU::resume(Task task) {
+	std::cout << "task resume" << std::endl;
+	run(task.ip);
 }

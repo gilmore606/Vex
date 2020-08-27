@@ -7,9 +7,9 @@
 #include "Code.h"
 #include "Opcodes.h"
 #include "Values.h"
+#include "Task.h"
 
 #define READ_BYTE() (*ip++)
-#define READ_I16() (*ip++ + ((*ip++)>>8))
 
 const static int STACK_MAX = 256;
 
@@ -41,12 +41,19 @@ protected:
 	Value stack[STACK_MAX];
 	Value* stacktop;
 
+	std::vector<Task> tasks;
+	double elapsed;
+
 	void run(uint8_t* address);
-	
+	void resume(Task task);
 	void stackDump();
 
 private:
 
+	inline int READ_I16() {
+		int i = (int)*ip++;
+		return i + ((int)(*ip++ & 0xFF) << 8);
+	}
 	inline void push(Value value) {
 		*stacktop = value;
 		stacktop++;

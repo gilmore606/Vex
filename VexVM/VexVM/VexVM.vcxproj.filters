@@ -105,6 +105,9 @@
     <ClCompile Include="Code.cpp">
       <Filter>CPU</Filter>
     </ClCompile>
+    <ClCompile Include="Task.cpp">
+      <Filter>CPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -189,6 +192,9 @@
       <Filter>CPU</Filter>
     </ClInclude>
     <ClInclude Include="Code.h">
+      <Filter>CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
       <Filter>CPU</Filter>
     </ClInclude>
   </ItemGroup>
