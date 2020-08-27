@@ -101,6 +101,7 @@ class Parser(
         repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
         repeat (depth) { tossNextToken() }
 
+        parseWait()?.also { return it }
         parseSound()?.also { return it }
         parseRepeat(depth)?.also { return it }
         parseEach(depth)?.also { return it }
@@ -109,11 +110,17 @@ class Parser(
         return null
     }
 
+    fun parseWait(): N_WAIT? {
+        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("wait"))) return null
+        tossNextToken()
+        val time = parseExpression() ?: throw ParseException(this, "expected wait time expression")
+        return N_WAIT(time).also { it.tag(this) }
+    }
+
     fun parseSound(): N_SOUND? {
         if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("sound"))) return null
         tossNextToken()
         val id = parseExpression() ?: throw ParseException(this, "expected sound id expression")
-        if (fVerbose) println("parsed sound()")
         return N_SOUND(id).also { it.tag(this) }
     }
 

@@ -35,17 +35,10 @@
 	"instruments": [
 		{
 			"name": "startup",
-		    "adsr": [ 110, 255, 0, 255 ],
-            "wave": [ "SINE", "PULSE" ],
-            "transpose": [ 0, 12 ],
-            "oscMix": 80,
-            "lfoWave": "SAWTOOTH",
-            "lfoFreq": 140,
-            "lfoAmount": 140,
-            "lfoTarget": "M_PITCH",
-            "adsrAux": [ 80, 255, 100, 255 ],
-            "adsrAuxAmount": 110,
-            "adsrAuxTarget": "M_PITCH"
+            "adsr": [ 3, 90, 40, 80 ],
+            "wave": [ "PULSE", "SINE" ],
+            "pulseWidth": [ 70, 0 ],
+            "detune": 15
 		}
 	],
 	"songs": [
@@ -54,6 +47,16 @@
 			"notes": [
 				{ "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 70, "d2": 127 },
 				{ "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 70, "d2": 0 }
+			],
+			"voices": [ "startup" ],
+			"volumes": [ 255 ],
+			"pans": [ 128 ]
+		},
+		{
+			"id": "2",
+			"notes": [
+				{ "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 90, "d2": 127 },
+				{ "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 90, "d2": 0 }
 			],
 			"voices": [ "startup" ],
 			"volumes": [ 255 ],

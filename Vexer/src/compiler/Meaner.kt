@@ -18,8 +18,7 @@ class Meaner (
 
         // Index all literal constants
 
-        ast[0].flatten().forEach { node ->
-            if (fVerbose) println("  " + node.toString())
+        ast[0].traverse { node ->
             if (node is N_LITERAL) {
                 var found = -1
                 constants.forEachIndexed { i, c ->
@@ -44,7 +43,9 @@ class Meaner (
                         if (node is N_VECTOR) node.v2 else 0.0f
                     ))
                     found = constants.lastIndex
-                    if (fVerbose) println("  const " + constants[found].toString())
+                    if (fVerbose) println("  create const " + constants[found].toString())
+                } else {
+                    println("  reused const " + constants[found].toString())
                 }
                 node.constID = found
                 node.type = constants[found].type

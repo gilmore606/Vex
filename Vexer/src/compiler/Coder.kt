@@ -11,6 +11,7 @@ class Coder(
     val outBytes = ArrayList<UByte>()
     val entries = HashMap<String,Int>()
     val jumps = ArrayList<Int>()
+    val variables = ArrayList<String>()
 
     fun generate() {
 
@@ -39,6 +40,13 @@ class Coder(
         jumps.add(addr)
         return jumps.size - 1
     }
+    fun variableToID(name: String): Int {
+        // TODO: pass in scope, keep separate scope lists
+        val i = variables.indexOf(name)
+        if (i >= 0) return i
+        variables.add(name)
+        return variables.lastIndex
+    }
 
     fun writeToFile(outFile: OutFile, constants: ArrayList<Value>) {
 
@@ -48,6 +56,7 @@ class Coder(
         outFile.write2ByteInt(constants.size)
         constants.forEach {
             outFile.writeValue(it)
+            println("  wrote constant " + it.toString())
         }
 
         // Write entries

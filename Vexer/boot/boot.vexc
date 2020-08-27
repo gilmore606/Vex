@@ -1,3 +1,6 @@
-
 to start:
-	sound 1
+    sound 1
+    wait 700
+    sound 2
+    wait 700
+    sound 1
