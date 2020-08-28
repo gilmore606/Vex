@@ -7,17 +7,40 @@ enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR }
 
 data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, val fp: Float, val v1: Float, val v2: Float)
 
+data class Variable(val id: Int, val name: String, val scope: Node, val type: ValueType?, val nodes: ArrayList<N_VARIABLE> = ArrayList())
+
 class Meaner (
         val ast: ArrayList<Node>,
         val fVerbose: Boolean
 ) {
 
     val constants = ArrayList<Value>()
+    val variables = ArrayList<Variable>()
+
+    // Get ID of named variable in my scope
+    fun variableToID(sourceNode: Node, name: String, scope: Node): Int {
+        variables.forEach {
+            if (it.scope == scope && it.name == name) {
+                if (sourceNode is N_VARIABLE) it.nodes.add(sourceNode)
+                return it.id
+            }
+        }
+        val v = Variable(variables.size, name, scope, null)
+        if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
+        variables.add(v)
+        return v.id
+    }
+
+    // Set type of all nodes for a variable
+    fun learnVarType(varID: Int, type: ValueType) {
+        variables.find { it.id == varID }!!.nodes.forEach {
+            it.type = type
+        }
+    }
 
     fun mean() {
 
-        // Index all literal constants
-
+        // Index all literal constants (and set their type)
         ast[0].traverse { node ->
             if (node is N_LITERAL) {
                 var found = -1
@@ -54,11 +77,12 @@ class Meaner (
         }
 
         // Index all variables
-
+        ast[0].scopeVars(ast[0], this)
 
         // Infer and check all expression types
+        ast[0].traverse { it.setType(this) }
+        ast[0].traverse { it.checkType() }
 
-        //ast[0].setType()
 
         // TODO: Index all function entries
 

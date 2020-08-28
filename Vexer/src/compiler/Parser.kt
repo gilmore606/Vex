@@ -26,7 +26,7 @@ class Parser(
     // compiler.Token lookahead functions
 
     fun getToken() = tokens.removeAt(0)
-    fun tossNextToken() = getToken()
+    fun toss() = getToken()
     fun expectToken(type: TokenType, failMessage: String): Token {
         val t = getToken()
         if (t.type != type) throw ParseException(this, failMessage)
@@ -41,6 +41,10 @@ class Parser(
             if (nextToken(i).type != type) return false
         }
         return true
+    }
+    fun nextIDIs(ident: String): Boolean {
+        if (nextToken().type != T_IDENTIFIER) return false
+        return nextToken().string == ident
     }
     fun nextTokenOneOf(vararg types: TokenType): Boolean = nextToken().type in types
 
@@ -66,7 +70,7 @@ class Parser(
             if (fVerbose) println("parsing codeblock " + handler)
             return N_FUNCTION(handler.string, N_CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
         } else if (nextToken().type == T_COLON) {
-            tossNextToken()
+            toss()
             return when  {
                 token.string.equals("settings") -> N_SETTINGS(parseSettings())
                 else -> throw ParseException(this, "unknown top-level block type")
@@ -99,8 +103,9 @@ class Parser(
 
     fun parseStatement(depth: Int): N_STATEMENT? {
         repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
-        repeat (depth) { tossNextToken() }
+        repeat (depth) { toss() }
 
+        parseIf(depth)?.also { return it }
         parseWait()?.also { return it }
         parseSound()?.also { return it }
         parseRepeat(depth)?.also { return it }
@@ -110,32 +115,32 @@ class Parser(
         return null
     }
 
+    fun parseIf(depth: Int): N_IF? {
+        if (!(nextIDIs("if"))) return null
+        toss()
+        val test = parseExpression() ?: throw ParseException(this, "expected test expr after if")
+        expectToken(T_COLON, "expected colon after if expr")
+        val code = parseCodeblock(depth + 1)
+        return N_IF(test, N_CODEBLOCK(code)).also { it.tag(this) }
+    }
+
     fun parseWait(): N_WAIT? {
-        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("wait"))) return null
-        tossNextToken()
+        if (!(nextIDIs("wait"))) return null
+        toss()
         val time = parseExpression() ?: throw ParseException(this, "expected wait time expression")
         return N_WAIT(time).also { it.tag(this) }
     }
 
     fun parseSound(): N_SOUND? {
-        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("sound"))) return null
-        tossNextToken()
+        if (!(nextIDIs("sound"))) return null
+        toss()
         val id = parseExpression() ?: throw ParseException(this, "expected sound id expression")
         return N_SOUND(id).also { it.tag(this) }
     }
 
-    fun parseAssign(): N_ASSIGN? {
-        if (!nextTokenIs(T_IDENTIFIER)) return null
-        val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
-        if (identifier !is N_VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
-        tossNextToken()
-        val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
-        return N_ASSIGN(identifier, expression).also { it.tag(this) }
-    }
-
     fun parseRepeat(depth: Int): N_REPEAT? {
-        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("repeat"))) return null
-        tossNextToken()
+        if (!(nextIDIs("repeat"))) return null
+        toss()
         val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
         expectToken(T_COLON, "expected colon after repeat count expression")
         val code = parseCodeblock(depth + 1)
@@ -143,8 +148,8 @@ class Parser(
     }
 
     fun parseEach(depth: Int): N_EACH? {
-        if (!(nextTokenIs(T_IDENTIFIER) && nextToken().string.equals("each"))) return null
-        tossNextToken()
+        if (!(nextIDIs("each"))) return null
+        toss()
         val iterator = parseValue() ?: throw ParseException(
             this,
             "expected iterator name for each loop"
@@ -156,6 +161,15 @@ class Parser(
         expectToken(T_COLON, "expected colon after each iterator name")
         val code = parseCodeblock(depth + 1)
         return N_EACH(iterator, N_CODEBLOCK(code)).also { it.tag(this) }
+    }
+
+    fun parseAssign(): N_ASSIGN? {
+        if (!nextTokenIs(T_IDENTIFIER)) return null
+        val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
+        if (identifier !is N_VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
+        toss()
+        val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
+        return N_ASSIGN(identifier, expression).also { it.tag(this) }
     }
 
     fun parseExpression(): N_EXPRESSION? {
@@ -222,7 +236,7 @@ class Parser(
     fun parsePower(): N_EXPRESSION? {
         var leftExpr = parseMultiplication() ?: return null
         while (nextTokenIs(T_POWER)) {
-            tossNextToken()
+            toss()
             val rightExpr = parseMultiplication()
             if (rightExpr != null) {
                 leftExpr = N_POWER(leftExpr, rightExpr).also { it.tag(this) }
@@ -263,7 +277,7 @@ class Parser(
         if (nextTokenIs(T_INTEGER)) return N_INTEGER(getToken().int).also { it.tag(this) }
         if (nextTokenIs(T_FLOAT)) return N_FLOAT(getToken().float).also { it.tag(this) }
         if (nextTokenIs(T_PAREN_OPEN)) {
-            tossNextToken()
+            toss()
             val expr = parseExpression() ?: throw ParseException(
                 this,
                 "expected expression inside parens"
@@ -289,9 +303,9 @@ class Parser(
         val args = ArrayList<N_EXPRESSION>()
         while (!nextTokenIs(T_PAREN_CLOSE)) {
             parseExpression()?.also { args.add(it) }
-            if (nextTokenIs(T_COMMA)) tossNextToken()
+            if (nextTokenIs(T_COMMA)) toss()
         }
-        tossNextToken()
+        toss()
         return args
     }
 }

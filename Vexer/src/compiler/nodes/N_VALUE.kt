@@ -1,6 +1,7 @@
 package compiler.nodes
 
 import compiler.Coder
+import compiler.Meaner
 import compiler.Opcode.*
 
 abstract class N_VALUE: Node.N_EXPRESSION()
@@ -8,8 +9,7 @@ abstract class N_VALUE: Node.N_EXPRESSION()
 abstract class N_LITERAL: N_VALUE() {
     var constID: Int = 0
     override fun code(coder: Coder) {
-        coder.code(OP_CONST)
-        coder.arg2i(constID)
+        coder.code(OP_CONST, constID)
     }
 }
 
@@ -31,21 +31,19 @@ class N_VECTOR(val v1: Float, val v2: Float): N_LITERAL() {
 }
 
 abstract class N_VARREF(): N_VALUE() {
+    var varID: Int = 0
     abstract fun codeSet(coder: Coder)
 }
 
 class N_VARIABLE(val name: String): N_VARREF() {
-    var varID: Int = 0
     override fun toString() = "VARIABLE (" + name + "):" + varID
-    override fun scopeVars(scope: Node, coder: Coder) {
-        varID = coder.variableToID(name)
+    override fun scopeVars(scope: Node, meaner: Meaner) {
+        varID = meaner.variableToID(this, name, scope)
     }
     override fun code(coder: Coder) {
-        coder.code(OP_VAR)
-        coder.arg2i(varID)
+        coder.code(OP_VAR, varID)
     }
     override fun codeSet(coder: Coder) {
-        coder.code(OP_SETVAR)
-        coder.arg2i(varID)
+        coder.code(OP_SETVAR, varID)
     }
 }

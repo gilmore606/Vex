@@ -11,7 +11,8 @@ class Coder(
     val outBytes = ArrayList<UByte>()
     val entries = HashMap<String,Int>()
     val jumps = ArrayList<Int>()
-    val variables = ArrayList<String>()
+
+    val futureJumps = HashMap<String,ArrayList<Int>>()
 
     fun generate() {
 
@@ -19,8 +20,11 @@ class Coder(
 
     }
 
-    fun code(op: Opcode) {
+    fun code(op: Opcode, arg1: Int? = null, arg2: Int? = null, arg3: Int? = null) {
         outBytes.add(op.ordinal.toUByte())
+        arg1?.also { arg2i(it) }
+        arg2?.also { arg2i(it) }
+        arg3?.also { arg2i(it) }
     }
 
     fun arg2i(iarg: Int) {
@@ -40,24 +44,42 @@ class Coder(
         jumps.add(addr)
         return jumps.size - 1
     }
-    fun variableToID(name: String): Int {
-        // TODO: pass in scope, keep separate scope lists
-        val i = variables.indexOf(name)
-        if (i >= 0) return i
-        variables.add(name)
-        return variables.lastIndex
+    // Write placeholder jump ID for a jump we'll mark in the future
+    fun jumpFuture(name: String) {
+        if (futureJumps.containsKey(name)) {
+            futureJumps[name]!!.add(outBytes.size)
+        } else {
+            futureJumps[name] = ArrayList<Int>().apply { add(outBytes.size) }
+        }
+        arg2i(0)  // placeholder
+    }
+    // Resolve jump ID and write into past placeholders
+    fun reachFuture(name: String) {
+        val jumpID = addJumpPoint()
+        val b0 = (jumpID % 256)
+        val b1 = ((jumpID - b0) / 256)
+        futureJumps[name]!!.forEach {
+            outBytes[it] = b0.toUByte()
+            outBytes[it+1] = b1.toUByte()
+        }
+        futureJumps.remove(name)
     }
 
-    fun writeToFile(outFile: OutFile, constants: ArrayList<Value>) {
+    fun writeToFile(outFile: OutFile, constants: ArrayList<Value>, variables: ArrayList<Variable>) {
 
         // Write constants
         outFile.writeMarker("CONST")
         // 2 bytes for constant count
         outFile.write2ByteInt(constants.size)
-        constants.forEach {
+        constants.forEachIndexed { i, it ->
             outFile.writeValue(it)
-            println("  wrote constant " + it.toString())
+            println("  constant " + i.toString() + ":  " + it.toString())
         }
+
+        // Write variables
+        outFile.writeMarker("VARS")
+        // 2 bytes for var count
+        outFile.write2ByteInt(variables.size)
 
         // Write entries
         outFile.writeMarker("ENTRY")
@@ -72,8 +94,9 @@ class Coder(
         outFile.writeMarker("JUMP")
         // 2 bytes for jump count
         outFile.write2ByteInt(jumps.size)
-        jumps.forEach {
+        jumps.forEachIndexed { i, it ->
             outFile.write3ByteInt(it)
+            println("  jump " + i.toString() + ":  " + it.toString())
         }
 
         // Write code
@@ -81,5 +104,26 @@ class Coder(
         // 3 bytes for bytecode count
         outFile.write3ByteInt(outBytes.size)
         outFile.writeBytes(outBytes)
+        disassemble()
+    }
+
+    fun disassemble() {
+        var ip = 0
+        while (ip < outBytes.size) {
+            var out = "  " + ip.toString() + ":  "
+            val op: Opcode = Opcode.values()[outBytes[ip].toInt()]
+            out += op.toString()
+            if (op==OP_JUMP || op==OP_IF || op==OP_VAR || op==OP_CONST || op==OP_INCVAR || op==OP_DECVAR || op==OP_SETVAR
+                    || op==OP_SETSYS || op==OP_JUMPZ || op==OP_JUMPNZ) {
+                out += " " + (outBytes[ip+1].toInt() + outBytes[ip+2].toInt()*256).toString()
+                ip += 2
+                if (op==OP_JUMPZ || op==OP_JUMPNZ) {
+                    out += " " + (outBytes[ip+1].toInt() + outBytes[ip+2].toInt()*256).toString()
+                    ip += 2
+                }
+            }
+            println(out)
+            ip++
+        }
     }
 }

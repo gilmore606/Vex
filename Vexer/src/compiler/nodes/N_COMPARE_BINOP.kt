@@ -1,12 +1,12 @@
 package compiler.nodes
 
 import compiler.Coder
+import compiler.Meaner
 import compiler.Opcode.*
 import compiler.ValueType.*
 
 abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINOP(arg1, arg2) {
-    override fun setType() {
-        super.setType()
+    override fun setType(meaner: Meaner) {
         this.type = VAL_BOOL
     }
     abstract fun codeFloat(coder: Coder)

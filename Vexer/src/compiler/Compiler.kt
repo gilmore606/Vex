@@ -75,7 +75,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
         outFile.writeMarker("COD")
         outFile.writeMarker(chunkName)
 
-        coder.writeToFile(outFile, meaner.constants)
+        coder.writeToFile(outFile, meaner.constants, meaner.variables)
 
         println("  wrote code " + chunkName)
     }

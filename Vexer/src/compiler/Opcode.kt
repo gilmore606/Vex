@@ -8,17 +8,22 @@ enum class Opcode {
 
     OP_WAIT,     // Suspend execution for stacktop ms
 
-    OP_JUMP,     // Unconditional jump
-    OP_IF,       // Jump if stack bool = false
-    OP_LOOP,     // Jump if var < stacktop
+    OP_JUMP,     // [2:jump] Unconditional jump
+    OP_JUMPZ,    // [2:var,2:jump] Jump if int var = 0
+    OP_JUMPNZ,   // [2:var,2:jump] Jump if int var <> 0
+    OP_IF,       // [2:jump] Jump if stack bool = false
 
-    OP_VAR,      // Get var
-    OP_CONST,    // Get const
+    OP_VAR,      // [2:var] Get var
+    OP_CONST,    // [2:const] Get const
     OP_RANDF,    // Get random float 0-1
     OP_RANDI,    // Get random int 0-(stacktop-1)
-    OP_SETVAR,   // Store stacktop in var
-    OP_SETSYS,   // Store stacktop in system setting
+    OP_INCVAR,   // [2:var] Increment int var
+    OP_DECVAR,   // [2:var] Decrement int var
+    OP_SETVAR,   // [2:var] Store stacktop in var
+    OP_SETSYS,   // [2:sys] Store stacktop in system setting
 
+    OP_INC,      // i++
+    OP_DEC,      // i--
     OP_ADDI,     // i + i
     OP_SUBI,     // i - i
     OP_MULTI,	 // i * i

@@ -2,18 +2,17 @@ package compiler.nodes
 
 import compiler.Coder
 import compiler.CompileException
+import compiler.Meaner
 import compiler.Opcode.*
 import compiler.ValueType.*
 
 abstract class N_UNOP(val arg: N_EXPRESSION): Node.N_EXPRESSION() {
-    override fun setType() {
-        super.setType()
+    override fun setType(meaner: Meaner) {
         this.type = arg.type
     }
 }
 class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
-    override fun setType() {
-        super.setType()
+    override fun setType(meaner: Meaner) {
         this.type = arg.type
     }
     override fun code(coder: Coder) {
@@ -27,10 +26,11 @@ class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
     }
 }
 class N_INVERSE(arg: N_EXPRESSION): N_UNOP(arg) {
-    override fun setType() {
-        super.setType()
-        if (arg.type != VAL_BOOL) throw CompileException("type error: can only NOT booleans")
+    override fun setType(meaner: Meaner) {
         this.type = VAL_BOOL
+    }
+    override fun checkType() {
+        if (arg.type != VAL_BOOL) throw CompileException("type error: can only NOT booleans")
     }
     override fun code(coder: Coder) {
         arg.code(coder)

@@ -1,10 +1,7 @@
 package compiler.nodes
 
-import compiler.Coder
-import compiler.CompileException
+import compiler.*
 import compiler.Opcode.*
-import compiler.Parser
-import compiler.ValueType
 import compiler.ValueType.*
 
 typealias NODES = ArrayList<Node>
@@ -14,6 +11,10 @@ open class Node {
     var linePos = 0
     var charPos = 0
 
+    var id = ""
+    init {
+        id = (Math.random() * 1000000.0).toInt().toString()
+    }
     fun tag(p: Parser) {
         this.linePos = p.linePos()
         this.charPos = p.charPos()
@@ -28,11 +29,10 @@ open class Node {
         kids().forEach { it.traverse(worker) }
         worker(this)
     }
-    open fun setType() {
-        kids().forEach { it.setType() }
-    }
-    open fun scopeVars(scope: Node, coder: Coder) {
-        kids().forEach { it.scopeVars(scope, coder) }
+    open fun setType(meaner: Meaner) { }
+    open fun checkType() { }
+    open fun scopeVars(scope: Node, meaner: Meaner) {
+        kids().forEach { it.scopeVars(scope, meaner) }
     }
 
     abstract class N_EXPRESSION: Node() {

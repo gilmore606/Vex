@@ -2,12 +2,12 @@ package compiler.nodes
 
 import compiler.Coder
 import compiler.CompileException
+import compiler.Meaner
 import compiler.Opcode.*
 import compiler.ValueType.*
 
 abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINOP(arg1, arg2) {
-    override fun setType() {
-        super.setType()
+    override fun setType(meaner: Meaner) {
         val e = CompileException("type error: math op accepts only math types")
         this.type = when (arg1.type) {
             VAL_INT -> when (arg2.type) {
@@ -118,8 +118,7 @@ class N_MULTIPLY(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg
     override fun codeVecF(coder: Coder) { coder.code(OP_MULTVF) }
 }
 class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
-    override fun setType() {
-        super.setType()
+    override fun setType(meaner: Meaner) {
         val e = CompileException("type error: math op accepts only math types")
         this.type = when (arg1.type) {
             VAL_INT -> when (arg2.type) {
