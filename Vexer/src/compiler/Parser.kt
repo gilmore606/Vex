@@ -261,10 +261,7 @@ class Parser(
     fun parseUnary(): N_EXPRESSION? {
         if (nextTokenOneOf(T_BANG, T_SUBTRACT)) {
             val operator = getToken()
-            val rightExpr = parseUnary() ?: throw ParseException(
-                this,
-                "expected value after unary operator"
-            )
+            val rightExpr = parseUnary() ?: throw ParseException(this, "expected value after unary operator")
             return if (operator.type == T_BANG) N_INVERSE(rightExpr).also { it.tag(this) }
                 else N_NEGATE(rightExpr).also { it.tag(this) }
         }
@@ -273,20 +270,29 @@ class Parser(
 
     fun parseValue(): N_EXPRESSION? {
         if (nextTokenIs(T_IDENTIFIER)) return parseIdentifier()
+        if (nextTokenIs(T_IDENTIFUNC)) parseVector()?.also { return it }
         if (nextTokenIs(T_STRING)) return N_STRING(getToken().string).also { it.tag(this) }
         if (nextTokenIs(T_INTEGER)) return N_INTEGER(getToken().int).also { it.tag(this) }
         if (nextTokenIs(T_FLOAT)) return N_FLOAT(getToken().float).also { it.tag(this) }
         if (nextTokenIs(T_PAREN_OPEN)) {
             toss()
-            val expr = parseExpression() ?: throw ParseException(
-                this,
-                "expected expression inside parens"
-            )
-            if (getToken().type != T_PAREN_CLOSE) throw ParseException(
-                this,
-                "missing close paren"
-            )
+            val expr = parseExpression() ?: throw ParseException(this, "expected expression inside parens")
+            if (getToken().type != T_PAREN_CLOSE) throw ParseException(this, "missing close paren")
             return expr
+        }
+        return null
+    }
+
+    fun parseVector(): N_VECTOR? {
+        if (nextTokensAre(T_IDENTIFUNC, T_FLOAT, T_COMMA, T_FLOAT, T_PAREN_CLOSE)) {
+            if (nextToken().string == "V") {
+                toss()
+                val v1 = getToken()
+                toss()
+                val v2 = getToken()
+                toss()
+                return N_VECTOR(v1.float, v2.float).also { it.tag(this) }
+            }
         }
         return null
     }

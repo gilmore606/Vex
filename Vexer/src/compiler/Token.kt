@@ -26,6 +26,7 @@ enum class TokenType {
     T_LOGIC_AND,          // &&
     T_COMMA,              // ,
     T_IDENTIFIER,
+    T_IDENTIFUNC,         // ident(
     T_INDENT,
     T_COMMENT,
     T_STRING,

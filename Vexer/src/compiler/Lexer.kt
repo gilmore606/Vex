@@ -10,6 +10,7 @@ class Lexer(val fVerbose: Boolean) {
     var charPos: Int = 0
     var spaceCount: Int = 0
 
+    var last: Token? = null
     val outBuffer = ArrayList<Token>()
 
     fun process(c: Char, isReprocess: Boolean = false) {
@@ -45,6 +46,18 @@ class Lexer(val fVerbose: Boolean) {
                     else -> finish(Token(T_ADD), c)
                 }
                 T_SUBTRACT -> when (c) {
+                    in '0'..'9' -> { if (negateOK()) {
+                            inType = T_INTEGER ; inBuf += c
+                        } else {
+                            finish(Token(T_SUBTRACT), c)
+                        }
+                    }
+                    '.' -> { if (negateOK()) {
+                            inType = T_FLOAT ; inBuf += c
+                        } else {
+                            finish(Token(T_SUBTRACT), c)
+                        }
+                    }
                     '=' -> emit(Token(T_SUBTRACT_ASSIGN))
                     '-' -> emit(Token(T_DECREMENT))
                     else -> finish(Token(T_SUBTRACT), c)
@@ -74,8 +87,10 @@ class Lexer(val fVerbose: Boolean) {
                     in '0'..'9' -> { inBuf += c }
                     else -> finish(Token(T_FLOAT, "", 0, inBuf.toFloat()), c)
                 }
-                T_IDENTIFIER ->
+                T_IDENTIFIER -> {
+                    if (c == '(')  { emit(Token(T_IDENTIFUNC, inBuf)) ; return }
                     if (isIdentChar(c)) inBuf += c else finish(Token(T_IDENTIFIER, inBuf), c)
+                }
                 T_INDENT ->
                     if (c == ' ') {
                         if (spaceCount == 3) emit(Token(T_INDENT)) else spaceCount++
@@ -92,7 +107,7 @@ class Lexer(val fVerbose: Boolean) {
                 '>' -> begin(T_GREATER_THAN)
                 '<' -> begin(T_LESS_THAN)
                 '+' -> begin(T_ADD)
-                '-' -> begin(T_SUBTRACT)
+                '-' -> begin(T_SUBTRACT, c)
                 '*' -> emit(Token(T_MULTIPLY))
                 '/' -> begin(T_DIVIDE)
                 '.' -> emit(Token(T_DOTJOIN))
@@ -109,6 +124,13 @@ class Lexer(val fVerbose: Boolean) {
                 }
             }
         }
+    }
+
+    // Is it safe to assume this is a negated number, or is it probably a minus?
+    fun negateOK(): Boolean {
+        if (last == null) return true
+        return !(last!!.type == T_PAREN_CLOSE || last!!.type == T_INTEGER || last!!.type == T_FLOAT
+                || last!!.type == T_IDENTIFIER)
     }
 
     fun isIdentChar(c: Char): Boolean {
@@ -131,6 +153,7 @@ class Lexer(val fVerbose: Boolean) {
         token.linePos = linePos
         token.charPos = charPos
         outBuffer.add(token)
+        last = token
     }
 
     fun finish(token: Token?, nextC: Char) {
