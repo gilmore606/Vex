@@ -67,13 +67,10 @@ class Meaner (
                     ))
                     found = constants.lastIndex
                     if (fVerbose) println("  create const " + constants[found].toString())
-                } else {
-                    println("  reused const " + constants[found].toString())
                 }
                 node.constID = found
                 node.type = constants[found].type
             }
-
         }
 
         // Index all variables

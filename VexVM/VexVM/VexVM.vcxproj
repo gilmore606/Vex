@@ -83,8 +83,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>.\dependencies\rtaudio-5.1.0;.\dependencies\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
-    <IncludePath>.\dependencies\rtaudio-5.1.0;D:\githome\Vex\VexVM\VexVM\dependencies\rtaudio-5.1.0\include;.\dependencies\glfw\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\githome\Vex\VexVM\VexVM\dependencies\rtmidi-4.0.0;.\dependencies\rtaudio-5.1.0;.\dependencies\glfw\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\githome\Vex\VexVM\VexVM\dependencies\rtmidi-4.0.0;.\dependencies\rtaudio-5.1.0;D:\githome\Vex\VexVM\VexVM\dependencies\rtaudio-5.1.0\include;.\dependencies\glfw\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -145,6 +145,7 @@
       <ConformanceMode>true</ConformanceMode>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

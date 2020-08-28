@@ -54,7 +54,6 @@ void CPU::stackDump() {
 }
 
 void CPU::run(uint8_t* address) {
-	double startTime = glfwGetTime();
 	if (address == nullptr) { return; }
 	this->ip = address;
 	this->stacktop = stack;  // clear the stack
@@ -76,7 +75,6 @@ void CPU::run(uint8_t* address) {
 			break;
 
 		case OP_EXIT:
-			std::cout << "CPU end run " << (glfwGetTime() - startTime) << std::endl;
 			return;
 
 		case OP_DEBUG:
