@@ -33,6 +33,10 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
             nextChar = inStream.read()
         }
 
+        if (fVerbose) {
+            lexer.outBuffer.forEach { print(it.toString() + " ") }
+        }
+
         // Peep for method names
         peeper = Peeper(lexer.outBuffer, fVerbose)
         peeper.peep()

@@ -5,7 +5,15 @@ import compiler.nodes.*
 
 enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR }
 
-data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, val fp: Float, val v1: Float, val v2: Float)
+data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, val fp: Float, val v1: Float, val v2: Float) {
+    override fun toString(): String = when (type) {
+            ValueType.VAL_NIL -> "nil"
+            ValueType.VAL_BOOL -> if (this.boolean) "true" else "false"
+            ValueType.VAL_INT -> this.integer.toString()
+            ValueType.VAL_FLOAT -> this.fp.toString()
+            ValueType.VAL_VECTOR -> "V(" + this.v1.toString() + "," + this.v2.toString() + ")"
+        }
+}
 
 data class Variable(val id: Int, val name: String, val scope: Node, val type: ValueType?, val nodes: ArrayList<N_VARIABLE> = ArrayList())
 
