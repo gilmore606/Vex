@@ -42,7 +42,6 @@ void CPU::OnInput(int input) {
 	// add to the handler queue:
 	// 'put input on stack'
 	// 'jump to onInput handler'
-	run(code->entryInput);
 }
 
 void CPU::OnMIDI(Note* note) { }
@@ -55,11 +54,13 @@ void CPU::stackDump() {
 }
 
 void CPU::run(uint8_t* address) {
+	double startTime = glfwGetTime();
 	if (address == nullptr) { return; }
 	this->ip = address;
 	this->stacktop = stack;  // clear the stack
 
 	Value v, v1, v2;
+	Value* vp;
 	int adr, adr2;
 	float f, vl, fac;
 	for (;;) {
@@ -75,6 +76,7 @@ void CPU::run(uint8_t* address) {
 			break;
 
 		case OP_EXIT:
+			std::cout << "CPU end run " << (glfwGetTime() - startTime) << std::endl;
 			return;
 
 		case OP_DEBUG:
@@ -84,6 +86,7 @@ void CPU::run(uint8_t* address) {
 		case OP_WAIT:
 			tasks.push_back(Task(ip, (double)AS_INT(pop()) / 1000.0 + elapsed));
 			return;
+
 
 			// Values
 
@@ -103,6 +106,16 @@ void CPU::run(uint8_t* address) {
 
 			break;
 
+		case OP_INCVAR:   // arg2: index of var
+			vp = &code->variables[READ_I16()];
+			vp->as.integer = vp->as.integer + 1;
+			break;
+
+		case OP_DECVAR:   // arg2: index of var
+			vp = &code->variables[READ_I16()];
+			vp->as.integer = vp->as.integer - 1;
+			break;
+
 		case OP_SETVAR:   // arg2: index of var
 			code->variables[READ_I16()] = pop();
 			break;
@@ -111,8 +124,15 @@ void CPU::run(uint8_t* address) {
 
 			break;
 
+
 			// Math
 
+		case OP_INC:
+			stacktop->as.integer = ++((*stacktop).as.integer);
+			break;
+		case OP_DEC:
+			stacktop->as.integer = --((*stacktop).as.integer);
+			break;
 		case OP_ADDI:
 			push(INT_VAL(AS_INT(pop()) + AS_INT(pop())));
 			break;
@@ -126,7 +146,7 @@ void CPU::run(uint8_t* address) {
 			push(INT_VAL(AS_INT(pop()) / AS_INT(pop())));
 			break;
 		case OP_NEGI:
-			push(INT_VAL(-AS_INT(pop())));
+			stacktop->as.integer = -((*stacktop).as.integer);
 			break;
 		case OP_ADDF:
 			push(FLOAT_VAL(AS_FLOAT(pop()) + AS_FLOAT(pop())));
@@ -141,8 +161,9 @@ void CPU::run(uint8_t* address) {
 			push(FLOAT_VAL(AS_FLOAT(pop()) / AS_FLOAT(pop())));
 			break;
 		case OP_NEGF:
-			push(FLOAT_VAL(-AS_FLOAT(pop())));
+			stacktop->as.fp = -((*stacktop).as.fp);
 			break;
+
 
 			// Type conversion
 
@@ -164,11 +185,12 @@ void CPU::run(uint8_t* address) {
 			push(INT_VAL(0));
 			break;
 
+
 			// Vector math
 
 		case OP_NEGV:
-			v = pop();
-			push(VECTOR_VAL(-v.as.vector[0], -v.as.vector[1]));
+			stacktop->as.vector[0] = -((*stacktop).as.vector[0]);
+			stacktop->as.vector[1] = -((*stacktop).as.vector[1]);
 			break;
 		case OP_ADDV:
 			v1 = pop();
@@ -203,10 +225,11 @@ void CPU::run(uint8_t* address) {
 			push(VECTOR_VAL(v.as.vector[0] / f, v.as.vector[1] / f));
 			break;
 
+
 			// Logic
 
 		case OP_NOT:
-			push(BOOL_VAL(!AS_BOOL(pop())));
+			stacktop->as.boolean = !((*stacktop).as.boolean);
 			break;
 		case OP_OR:
 			push(BOOL_VAL(AS_BOOL(pop()) || AS_BOOL(pop())));
@@ -214,6 +237,7 @@ void CPU::run(uint8_t* address) {
 		case OP_AND:
 			push(BOOL_VAL(AS_BOOL(pop()) && AS_BOOL(pop())));
 			break;
+
 
 			// Comparison
 
@@ -248,10 +272,27 @@ void CPU::run(uint8_t* address) {
 			push(BOOL_VAL(AS_FLOAT(pop()) == AS_FLOAT(pop())));
 			break;
 
+
 			// Flow control
 
 		case OP_JUMP:   
 			ip = code->jumps[READ_I16()];  // arg2: index of jump
+			break;
+
+		case OP_JUMPZ:   
+			adr = READ_I16(); // arg2: index of var
+			adr2 = READ_I16(); // arg2: index of jump
+			if (AS_INT(code->variables[adr]) == 0) {
+				ip = code->jumps[adr2];
+			}
+			break;
+
+		case OP_JUMPNZ:
+			adr = READ_I16(); // arg2: index of var
+			adr2 = READ_I16(); // arg2: index of jump
+			if (AS_INT(code->variables[adr]) != 0) {
+				ip = code->jumps[adr2];
+			}
 			break;
 
 		case OP_IF:   
@@ -261,12 +302,6 @@ void CPU::run(uint8_t* address) {
 			}
 			break;
 
-		case OP_LOOP:   
-			adr = READ_I16(); // arg2: index of var
-			adr2 = READ_I16(); // arg2: index of jump
-			if (AS_INT(code->variables[adr]) < AS_INT(pop())) {
-				ip = code->jumps[adr2];
-			}
 
 			// I/O
 
@@ -293,6 +328,5 @@ void CPU::run(uint8_t* address) {
 }
 
 void CPU::resume(Task task) {
-	std::cout << "task resume" << std::endl;
 	run(task.ip);
 }

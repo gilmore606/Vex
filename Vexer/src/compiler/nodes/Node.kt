@@ -32,6 +32,7 @@ open class Node {
     open fun setType(meaner: Meaner) { }
     open fun checkType() { }
     open fun scopeVars(scope: Node, meaner: Meaner) {
+        println("(scope)" + this.toString())
         kids().forEach { it.scopeVars(scope, meaner) }
     }
 

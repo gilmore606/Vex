@@ -31,7 +31,7 @@ class N_VECTOR(val v1: Float, val v2: Float): N_LITERAL() {
 }
 
 abstract class N_VARREF(): N_VALUE() {
-    var varID: Int = 0
+    var varID: Int = -1
     abstract fun codeSet(coder: Coder)
 }
 

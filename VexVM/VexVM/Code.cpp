@@ -42,6 +42,14 @@ void Code::Read(ROMReader* rom) {
 	}
 	std::cout << "  read " << constc << " constants" << std::endl;
 
+	// read variables
+
+	if (!rom->expectMarker("VARS")) throw "expected vars block";
+	int varc = rom->next2Int();
+	for (int i = 0; i < varc; i++) {
+		variables.push_back(Value{ VAL_NIL, {} });
+	}
+
 	// read entry points
 
 	if (!rom->expectMarker("ENTRY")) throw "expected entry point block";

@@ -21,7 +21,6 @@ data class Font(
             // 2 bytes for float count
             outFile.write2ByteInt(data.size)
             outFile.writeFloats(data)
-            println("  wrote glyph " + c.toByte().toUByte() + " (" + data.size + " vals)")
         }
         println("wrote FNT " + id + " (" + glyphs.size + " glyphs)")
     }

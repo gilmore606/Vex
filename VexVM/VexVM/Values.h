@@ -16,7 +16,6 @@ typedef struct {
 		int integer;
 		float fp;
 		float vector[2];
-		char* string;
 	} as;
 } Value;
 

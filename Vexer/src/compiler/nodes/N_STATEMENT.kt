@@ -27,6 +27,7 @@ class N_REPEAT(val count: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
     var loopVarID = -1
     override fun kids(): NODES { return super.kids().apply { add(count); add(code) }}
     override fun scopeVars(scope: Node, meaner: Meaner) {
+        super.scopeVars(scope, meaner)
         loopVarID = meaner.variableToID(this, "_loop"+id, scope)
     }
     override fun checkType() {
