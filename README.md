@@ -14,7 +14,31 @@ You can [download an .exe demo](https://raw.githubusercontent.com/gilmore606/Vex
 
 # Updates
 
-8/28: CPU: the compiler now supports 'if' and 'repeat', which permitted the first benchmark to run -- the VM can execute about 17 million opcodes/second.
+8/28: CPU: the compiler now supports 'if' and 'repeat', which permitted the first benchmark to run -- the VM can execute about 17 million opcodes/second.  Here's a sample
+disassembler output for some benchmark code:
+
+	   0:  OP_CONST c0 [1000]
+	   3:  OP_SETVAR v3 [_loop886371]
+	   6:  OP_JUMPZ v3 [_loop886371] j3 [64]
+	j0 11:  OP_CONST c1 [6]
+	   14:  OP_CONST c2 [-4]
+	   17:  OP_ADDI
+	   18:  OP_SETVAR v0 [foo]
+	   21:  OP_CONST c3 [V(1.0,-1.0)]
+	   24:  OP_SETVAR v1 [x]
+	   27:  OP_CONST c4 [2000]
+	   30:  OP_SETVAR v2 [_loop371507]
+	   33:  OP_JUMPZ v2 [_loop371507] j2 [56]
+	j1 38:  OP_VAR v1 [x]
+	   41:  OP_CONST c5 [0.9]
+	   44:  OP_MULTVF
+	   45:  OP_SETVAR v1 [x]
+	   48:  OP_DECVAR v2 [_loop371507]
+	   51:  OP_JUMPNZ v2 [_loop371507] j1 [38]
+	j2 56:  OP_DECVAR v3 [_loop886371]
+	   59:  OP_JUMPNZ v3 [_loop886371] j0 [11]
+	j3 64:  OP_EXIT
+
 
 8/25: CPU: we ran our first compiled program today (on start: sound 1)!  The VM bytecode machine exists and the compiler's basic pieces are in place.
 
