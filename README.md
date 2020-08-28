@@ -14,6 +14,8 @@ You can [download an .exe demo](https://raw.githubusercontent.com/gilmore606/Vex
 
 # Updates
 
+8/28: CPU: the compiler now supports 'if' and 'repeat', which permitted the first benchmark to run -- the VM can execute about 17 million opcodes/second.
+
 8/25: CPU: we ran our first compiled program today (on start: sound 1)!  The VM bytecode machine exists and the compiler's basic pieces are in place.
 
 8/23: APU: the synth is fully fleshed out, with 2 oscillators, a low/high/bandpass filter, and an LFO + ADSR modulator per voice.  Sound effects are made in the ROM as very short songs -- the shoot song, the explode song, etc.  For fun and ease of auditioning patches I added MIDI input.
