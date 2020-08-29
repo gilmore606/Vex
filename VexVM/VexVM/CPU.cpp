@@ -19,6 +19,8 @@ void CPU::LoadCode(Code* code) {
 }
 
 void CPU::Boot() {
+	srand(static_cast <unsigned> (glfwGetTime())); // seed rng
+
 	run(code->entryStart);
 }
 
@@ -55,13 +57,18 @@ void CPU::stackDump() {
 
 void CPU::run(uint8_t* address) {
 	if (address == nullptr) { return; }
+
 	this->ip = address;
 	this->stacktop = stack;  // clear the stack
 
+	// accumulators
 	Value v, v1, v2;
 	Value* vp;
-	int adr, adr2;
-	float f, vl, fac;
+	VStr* vs1;
+	VStr* vs2;
+	int vi, ji;
+	float f, f2;
+
 	for (;;) {
 		uint8_t ins;
 		switch (ins = READ_BYTE()) {
@@ -97,11 +104,11 @@ void CPU::run(uint8_t* address) {
 			break;
 
 		case OP_RANDF:
-
+			push(FLOAT_VAL(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)));
 			break;
 
 		case OP_RANDI:
-
+			push(INT_VAL(rand() % AS_INT(pop())));
 			break;
 
 		case OP_INCVAR:   // arg2: index of var
@@ -146,6 +153,9 @@ void CPU::run(uint8_t* address) {
 		case OP_MODI:
 			push(INT_VAL(AS_INT(pop()) % AS_INT(pop())));
 			break;
+		case OP_POWI:
+			push(INT_VAL(AS_INT(pop()) ^ AS_INT(pop())));
+			break;
 		case OP_NEGI:
 			stacktop->as.integer = -((*stacktop).as.integer);
 			break;
@@ -162,7 +172,10 @@ void CPU::run(uint8_t* address) {
 			push(FLOAT_VAL(AS_FLOAT(pop()) / AS_FLOAT(pop())));
 			break;
 		case OP_MODF:
-			push(FLOAT_VAL((pop().as.fp) % (pop().as.fp)));
+			push(FLOAT_VAL(std::fmod(pop().as.fp, pop().as.fp)));
+			break;
+		case OP_POWF:
+			push(FLOAT_VAL(std::pow(pop().as.fp, pop().as.fp)));
 			break;
 		case OP_NEGF:
 			stacktop->as.fp = -((*stacktop).as.fp);
@@ -190,6 +203,28 @@ void CPU::run(uint8_t* address) {
 			break;
 
 
+			// Strings
+
+		case OP_I2S:
+			vs1 = new VStr{ std::to_string(AS_INT(pop())) };
+			push(STRING_VAL(vs1));
+			break;
+		case OP_F2S:
+			vs1 = new VStr{ std::to_string(AS_FLOAT(pop())) };
+			push(STRING_VAL(vs1));
+			break;
+		case OP_CAT:
+			vs1 = pop().as.string;
+			vs2 = pop().as.string;
+			push(STRING_VAL(new VStr{ vs1->s + vs2->s }));
+			break;
+		case OP_EQS:
+			vs1 = pop().as.string;
+			vs2 = pop().as.string;
+			push(BOOL_VAL(vs1->s == vs2->s));
+			break;
+
+
 			// Vector math
 
 		case OP_NEGV:
@@ -214,9 +249,9 @@ void CPU::run(uint8_t* address) {
 		case OP_ADDVF:
 			v = pop();
 			f = AS_FLOAT(pop());
-			vl = (std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1]));
-			fac = (vl + f) / vl;
-			push(VECTOR_VAL(v.as.vector[0] * fac, v.as.vector[1] * fac));
+			f2 = (std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1]));
+			f2 = (f2 + f) / f2;
+			push(VECTOR_VAL(v.as.vector[0] * f2, v.as.vector[1] * f2));
 			break;
 		case OP_MULTVF:  
 			v = pop();
@@ -280,29 +315,29 @@ void CPU::run(uint8_t* address) {
 			// Flow control
 
 		case OP_JUMP:   
-			ip = code->jumps[READ_I16()];  // arg2: index of jump
+			ip = code->jumps[READ_I16()];
 			break;
 
 		case OP_JUMPZ:   
-			adr = READ_I16(); // arg2: index of var
-			adr2 = READ_I16(); // arg2: index of jump
-			if (AS_INT(code->variables[adr]) == 0) {
-				ip = code->jumps[adr2];
+			vi = READ_I16();
+			ji = READ_I16();
+			if (AS_INT(code->variables[vi]) == 0) {
+				ip = code->jumps[ji];
 			}
 			break;
 
 		case OP_JUMPNZ:
-			adr = READ_I16(); // arg2: index of var
-			adr2 = READ_I16(); // arg2: index of jump
-			if (AS_INT(code->variables[adr]) != 0) {
-				ip = code->jumps[adr2];
+			vi = READ_I16();
+			ji = READ_I16();
+			if (AS_INT(code->variables[vi]) != 0) {
+				ip = code->jumps[ji];
 			}
 			break;
 
 		case OP_IF:   
-			adr = READ_I16(); // arg2: index of jump
+			ji = READ_I16();
 			if (!AS_BOOL(pop())) {
-				ip = code->jumps[adr];
+				ip = code->jumps[ji];
 			}
 			break;
 

@@ -10,12 +10,17 @@ typedef enum {
 } ValueType;
 
 typedef struct {
+	std::string s;
+} VStr;
+
+typedef struct {
 	ValueType type;
 	union {
 		bool boolean;
 		int integer;
 		float fp;
 		float vector[2];
+		VStr* string;
 	} as;
 } Value;
 
