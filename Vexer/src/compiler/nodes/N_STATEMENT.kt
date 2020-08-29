@@ -102,3 +102,11 @@ class N_WAIT(val time: N_EXPRESSION): N_STATEMENT() {
         coder.code(OP_WAIT)
     }
 }
+
+class N_LOG(val expr: N_EXPRESSION): N_STATEMENT() {
+    override fun kids(): NODES { return super.kids().apply { add(expr) }}
+    override fun code(coder: Coder) {
+        expr.code(coder)
+        coder.code(OP_DEBUG)
+    }
+}

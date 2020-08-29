@@ -79,8 +79,3 @@ void Input::HandleKey(GLFWwindow* window, int key, int scancode, int action, int
 bool Input::isPressed(int id) {
 	return status[id];
 }
-
-bool Input::wasPressed(int id) {
-	return false;
-	// TODO: implement
-}

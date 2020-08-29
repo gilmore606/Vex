@@ -108,6 +108,7 @@ class Parser(
         parseIf(depth)?.also { return it }
         parseWait()?.also { return it }
         parseSound()?.also { return it }
+        parseLog()?.also { return it }
         parseRepeat(depth)?.also { return it }
         parseEach(depth)?.also { return it }
         parseAssign()?.also { return it }
@@ -136,6 +137,13 @@ class Parser(
         toss()
         val id = parseExpression() ?: throw ParseException(this, "expected sound id expression")
         return N_SOUND(id).also { it.tag(this) }
+    }
+
+    fun parseLog(): N_LOG? {
+        if (!(nextIDIs("log"))) return null
+        toss()
+        val expr = parseExpression() ?: throw ParseException(this, "expected expression to log")
+        return N_LOG(expr).also { it.tag(this) }
     }
 
     fun parseRepeat(depth: Int): N_REPEAT? {

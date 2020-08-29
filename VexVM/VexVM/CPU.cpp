@@ -67,8 +67,28 @@ void CPU::OnMIDI(Note* note) { }
 void CPU::Stop() { }
 
 
-void CPU::stackDump() {
-
+void CPU::logValue(Value v) {
+	std::cout << "CPU DEBUG : ";
+	switch (v.type) {
+	case VAL_NIL:
+		std::cout << "nil";
+	case VAL_BOOL:
+		std::cout << v.as.boolean ? "true" : "false";
+		break;
+	case VAL_INT:
+		std::cout << v.as.integer;
+		break;
+	case VAL_FLOAT:
+		std::cout << v.as.fp;
+		break;
+	case VAL_VECTOR:
+		std::cout << "V(" << v.as.vector[0] << "," << v.as.vector[1] << ")";
+		break;
+	case VAL_STRING:
+		std::cout << v.as.string->s;
+		break;
+	}
+	std::cout << std::endl;
 }
 
 void CPU::run(uint8_t* address) {
@@ -91,17 +111,13 @@ void CPU::run(uint8_t* address) {
 
 		case OP_UNDEF:
 			throw "op_undef";
-
 		case OP_NOP:
 			break;
-
 		case OP_EXIT:
 			return;
-
 		case OP_DEBUG:
-			stackDump();
+			logValue(pop());
 			break;
-
 		case OP_WAIT:
 			tasks.push_back(Task(ip, (double)AS_INT(pop()) / 1000.0 + elapsed));
 			return;
@@ -112,33 +128,26 @@ void CPU::run(uint8_t* address) {
 		case OP_VAR:   
 			push(code->variables[READ_I16()]);
 			break;
-
 		case OP_CONST:   
 			push(code->constants[READ_I16()]);
 			break;
-
 		case OP_RANDF:
 			push(FLOAT_VAL(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)));
 			break;
-
 		case OP_RANDI:
 			push(INT_VAL(rand() % AS_INT(pop())));
 			break;
-
 		case OP_INCVAR:  
 			vp = &code->variables[READ_I16()];
 			vp->as.integer += 1;
 			break;
-
 		case OP_DECVAR:   
 			vp = &code->variables[READ_I16()];
 			vp->as.integer -= 1;
 			break;
-
 		case OP_SETVAR:  
 			code->variables[READ_I16()] = pop();
 			break;
-
 		case OP_SETSYS: 
 
 			break;
@@ -331,7 +340,6 @@ void CPU::run(uint8_t* address) {
 		case OP_JUMP:   
 			ip = code->jumps[READ_I16()];
 			break;
-
 		case OP_JUMPZ:   
 			vi = READ_I16();
 			ji = READ_I16();
@@ -339,7 +347,6 @@ void CPU::run(uint8_t* address) {
 				ip = code->jumps[ji];
 			}
 			break;
-
 		case OP_JUMPNZ:
 			vi = READ_I16();
 			ji = READ_I16();
@@ -347,7 +354,6 @@ void CPU::run(uint8_t* address) {
 				ip = code->jumps[ji];
 			}
 			break;
-
 		case OP_IF:   
 			ji = READ_I16();
 			if (!AS_BOOL(pop())) {
@@ -361,21 +367,17 @@ void CPU::run(uint8_t* address) {
 		case OP_SONG:
 			apu->PlaySong(AS_INT(pop()), 1.0, 0.5, false);
 			break;
-
 		case OP_SPRITE:
 
 			break;
-
 		case OP_PARTI:
 
 			break;
-
 		case OP_INPUT:
 			push(BOOL_VAL(input->isPressed(AS_INT(pop()))));
 			break;
-
 		case OP_BUTTON:
-			push(BOOL_VAL(input->wasPressed(AS_INT(pop()))));
+			push(BOOL_VAL(buttonPressed[AS_INT(pop())]));
 		}
 	}
 }

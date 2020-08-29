@@ -3,9 +3,11 @@ package compiler
 import compiler.nodes.Node
 import compiler.nodes.*
 
-enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR, VAL_STRING }
+enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR, VAL_STRING, VAL_OBJECT }
 
-data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, val fp: Float, val v1: Float, val v2: Float, val string: String) {
+data class Value(val type: ValueType,
+                 val boolean: Boolean, val integer: Int, val fp: Float,
+                 val v1: Float, val v2: Float, val string: String, val obj: ValueObj?) {
     override fun toString(): String = when (type) {
             ValueType.VAL_NIL -> "nil"
             ValueType.VAL_BOOL -> if (this.boolean) "true" else "false"
@@ -13,8 +15,11 @@ data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, va
             ValueType.VAL_FLOAT -> this.fp.toString()
             ValueType.VAL_VECTOR -> "V(" + this.v1.toString() + "," + this.v2.toString() + ")"
             ValueType.VAL_STRING -> this.string
+            ValueType.VAL_OBJECT -> "OBJ:" + this.obj!!.name
         }
 }
+
+data class ValueObj(val name: String)
 
 data class Variable(val id: Int, val name: String, val scope: Node, val type: ValueType?, val nodes: ArrayList<N_VARIABLE> = ArrayList())
 
@@ -73,7 +78,8 @@ class Meaner (
                             if (node is N_FLOAT) node.value else 0.0f,
                             if (node is N_VECTOR) node.v1 else 0.0f,
                             if (node is N_VECTOR) node.v2 else 0.0f,
-                            if (node is N_STRING) node.value else ""
+                            if (node is N_STRING) node.value else "",
+                            null
                         ))
                     found = constants.lastIndex
                     if (fVerbose) println("  create const " + constants[found].toString())

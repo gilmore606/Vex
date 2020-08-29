@@ -5,7 +5,7 @@ typedef enum {
     OP_UNDEF,    // Error: VM halt
     OP_NOP,      // No op
     OP_EXIT,     // Exit program
-    OP_DEBUG,    // Dump stack to console
+    OP_DEBUG,    // Pop stacktop to console
 
     OP_WAIT,     // Suspend execution for stacktop ms
 

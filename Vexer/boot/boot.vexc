@@ -1,4 +1,9 @@
 to start:
     x = 0.35
     y = -74.163
-    
+    log x + y
+    repeat 500:
+    	foo = 0
+    	repeat 5000:
+    		foo = foo + 1
+    log foo

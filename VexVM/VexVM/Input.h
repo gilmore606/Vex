@@ -24,7 +24,6 @@ public:
 	void Add(int id, VEXInputType type, GLuint defaultKey);
 	void HandleKey(GLFWwindow* window, int key, int scancode, int action, int mods);
 	bool isPressed(int id);
-	bool wasPressed(int id);
 
 	bool isShift, isAlt, isCtrl;
 
