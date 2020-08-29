@@ -27,6 +27,15 @@ Value Code::readVal(ROMReader* rom) {
 		c.type = VAL_INT;
 		c.as.integer = rom->next3Int();
 		break;
+	case 4:
+		c.type = VAL_FLOAT;
+		c.as.fp = rom->next4Float();
+		break;
+	case 5:
+		c.type = VAL_VECTOR;
+		c.as.vector[0] = rom->next4Float();
+		c.as.vector[1] = rom->next4Float();
+		break;
 	}
 	return c;
 }

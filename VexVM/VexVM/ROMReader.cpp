@@ -74,9 +74,31 @@ int ROMReader::next3Int() {
 	cursor += 3;
 	return b1 + b2 * 256 + b3 * 65536;
 }
+int ROMReader::next4Int() {
+	BYTE b1 = data[cursor];
+	BYTE b2 = data[cursor + 1];
+	BYTE b3 = data[cursor + 2];
+	BYTE b4 = data[cursor + 3];
+	cursor += 4;
+	return b1 + b2 * 256 + b3 * 65536 + b4 * 16777216;
+}
 float ROMReader::next2Float() {
 	int i = next2Int();
 	return ((float)i / 65536.0f) * 2.0f - 1.0f;
+}
+float ROMReader::next4Float() {
+	int ieee754 = next4Int();
+	int sign = (ieee754 >> 31) & 0x01;
+	int exponent = ((ieee754 & 0x7f800000) >> 23) - 127;
+	int power = -1;
+	float total = 0.0f;
+	for (int i = 0; i < 23; i++) {
+		int calc = (ieee754 >> (23 - i - 1)) & 0x01;
+		total += calc * pow(2.0, power);
+		power--;
+	}
+	float value = (sign ? -1 : 1) * pow(2.0, exponent) * (total + 1.0);
+	return value;
 }
 
 std::string ROMReader::nextString() {

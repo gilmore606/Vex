@@ -1,6 +1,8 @@
 import compiler.Value
 import compiler.ValueType.*
 import java.io.File
+import java.io.DataOutputStream
+import java.io.ByteArrayOutputStream
 
 class OutFile(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
 
@@ -56,6 +58,16 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
         outBytes.add(b1.toUByte())
         outBytes.add(b2.toUByte())
     }
+    fun write4ByteInt(i: Int) {
+        val b0 = i and 0xFF;
+        val b1 = (i shr 8) and 0xFF;
+        val b2 = (i shr 16) and 0xFF;
+        val b3 = (i shr 24) and 0xFF;
+        outBytes.add(b0.toUByte())
+        outBytes.add(b1.toUByte())
+        outBytes.add(b2.toUByte())
+        outBytes.add(b3.toUByte())
+    }
 
     fun writeFloats(floats: ArrayList<Float>) {
         floats.forEach { f ->
@@ -90,12 +102,13 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
                 write3ByteInt(v.integer)
             }
             VAL_FLOAT -> {
-                writeByte(4.toUByte())
-
+                writeByte(4.toUByte())  // 1 byte = 4 (float) 4 bytes float
+                write4ByteInt(v.fp.toBits())
             }
             VAL_VECTOR -> {
-                writeByte(5.toUByte())
-
+                writeByte(5.toUByte())  // 1 byte = 5 (vector) 8 bytes 2 floats
+                write4ByteInt(v.v1.toBits())
+                write4ByteInt(v.v2.toBits())
             }
             VAL_STRING -> {
                 writeByte(6.toUByte())

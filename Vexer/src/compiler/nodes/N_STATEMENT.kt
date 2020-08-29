@@ -11,7 +11,6 @@ abstract class N_STATEMENT: Node()
 class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
     override fun setType(meaner: Meaner) {
-        println("target " + target.type + " value " + value.type)
         if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!)
     }
     override fun checkType() {
