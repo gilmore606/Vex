@@ -57,7 +57,7 @@ public:
 	GPU();
 	GPU(int w, int h);
 
-	GLFWwindow* Setup(void (*onResize)(GLFWwindow* window, int neww, int newh));
+	void Setup(void (*onResize)(GLFWwindow* window, int neww, int newh));
 	void Resize(int w, int h);
 	void Reset();
 	void ToggleFullscreen();
@@ -80,6 +80,7 @@ public:
 	
 	void toggleLayer(int layer);
 
+	GLFWwindow* window;
 	GPUsettings settings;
 	bool isFullscreen;
 	int savedX, savedY;
@@ -106,7 +107,6 @@ private:
 	std::vector<Font*> fonts;
 
 	int w, h, screenw, screenh;
-	GLFWwindow* window;
 	Shader pointShader, lineShader, blitShader, fadeShader, composeShader, blurShader;
 	Framebuffer trailBuffer, screenBuffer, glowBuffer;
 	Vertbuffer pointsVB, linesVB, screenVB, bufferVB;

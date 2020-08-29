@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include "Scheduler.h"
 #include "GPU.h"
 #include "APU.h"
 #include "Input.h"
@@ -10,6 +9,7 @@
 #include "Task.h"
 
 #define READ_BYTE() (*ip++)
+#define CLEAR_STACK() stacktop = stack
 
 const static int STACK_MAX = 256;
 
@@ -19,7 +19,7 @@ class CPU {
 public:
 	CPU();
 
-	void Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input);
+	void Connect(GPU* gpu, APU* apu, Input* input);
 	void LoadCode(Code* code);
 	virtual void Boot();
 
@@ -30,7 +30,6 @@ public:
 	virtual void Stop();
 
 protected:
-	Scheduler* scheduler;
 	GPU* gpu;
 	APU* apu;
 	Input* input;
@@ -49,6 +48,9 @@ protected:
 	void stackDump();
 
 private:
+
+	bool* buttonPressed;
+	int countPressed;
 
 	inline int READ_I16() {
 		int i = (int)*ip++;

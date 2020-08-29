@@ -237,7 +237,7 @@ void GPU::makeVBs() {
 	bufferVB.Create();
 }
 
-GLFWwindow* GPU::Setup(void (*onResize)(GLFWwindow* window, int neww, int newh)) {
+void GPU::Setup(void (*onResize)(GLFWwindow* window, int neww, int newh)) {
 	std::cout << "GPU: GLFW initializing" << std::endl;
 	glfwInit();
 
@@ -274,7 +274,6 @@ GLFWwindow* GPU::Setup(void (*onResize)(GLFWwindow* window, int neww, int newh))
 
 	Reset();
 	std::cout << "GPU initialized" << std::endl;
-	return window;
 }
 
 void GPU::Stop() {

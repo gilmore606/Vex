@@ -4,14 +4,15 @@
 
 CPU::CPU() {
 	this->elapsed = 0.0;
-	std::cout << "CPU core online" << std::endl;
+	buttonPressed = new bool[32];
+	countPressed = 0;
 }
 
-void CPU::Connect(Scheduler* scheduler, GPU* gpu, APU* apu, Input* input) {
-	this->scheduler = scheduler;
+void CPU::Connect(GPU* gpu, APU* apu, Input* input) {
 	this->gpu = gpu;
 	this->apu = apu;
 	this->input = input;
+	std::cout << "CPU core online" << std::endl;
 }
 
 void CPU::LoadCode(Code* code) {
@@ -21,6 +22,7 @@ void CPU::LoadCode(Code* code) {
 void CPU::Boot() {
 	srand(static_cast <unsigned> (glfwGetTime())); // seed rng
 
+	CLEAR_STACK();
 	run(code->entryStart);
 }
 
@@ -36,14 +38,28 @@ void CPU::OnUpdate(float deltaTime) {
 		}
 	}
 	tasks = undone;
-	// put deltatime on stack and run entrypoint 'update'
-	// run(code->entryUpdate);
+
+	if (countPressed > 0) {
+		CLEAR_STACK();
+		push(INT_VAL(countPressed));
+		for (int i = 0; i < 32; i++) {
+			if (buttonPressed[i]) {
+				push(INT_VAL(i));
+				buttonPressed[i] = false;
+			}
+		}
+		countPressed = 0;
+		run(code->entryInput);
+	}
+
+	CLEAR_STACK();
+	push(FLOAT_VAL(deltaTime));
+	run(code->entryUpdate);
 }
 
 void CPU::OnInput(int input) {
-	// add to the handler queue:
-	// 'put input on stack'
-	// 'jump to onInput handler'
+	buttonPressed[input] = true;
+	countPressed++;
 }
 
 void CPU::OnMIDI(Note* note) { }
@@ -57,11 +73,9 @@ void CPU::stackDump() {
 
 void CPU::run(uint8_t* address) {
 	if (address == nullptr) { return; }
-
 	this->ip = address;
-	this->stacktop = stack;  // clear the stack
 
-	// accumulators
+	// temps
 	Value v, v1, v2;
 	Value* vp;
 	VStr* vs1;
@@ -95,11 +109,11 @@ void CPU::run(uint8_t* address) {
 
 			// Values
 
-		case OP_VAR:    // arg2: index of var
+		case OP_VAR:   
 			push(code->variables[READ_I16()]);
 			break;
 
-		case OP_CONST:   // arg2: index of constant
+		case OP_CONST:   
 			push(code->constants[READ_I16()]);
 			break;
 
@@ -111,21 +125,21 @@ void CPU::run(uint8_t* address) {
 			push(INT_VAL(rand() % AS_INT(pop())));
 			break;
 
-		case OP_INCVAR:   // arg2: index of var
+		case OP_INCVAR:  
 			vp = &code->variables[READ_I16()];
-			vp->as.integer = vp->as.integer + 1;
+			vp->as.integer += 1;
 			break;
 
-		case OP_DECVAR:   // arg2: index of var
+		case OP_DECVAR:   
 			vp = &code->variables[READ_I16()];
-			vp->as.integer = vp->as.integer - 1;
+			vp->as.integer -= 1;
 			break;
 
-		case OP_SETVAR:   // arg2: index of var
+		case OP_SETVAR:  
 			code->variables[READ_I16()] = pop();
 			break;
 
-		case OP_SETSYS:    // arg2: index of system setting
+		case OP_SETSYS: 
 
 			break;
 
@@ -367,5 +381,6 @@ void CPU::run(uint8_t* address) {
 }
 
 void CPU::resume(Task task) {
+	CLEAR_STACK();
 	run(task.ip);
 }
