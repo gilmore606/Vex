@@ -114,6 +114,7 @@ class Lexer(val fVerbose: Boolean) {
                 '!' -> begin(T_NOTEQUALS)
                 '"' -> begin(T_STRING)
                 '^' -> emit(Token(T_POWER))
+                '%' -> emit(Token(T_MODULUS))
                 '\t' -> emit(Token(T_INDENT))
                 '|' -> begin(T_LOGIC_OR)
                 '&' -> begin(T_LOGIC_AND)

@@ -123,7 +123,7 @@ void CPU::run(uint8_t* address) {
 			break;
 
 
-			// Math
+			// Stack math
 
 		case OP_INC:
 			stacktop->as.integer = ++((*stacktop).as.integer);
@@ -143,6 +143,9 @@ void CPU::run(uint8_t* address) {
 		case OP_DIVI:
 			push(INT_VAL(AS_INT(pop()) / AS_INT(pop())));
 			break;
+		case OP_MODI:
+			push(INT_VAL(AS_INT(pop()) % AS_INT(pop())));
+			break;
 		case OP_NEGI:
 			stacktop->as.integer = -((*stacktop).as.integer);
 			break;
@@ -157,6 +160,9 @@ void CPU::run(uint8_t* address) {
 			break;
 		case OP_DIVF:
 			push(FLOAT_VAL(AS_FLOAT(pop()) / AS_FLOAT(pop())));
+			break;
+		case OP_MODF:
+			push(FLOAT_VAL((pop().as.fp) % (pop().as.fp)));
 			break;
 		case OP_NEGF:
 			stacktop->as.fp = -((*stacktop).as.fp);

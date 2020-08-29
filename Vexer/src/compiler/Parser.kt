@@ -247,12 +247,15 @@ class Parser(
 
     fun parseMultiplication(): N_EXPRESSION? {
         var leftExpr = parseUnary() ?: return null
-        while (nextTokenOneOf(T_MULTIPLY, T_DIVIDE)) {
+        while (nextTokenOneOf(T_MULTIPLY, T_DIVIDE, T_MODULUS)) {
             val operator = getToken()
             val rightExpr = parseUnary()
             if (rightExpr != null) {
-                leftExpr = if (operator.type == T_MULTIPLY) N_MULTIPLY(leftExpr, rightExpr).also { it.tag(this) }
-                else N_DIVIDE(leftExpr, rightExpr).also { it.tag(this) }
+                leftExpr = when (operator.type) {
+                    T_MULTIPLY -> N_MULTIPLY(leftExpr, rightExpr).also { it.tag(this) }
+                    T_MODULUS -> N_MODULO(leftExpr, rightExpr).also { it.tag(this) }
+                    else -> N_DIVIDE(leftExpr, rightExpr).also { it.tag(this) }
+                }
             }
         }
         return leftExpr

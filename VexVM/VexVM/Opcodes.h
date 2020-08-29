@@ -29,11 +29,15 @@ typedef enum {
     OP_SUBI,     // i - i
     OP_MULTI,	 // i * i
     OP_DIVI,     // i / i
+    OP_MODI,     // i % i
+    OP_POWI,     // i ^ i
     OP_NEGI,     // -i
     OP_ADDF,     // f + f
     OP_SUBF,     // f - f
     OP_MULTF,    // f * f
     OP_DIVF,     // f / f
+    OP_MODF,     // f % f
+    OP_POWF,     // f ^ f
     OP_NEGF,     // -f
     OP_NEGV,     // -v
     OP_ADDV,     // v + v

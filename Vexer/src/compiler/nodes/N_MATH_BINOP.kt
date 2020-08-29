@@ -145,9 +145,30 @@ class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2)
     override fun codeVector(coder: Coder) { coder.code(OP_DIVV) }
     override fun codeVecF(coder: Coder) { coder.code(OP_DIVVF) }
 }
+class N_MODULO(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun setType(meaner: Meaner) {
+        val e = CompileException("type error: modulo only accepts linear types")
+        this.type = when (arg1.type) {
+            VAL_INT -> when (arg2.type) {
+                VAL_INT -> VAL_INT
+                VAL_FLOAT -> VAL_FLOAT
+                else -> throw e
+            }
+            VAL_FLOAT -> when (arg2.type) {
+                VAL_INT,VAL_FLOAT -> VAL_FLOAT
+                else -> throw e
+            }
+            else -> throw e
+        }
+    }
+    override fun codeInt(coder: Coder) { coder.code(OP_MODI) }
+    override fun codeFloat(coder: Coder) { coder.code(OP_MODF) }
+    override fun codeVector(coder: Coder) { throw CompileException("type error: can't modulo vector") }
+    override fun codeVecF(coder: Coder) { throw CompileException("type error: can't modulo vector") }
+}
 class N_POWER(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
-    override fun codeInt(coder: Coder) {  }
-    override fun codeFloat(coder: Coder) {  }
+    override fun codeInt(coder: Coder) { coder.code(OP_POWI) }
+    override fun codeFloat(coder: Coder) { coder.code(OP_POWF) }
     override fun codeVector(coder: Coder) { throw CompileException("type error: can't apply powers to vectors") }
     override fun codeVecF(coder: Coder) { throw CompileException("type error: can't apply powers to vectors") }
 }
