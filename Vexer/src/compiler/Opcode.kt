@@ -53,6 +53,11 @@ enum class Opcode {
     OP_B2I,      // boolean to int (0, 1)
     OP_N2I,      // nil to int (0)
 
+    OP_I2S,      // int to string
+    OP_F2S,      // float to string
+    OP_CAT,      // concat strings
+    OP_EQS,      // string == string
+
     OP_NOT,      // !bool
     OP_OR,       // bool || bool
     OP_AND,      // bool && bool

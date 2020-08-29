@@ -1,7 +1,5 @@
 import compiler.Value
-import compiler.ValueType
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
+import compiler.ValueType.*
 import java.io.File
 
 class OutFile(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
@@ -38,6 +36,7 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
     fun writeByte(b: UByte) {
         outBytes.add(b)
     }
+
     fun writeBytes(b: ArrayList<UByte>) {
         outBytes.addAll(b)
     }
@@ -79,16 +78,28 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
     fun writeValue(v: Value) {
         when (v.type) {
             // nil  1 byte = 0 (nil type)
-            ValueType.VAL_NIL -> {
+            VAL_NIL -> {
                 writeByte(0.toUByte()) // type nil
             }
             // bool  1 byte = 1 (false) 2 (true)
-            ValueType.VAL_BOOL -> {
+            VAL_BOOL -> {
                 writeByte(if (v.boolean) 2.toUByte() else 1.toUByte()) // type boolfalse (1) or booltrue (2)
             } // int   4 bytes = 3 (int type) + 3 LSB byte int
-            ValueType.VAL_INT -> {
+            VAL_INT -> {
                 writeByte(3.toUByte()) // type int
                 write3ByteInt(v.integer)
+            }
+            VAL_FLOAT -> {
+                writeByte(4.toUByte())
+
+            }
+            VAL_VECTOR -> {
+                writeByte(5.toUByte())
+
+            }
+            VAL_STRING -> {
+                writeByte(6.toUByte())
+                writeString(v.string)
             }
         }
     }

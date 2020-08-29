@@ -26,6 +26,7 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
                 VAL_VECTOR -> if (this is N_MULTIPLY) VAL_FLOAT else VAL_VECTOR
                 else -> throw e
             }
+            VAL_STRING -> VAL_STRING
             else -> throw e
         }
     }
@@ -35,6 +36,17 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
     abstract fun codeVecF(coder: Coder)
     override fun code(coder: Coder) {
         when (arg1.type) {
+            VAL_STRING -> {
+                if (this !is N_ADD) throw CompileException("illegal string op")
+                arg1.code(coder)
+                arg2.code(coder)
+                when (arg2.type) {
+                    VAL_INT -> coder.code(OP_I2S)
+                    VAL_FLOAT -> coder.code(OP_F2S)
+                    else -> throw CompileException("can only add int and float to string")
+                }
+                coder.code(OP_CAT)
+            }
             VAL_INT -> when (arg2.type) {
                 VAL_INT -> {
                     arg1.code(coder)

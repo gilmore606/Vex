@@ -3,15 +3,16 @@ package compiler
 import compiler.nodes.Node
 import compiler.nodes.*
 
-enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR }
+enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR, VAL_STRING }
 
-data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, val fp: Float, val v1: Float, val v2: Float) {
+data class Value(val type: ValueType, val boolean: Boolean, val integer: Int, val fp: Float, val v1: Float, val v2: Float, val string: String) {
     override fun toString(): String = when (type) {
             ValueType.VAL_NIL -> "nil"
             ValueType.VAL_BOOL -> if (this.boolean) "true" else "false"
             ValueType.VAL_INT -> this.integer.toString()
             ValueType.VAL_FLOAT -> this.fp.toString()
             ValueType.VAL_VECTOR -> "V(" + this.v1.toString() + "," + this.v2.toString() + ")"
+            ValueType.VAL_STRING -> this.string
         }
 }
 
@@ -67,12 +68,13 @@ class Meaner (
                         else -> ValueType.VAL_NIL
                     }
                     constants.add(Value(type,
-                        if (node is N_BOOLEAN) node.value else false,
-                        if (node is N_INTEGER) node.value else 0,
-                        if (node is N_FLOAT) node.value else 0.0f,
-                        if (node is N_VECTOR) node.v1 else 0.0f,
-                        if (node is N_VECTOR) node.v2 else 0.0f
-                    ))
+                            if (node is N_BOOLEAN) node.value else false,
+                            if (node is N_INTEGER) node.value else 0,
+                            if (node is N_FLOAT) node.value else 0.0f,
+                            if (node is N_VECTOR) node.v1 else 0.0f,
+                            if (node is N_VECTOR) node.v2 else 0.0f,
+                            if (node is N_STRING) node.value else ""
+                        ))
                     found = constants.lastIndex
                     if (fVerbose) println("  create const " + constants[found].toString())
                 }
