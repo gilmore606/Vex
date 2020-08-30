@@ -27,14 +27,15 @@ class Parser(
 
     fun getToken() = tokens.removeAt(0)
     fun toss() = getToken()
+    fun tossToNextLine() {
+        while (nextToken().type == T_INDENT) { toss() }
+    }
     fun expectToken(type: TokenType, failMessage: String): Token {
         val t = getToken()
         if (t.type != type) throw ParseException(this, failMessage)
         return t
     }
-    fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(
-        T_EOP
-    ) else tokens[skip]
+    fun nextToken(skip: Int = 0): Token = if (skip >= tokens.size) Token(T_EOP) else tokens[skip]
     fun nextTokenIs(type: TokenType) = nextToken().type == type
     fun nextTokensAre(vararg types: TokenType): Boolean {
         types.forEachIndexed { i, type ->
@@ -45,6 +46,12 @@ class Parser(
     fun nextIDIs(ident: String): Boolean {
         if (nextToken().type != T_IDENTIFIER) return false
         return nextToken().string == ident
+    }
+    fun nextIDnextLineIs(ident: String): Boolean {
+        var i = 0
+        while (nextToken(i).type == T_INDENT) i++
+        if (nextToken(i).type != T_IDENTIFIER) return false
+        return nextToken(i).string == ident
     }
     fun nextTokenOneOf(vararg types: TokenType): Boolean = nextToken().type in types
 
@@ -116,13 +123,19 @@ class Parser(
         return null
     }
 
-    fun parseIf(depth: Int): N_IF? {
+    fun parseIf(depth: Int): N_STATEMENT? {
         if (!(nextIDIs("if"))) return null
         toss()
         val test = parseExpression() ?: throw ParseException(this, "expected test expr after if")
         expectToken(T_COLON, "expected colon after if expr")
         val code = parseCodeblock(depth + 1)
-        return N_IF(test, N_CODEBLOCK(code)).also { it.tag(this) }
+        if (!(nextIDnextLineIs("else"))) return N_IF(test, N_CODEBLOCK(code)).also { it.tag(this) }
+        tossToNextLine()
+        toss()
+        if (!nextTokenIs(T_COLON)) throw ParseException(this, "expected colon after else")
+        toss()
+        val elseblock = parseCodeblock(depth + 1)
+        return N_IFELSE(test, N_CODEBLOCK(code), N_CODEBLOCK(elseblock)).also { it.tag(this) }
     }
 
     fun parseWait(): N_WAIT? {
