@@ -1,6 +1,8 @@
 package compiler.nodes
 
 import compiler.Coder
+import compiler.CompileException
+import compiler.FuncSig
 import compiler.Meaner
 import compiler.Opcode.*
 
@@ -45,5 +47,33 @@ class N_VARIABLE(val name: String): N_VARREF() {
     }
     override fun codeSet(coder: Coder) {
         coder.code(OP_SETVAR, varID)
+    }
+}
+
+class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
+    var sig: FuncSig? = null
+    override fun toString() = "FUN:" + name + "(" + args.joinToString(",") + ")"
+    override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
+    override fun setType(meaner: Meaner): Boolean {
+        val oldtype = this.type
+        sig = meaner.getFuncSig(name)
+        this.type = sig!!.returnType
+        this.objtype = sig!!.returnObjType
+        return oldtype == this.type
+    }
+    override fun checkType() {
+        sig?.also { sig ->
+            args.forEachIndexed { i, arg ->
+                if (arg.type != sig.argtypes[i]) throw CompileException("illegal type function arg")
+            }
+        }
+    }
+    override fun code(coder: Coder) {
+        args.forEach {
+            it.code(coder)
+        }
+        sig?.also { sig ->
+            coder.code(if (sig.sys) OP_SFUN else OP_FUN, sig.funcID)
+        } ?: throw CompileException("unknown function signature")
     }
 }

@@ -52,6 +52,8 @@ private:
 	bool* buttonPressed;
 	int countPressed;
 
+	void callSFUN(int fi);
+
 	inline int READ_I16() {
 		int i = (int)*ip++;
 		return i + ((int)(*ip++ & 0xFF) << 8);

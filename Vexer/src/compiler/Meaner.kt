@@ -2,26 +2,11 @@ package compiler
 
 import compiler.nodes.Node
 import compiler.nodes.*
+import compiler.ValueType.*
+import compiler.ObjectType.*
 
-enum class ValueType { VAL_NIL, VAL_BOOL, VAL_INT, VAL_FLOAT, VAL_VECTOR, VAL_STRING, VAL_OBJECT }
-
-data class Value(val type: ValueType,
-                 val boolean: Boolean, val integer: Int, val fp: Float,
-                 val v1: Float, val v2: Float, val string: String, val obj: ValueObj?) {
-    override fun toString(): String = when (type) {
-            ValueType.VAL_NIL -> "nil"
-            ValueType.VAL_BOOL -> if (this.boolean) "true" else "false"
-            ValueType.VAL_INT -> this.integer.toString()
-            ValueType.VAL_FLOAT -> this.fp.toString()
-            ValueType.VAL_VECTOR -> "V(" + this.v1.toString() + "," + this.v2.toString() + ")"
-            ValueType.VAL_STRING -> this.string
-            ValueType.VAL_OBJECT -> "OBJ:" + this.obj!!.name
-        }
-}
-
-data class ValueObj(val name: String)
-
-data class Variable(val id: Int, val name: String, val scope: Node, val type: ValueType?, val nodes: ArrayList<N_VARIABLE> = ArrayList())
+typealias FUNCLIST = ArrayList<FuncSig>
+typealias TYPELIST = ArrayList<ValueType>
 
 class Meaner (
         val ast: ArrayList<Node>,
@@ -30,6 +15,37 @@ class Meaner (
 
     val constants = ArrayList<Value>()
     val variables = ArrayList<Variable>()
+
+    val systemFuncs = FUNCLIST()
+    val systemClasses = HashMap<ObjectType, FUNCLIST>()
+
+    init {
+
+        // Built-in system functions
+
+        systemFuncs.add(FuncSig(true, "TEXT", 0, VAL_OBJECT, OBJ_SPRITE,
+                TYPELIST().apply { add(VAL_STRING) }))
+
+        // Built-in system class methods
+
+        systemClasses[OBJ_SPRITE] = FUNCLIST().apply {
+            add(FuncSig(true, "move", 0, VAL_NIL, null,
+                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
+            add(FuncSig(true, "move", 1, VAL_NIL, null,
+                TYPELIST().apply { add(VAL_VECTOR) }))
+            add(FuncSig(true, "scale", 2, VAL_NIL, null,
+                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
+            add(FuncSig(true, "scale", 3, VAL_NIL, null,
+                TYPELIST().apply { add(VAL_FLOAT) }))
+            add(FuncSig(true, "hide", 4, VAL_NIL, null,
+                TYPELIST()))
+            add(FuncSig(true, "show", 5, VAL_NIL, null,
+                TYPELIST()))
+            add(FuncSig(true, "write", 6, VAL_NIL, null,
+                TYPELIST().apply { add(VAL_STRING) }))
+        }
+
+    }
 
     // Get ID of named variable in my scope
     fun variableToID(sourceNode: Node, name: String, scope: Node): Int {
@@ -46,10 +62,32 @@ class Meaner (
     }
 
     // Set type of all nodes for a variable
-    fun learnVarType(varID: Int, type: ValueType) {
+    fun learnVarType(varID: Int, type: ValueType, objtype: ObjectType?) {
         variables.find { it.id == varID }!!.nodes.forEach {
             it.type = type
+            it.objtype = objtype
         }
+    }
+
+    // Look up signature of named function
+    fun getFuncSig(name: String): FuncSig {
+        systemFuncs.forEach { if (it.name == name) return it }
+        throw CompileException("unknown function call")
+    }
+
+    // Look up signature of system class method
+    fun getMethodSig(type: ObjectType, name: String, args: List<Node.N_EXPRESSION>): FuncSig {
+        systemClasses[type]!!.forEach {
+            if (it.name == name && it.returnType == VAL_NIL) {
+                var match = true
+                it.argtypes.forEachIndexed { i, methArg ->
+                    if (i > args.lastIndex) match = false
+                    else if (methArg != args[i].type) match = false
+                }
+                if (match) return it
+            }
+        }
+        throw CompileException("unknown system method call")
     }
 
     fun mean() {
@@ -59,18 +97,20 @@ class Meaner (
             if (node is N_LITERAL) {
                 var found = -1
                 constants.forEachIndexed { i, c ->
-                    if (node is N_BOOLEAN && c.type == ValueType.VAL_BOOL && node.value == c.boolean) found = i
-                    if (node is N_INTEGER && c.type == ValueType.VAL_INT && node.value == c.integer) found = i
-                    if (node is N_FLOAT && c.type == ValueType.VAL_FLOAT && node.value == c.fp) found = i
-                    if (node is N_VECTOR && c.type == ValueType.VAL_VECTOR && node.v1 == c.v1 && node.v2 == c.v2) found = i
+                    if (node is N_BOOLEAN && c.type == VAL_BOOL && node.value == c.boolean) found = i
+                    if (node is N_INTEGER && c.type == VAL_INT && node.value == c.integer) found = i
+                    if (node is N_FLOAT && c.type == VAL_FLOAT && node.value == c.fp) found = i
+                    if (node is N_VECTOR && c.type == VAL_VECTOR && node.v1 == c.v1 && node.v2 == c.v2) found = i
+                    if (node is N_STRING && c.type == VAL_STRING && node.value == c.string) found = i
                 }
                 if (found == -1) {
                     val type = when {
-                        node is N_BOOLEAN -> ValueType.VAL_BOOL
-                        node is N_INTEGER -> ValueType.VAL_INT
-                        node is N_FLOAT -> ValueType.VAL_FLOAT
-                        node is N_VECTOR -> ValueType.VAL_VECTOR
-                        else -> ValueType.VAL_NIL
+                        node is N_BOOLEAN -> VAL_BOOL
+                        node is N_INTEGER -> VAL_INT
+                        node is N_FLOAT -> VAL_FLOAT
+                        node is N_VECTOR -> VAL_VECTOR
+                        node is N_STRING -> VAL_STRING
+                        else -> VAL_NIL
                     }
                     constants.add(Value(type,
                             if (node is N_BOOLEAN) node.value else false,
@@ -82,7 +122,6 @@ class Meaner (
                             null
                         ))
                     found = constants.lastIndex
-                    if (fVerbose) println("  create const " + constants[found].toString())
                 }
                 node.constID = found
                 node.type = constants[found].type

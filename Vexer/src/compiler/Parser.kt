@@ -91,11 +91,7 @@ class Parser(
     fun parseSettings(): List<N_ASSIGN> {
         val assigns = ArrayList<N_ASSIGN>()
         while (true) {
-            val nextAssign = parseStatement(1) ?: return assigns
-            if (nextAssign !is N_ASSIGN) throw ParseException(
-                this,
-                "only assignments allowed in settings block"
-            )
+            val nextAssign = parseAssign() ?: return assigns
             assigns.add(nextAssign)
         }
     }
@@ -103,25 +99,39 @@ class Parser(
     fun parseCodeblock(depth: Int): List<N_STATEMENT> {
         val statements = ArrayList<N_STATEMENT>()
         while (true) {
-            val nextStatement = parseStatement(depth) ?: return statements
-            statements.add(nextStatement)
+            val nextStatements = parseStatement(depth) ?: return statements
+            statements.addAll(nextStatements)
         }
     }
 
-    fun parseStatement(depth: Int): N_STATEMENT? {
+    fun parseStatement(depth: Int): List<N_STATEMENT>? {
         repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
         repeat (depth) { toss() }
-
-        parseIf(depth)?.also { return it }
-        parseWait()?.also { return it }
-        parseSound()?.also { return it }
-        parseLog()?.also { return it }
-        parseRepeat(depth)?.also { return it }
-        parseFor(depth)?.also { return it }
-        parseEach(depth)?.also { return it }
-        parseAssign()?.also { return it }
+        val l = ArrayList<N_STATEMENT>()
+        parseMethcalls()?.also { return it }
+        parseIf(depth)?.also { l.add(it); return l }
+        parseWait()?.also { l.add(it); return l }
+        parseSound()?.also { l.add(it); return l }
+        parseLog()?.also { l.add(it); return l }
+        parseRepeat(depth)?.also { l.add(it); return l }
+        parseFor(depth)?.also { l.add(it); return l }
+        parseEach(depth)?.also { l.add(it); return l }
+        parseAssign()?.also { l.add(it); return l }
 
         return null
+    }
+
+    fun parseMethcalls(): List<N_METHCALL>? {
+        if (!nextTokensAre(T_IDENTIFIER, T_DOTJOIN, T_IDENTIFUNC)) return null
+        val objname = getToken().string
+        val calls = ArrayList<N_METHCALL>()
+        while (nextTokenIs(T_DOTJOIN)) {
+            toss()
+            val meth = getToken().string
+            val args = parseArglist()
+            calls.add(N_METHCALL(N_VARIABLE(objname).also{ it.tag(this) }, meth, args).also { it.tag(this) })
+        }
+        return if (calls.isNotEmpty()) calls else null
     }
 
     fun parseIf(depth: Int): N_STATEMENT? {
@@ -308,10 +318,14 @@ class Parser(
 
     fun parseValue(): N_EXPRESSION? {
         if (nextTokenIs(T_IDENTIFIER)) return parseIdentifier()
-        if (nextTokenIs(T_IDENTIFUNC)) parseVector()?.also { return it }
+        if (nextTokenIs(T_IDENTIFUNC)) {
+            parseVector()?.also { return it }
+            parseFuncall()?.also { return it }
+        }
         if (nextTokenIs(T_STRING)) return N_STRING(getToken().string).also { it.tag(this) }
         if (nextTokenIs(T_INTEGER)) return N_INTEGER(getToken().int).also { it.tag(this) }
         if (nextTokenIs(T_FLOAT)) return N_FLOAT(getToken().float).also { it.tag(this) }
+        if (nextTokenIs(T_STRING)) return N_STRING(getToken().string).also { it.tag(this) }
         if (nextTokenIs(T_PAREN_OPEN)) {
             toss()
             val expr = parseExpression() ?: throw ParseException(this, "expected expression inside parens")
@@ -333,6 +347,12 @@ class Parser(
             }
         }
         return null
+    }
+
+    fun parseFuncall(): N_FUNCALL? {
+        val name = getToken().string
+        val args = parseArglist()
+        return N_FUNCALL(name, args)
     }
 
     fun parseIdentifier(): N_VALUE? {

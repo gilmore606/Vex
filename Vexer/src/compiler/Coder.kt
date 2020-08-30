@@ -118,12 +118,14 @@ class Coder(
             val op: Opcode = Opcode.values()[outBytes[ip].toInt()]
             out += op.toString()
             if (op==OP_JUMP || op==OP_IF || op==OP_VAR || op==OP_CONST || op==OP_INCVAR || op==OP_DECVAR || op==OP_SETVAR
-                    || op==OP_SETSYS || op==OP_JUMPZ || op==OP_JUMPNZ) {
+                    || op==OP_SETSYS || op==OP_JUMPZ || op==OP_JUMPNZ || op==OP_FUN || op==OP_SFUN || op==OP_SMETH) {
                 val a1 = outBytes[ip+1].toInt() + outBytes[ip+2].toInt()*256
                 if (op==OP_JUMP || op==OP_IF) {
                     out += " j" + a1.toString() + " [" + jumps[a1].toString() + "]"
                 } else if (op==OP_CONST) {
                     out += " c" + a1.toString() + " [" + constants[a1].toString() + "]"
+                } else if (op==OP_FUN || op==OP_SFUN || op==OP_SMETH) {
+                    out += " f" + a1.toString()
                 } else {
                     out += " v" + a1.toString() + " [" + variables[a1].name + "]"
                 }

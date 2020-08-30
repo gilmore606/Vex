@@ -21,25 +21,13 @@ class Lexer(val fVerbose: Boolean) {
         if (inType != null) {
             when (inType) {
                 T_ASSIGN ->
-                    if (c == '=') emit(Token(T_EQUALS)) else finish(
-                        Token(
-                            T_ASSIGN
-                        ), c)
+                    if (c == '=') emit(Token(T_EQUALS)) else finish(Token(T_ASSIGN), c)
                 T_NOTEQUALS ->
-                    if (c == '=') emit(Token(T_NOTEQUALS)) else finish(
-                        Token(
-                            T_BANG
-                        ), c)
+                    if (c == '=') emit(Token(T_NOTEQUALS)) else finish(Token(T_BANG), c)
                 T_GREATER_THAN ->
-                    if (c == '=') emit(Token(T_GREATER_EQUAL)) else finish(
-                        Token(
-                            T_GREATER_THAN
-                        ), c)
+                    if (c == '=') emit(Token(T_GREATER_EQUAL)) else finish(Token(T_GREATER_THAN), c)
                 T_LESS_THAN ->
-                    if (c == '=') emit(Token(T_LESS_EQUAL)) else finish(
-                        Token(
-                            T_LESS_THAN
-                        ), c)
+                    if (c == '=') emit(Token(T_LESS_EQUAL)) else finish(Token(T_LESS_THAN), c)
                 T_ADD -> when (c) {
                     '=' -> emit(Token(T_ADD_ASSIGN))
                     '+' -> emit(Token(T_INCREMENT))
@@ -75,7 +63,7 @@ class Lexer(val fVerbose: Boolean) {
                         "expected &&"
                     )
                 T_STRING ->
-                    if (c == '"') emit(Token(T_STRING)) else inBuf += c
+                    if (c == '"') emit(Token(T_STRING, inBuf)) else inBuf += c
                 T_COMMENT ->
                     if (c == '\n') emit(Token(T_COMMENT)) else inBuf += c
                 T_INTEGER -> when (c) {

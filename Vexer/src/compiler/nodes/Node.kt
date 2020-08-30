@@ -13,7 +13,7 @@ open class Node {
 
     var id = ""
     init {
-        id = (Math.random() * 1000000.0).toInt().toString()
+        id = (Math.random() * 100000.0).toInt().toString()
     }
     fun tag(p: Parser) {
         this.linePos = p.linePos()
@@ -24,7 +24,7 @@ open class Node {
         kids().forEach { it.print(lvl + 1) }
     }
     open fun code(coder: Coder) { }
-    open fun kids(): NODES { return ArrayList() }
+    open fun kids(): NODES = ArrayList()
     open fun traverse(worker: (Node)->Unit) {
         kids().forEach { it.traverse(worker) }
         worker(this)
@@ -32,21 +32,21 @@ open class Node {
     open fun setType(meaner: Meaner): Boolean { return true }
     open fun checkType() { }
     open fun scopeVars(scope: Node, meaner: Meaner) {
-        println("(scope)" + this.toString())
         kids().forEach { it.scopeVars(scope, meaner) }
     }
 
     abstract class N_EXPRESSION: Node() {
         var type: ValueType? = null
+        var objtype: ObjectType? = null
     }
 
     abstract class N_BINOP(val arg1: N_EXPRESSION, val arg2: N_EXPRESSION): N_EXPRESSION() {
-        override fun kids(): NODES { return super.kids().apply { add(arg1); add(arg2) }}
+        override fun kids(): NODES = super.kids().apply { add(arg1); add(arg2) }
     }
 
 
     class N_PROGRAM(val blocks: List<N_BLOCK>): Node() {
-        override fun kids(): NODES { return super.kids().apply { blocks.forEach { add(it) } }}
+        override fun kids(): NODES = super.kids().apply { blocks.forEach { add(it) } }
         override fun code(coder: Coder) {
             blocks.forEach { it.code(coder) }
         }
@@ -55,11 +55,11 @@ open class Node {
     abstract class N_BLOCK: Node()
 
     class N_SETTINGS(val assigns: List<N_ASSIGN>): N_BLOCK() {
-        override fun kids(): NODES { return super.kids().apply { assigns.forEach { add(it) } }}
+        override fun kids(): NODES = super.kids().apply { assigns.forEach { add(it) } }
     }
 
     class N_FUNCTION(val name: String, val code: N_CODEBLOCK): N_BLOCK() {
-        override fun kids(): NODES { return super.kids().apply { add(code) }}
+        override fun kids(): NODES = super.kids().apply { add(code) }
         override fun code(coder: Coder) {
             coder.addEntryPoint(name)
             code.code(coder)
@@ -68,7 +68,7 @@ open class Node {
     }
 
     class N_CODEBLOCK(val statements: List<N_STATEMENT>): N_BLOCK() {
-        override fun kids(): NODES { return super.kids().apply { statements.forEach { add(it) } }}
+        override fun kids(): NODES = super.kids().apply { statements.forEach { add(it) } }
         override fun code(coder: Coder) {
             statements.forEach { it.code(coder) }
         }

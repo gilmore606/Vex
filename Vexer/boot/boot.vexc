@@ -1,9 +1,10 @@
 to start:
-    x = 0.35
-    y = -74.163
-    log x + y
-    repeat 500:
-    	foo = 0
-    	repeat 5000:
-    		foo = foo + 1
-    log foo
+	text = TEXT("hello world")
+    text.move(0.0,0.0).scale(0.3)
+	sound 1
+	wait 1500
+	sound 2
+    text.hide()
+	wait 500
+    text.write("goodbye world").show()
+	sound 1

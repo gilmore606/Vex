@@ -21,6 +21,9 @@ enum class Opcode {
     OP_DECVAR,   // [2:var] Decrement int var
     OP_SETVAR,   // [2:var] Store stacktop in var
     OP_SETSYS,   // [2:sys] Store stacktop in system setting
+    OP_FUN,      // [2:fun] Call function with stack args, push return on stack
+    OP_SFUN,     // [2:sysfun] Call system function with stack args, push return on stack
+    OP_SMETH,    // [2:sysclassmeth] Call system class method with stack args (this on top), push return on stack
 
     OP_INC,      // i++
     OP_DEC,      // i--

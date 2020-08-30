@@ -2,17 +2,43 @@ package compiler.nodes
 
 import compiler.Coder
 import compiler.CompileException
+import compiler.FuncSig
 import compiler.Meaner
 import compiler.Opcode.*
 import compiler.ValueType.*
+import compiler.nodes.Node.*
 
 abstract class N_STATEMENT: Node()
+
+class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESSION>): N_STATEMENT() {
+    var sig: FuncSig? = null
+    override fun toString() = "METH:" + obj.name + "." + name + "(" + args.joinToString(",") + ")"
+    override fun kids(): NODES = super.kids().apply { add(obj); args.forEach { add(it) }}
+    override fun setType(meaner: Meaner): Boolean {
+        val oldsig = sig
+        if (obj.type == VAL_OBJECT) {
+            sig = meaner.getMethodSig(obj.objtype!!, name, args)
+        }
+        return oldsig == sig
+    }
+    override fun checkType() {
+        if (obj.type != VAL_OBJECT) throw CompileException("can't call method on non-object")
+        sig!!.argtypes.forEachIndexed { i, argtype ->
+            if (argtype != args[i].type) throw CompileException("wrong arg type in system method call")
+        }
+    }
+    override fun code(coder: Coder) {
+        args.forEach { it.code(coder) }
+        obj.code(coder)
+        coder.code(OP_SMETH, sig!!.funcID)
+    }
+}
 
 class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = target.type
-        if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!)
+        if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!, value.objtype)
         return oldtype == target.type
     }
     override fun checkType() {
@@ -92,7 +118,7 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
     }
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = index.type
-        meaner.learnVarType(index.varID, VAL_INT)
+        meaner.learnVarType(index.varID, VAL_INT, null)
         return oldtype == index.type
     }
     override fun checkType() {
