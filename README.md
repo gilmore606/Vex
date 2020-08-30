@@ -14,6 +14,9 @@ You can [download an .exe demo](https://raw.githubusercontent.com/gilmore606/Vex
 
 # Updates
 
+8/30: Compiler: added the concept of system functions and system object classes, and function/method call parsing and compiling to go with.  We'll need this to
+meaningfully interact with the GPU and APU.
+
 8/28: CPU: the compiler now supports 'if' and 'repeat', which permitted the first benchmark to run -- the VM can execute about 17 million opcodes/second.  Here's a sample
 disassembler output for some benchmark code:
 
