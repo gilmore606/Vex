@@ -92,8 +92,16 @@ class Meaner (
         // Index all variables
         ast[0].scopeVars(ast[0], this)
 
-        // Infer and check all expression types
-        ast[0].traverse { it.setType(this) }
+        // Infer all expression types
+        var settled = false
+        while (!settled) {
+            settled = true
+            ast[0].traverse {
+                if (!it.setType(this)) settled = false
+            }
+        }
+
+        // Check types for sanity
         ast[0].traverse { it.checkType() }
 
 

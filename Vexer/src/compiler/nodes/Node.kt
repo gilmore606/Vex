@@ -29,7 +29,7 @@ open class Node {
         kids().forEach { it.traverse(worker) }
         worker(this)
     }
-    open fun setType(meaner: Meaner) { }
+    open fun setType(meaner: Meaner): Boolean { return true }
     open fun checkType() { }
     open fun scopeVars(scope: Node, meaner: Meaner) {
         println("(scope)" + this.toString())

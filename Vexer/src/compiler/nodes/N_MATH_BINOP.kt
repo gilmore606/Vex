@@ -7,28 +7,29 @@ import compiler.Opcode.*
 import compiler.ValueType.*
 
 abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINOP(arg1, arg2) {
-    override fun setType(meaner: Meaner) {
-        val e = CompileException("type error: math op accepts only math types")
+    override fun setType(meaner: Meaner): Boolean {
+        val oldtype = this.type
         this.type = when (arg1.type) {
             VAL_INT -> when (arg2.type) {
                 VAL_INT -> VAL_INT
                 VAL_FLOAT -> VAL_FLOAT
                 VAL_VECTOR -> VAL_VECTOR
-                else -> throw e
+                else -> null
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT, VAL_FLOAT -> VAL_FLOAT
                 VAL_VECTOR -> VAL_VECTOR
-                else -> throw e
+                else -> null
             }
             VAL_VECTOR -> when (arg2.type) {
                 VAL_INT, VAL_FLOAT -> VAL_VECTOR
                 VAL_VECTOR -> if (this is N_MULTIPLY) VAL_FLOAT else VAL_VECTOR
-                else -> throw e
+                else -> null
             }
             VAL_STRING -> VAL_STRING
-            else -> throw e
+            else -> null
         }
+        return this.type == oldtype
     }
     abstract fun codeInt(coder: Coder)
     abstract fun codeFloat(coder: Coder)
@@ -130,27 +131,28 @@ class N_MULTIPLY(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg
     override fun codeVecF(coder: Coder) { coder.code(OP_MULTVF) }
 }
 class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
-    override fun setType(meaner: Meaner) {
-        val e = CompileException("type error: math op accepts only math types")
+    override fun setType(meaner: Meaner): Boolean {
+        val oldtype = this.type
         this.type = when (arg1.type) {
             VAL_INT -> when (arg2.type) {
                 VAL_INT -> VAL_INT
                 VAL_FLOAT -> VAL_FLOAT
                 VAL_VECTOR -> VAL_VECTOR
-                else -> throw e
+                else -> null
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT, VAL_FLOAT -> VAL_FLOAT
                 VAL_VECTOR -> throw CompileException("type error: can't divide float by vector")
-                else -> throw e
+                else -> null
             }
             VAL_VECTOR -> when (arg2.type) {
                 VAL_INT, VAL_FLOAT -> VAL_FLOAT
                 VAL_VECTOR -> VAL_VECTOR
-                else -> throw e
+                else -> null
             }
-            else -> throw e
+            else -> null
         }
+        return this.type == oldtype
     }
     override fun codeInt(coder: Coder) { coder.code(OP_DIVI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_DIVF) }
@@ -158,20 +160,21 @@ class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2)
     override fun codeVecF(coder: Coder) { coder.code(OP_DIVVF) }
 }
 class N_MODULO(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
-    override fun setType(meaner: Meaner) {
-        val e = CompileException("type error: modulo only accepts linear types")
+    override fun setType(meaner: Meaner): Boolean {
+        val oldtype = this.type
         this.type = when (arg1.type) {
             VAL_INT -> when (arg2.type) {
                 VAL_INT -> VAL_INT
                 VAL_FLOAT -> VAL_FLOAT
-                else -> throw e
+                else -> null
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT,VAL_FLOAT -> VAL_FLOAT
-                else -> throw e
+                else -> null
             }
-            else -> throw e
+            else -> null
         }
+        return this.type == oldtype
     }
     override fun codeInt(coder: Coder) { coder.code(OP_MODI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_MODF) }

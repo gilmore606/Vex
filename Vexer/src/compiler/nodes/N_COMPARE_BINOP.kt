@@ -7,8 +7,12 @@ import compiler.Opcode.*
 import compiler.ValueType.*
 
 abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINOP(arg1, arg2) {
-    override fun setType(meaner: Meaner) {
-        this.type = VAL_BOOL
+    override fun setType(meaner: Meaner): Boolean {
+        if (this.type != VAL_BOOL) {
+            this.type = VAL_BOOL
+            return false
+        }
+        return true
     }
     abstract fun codeFloat(coder: Coder)
     abstract fun codeInt(coder: Coder)
