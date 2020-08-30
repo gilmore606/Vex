@@ -10,8 +10,10 @@ abstract class N_STATEMENT: Node()
 
 class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
-    override fun setType(meaner: Meaner) {
+    override fun setType(meaner: Meaner): Boolean {
+        val oldtype = target.type
         if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!)
+        return oldtype == target.type
     }
     override fun checkType() {
         if (target.type != value.type) throw CompileException("type error: mismatched types in assignment")
@@ -78,6 +80,39 @@ class N_IFELSE(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK, val elsebl
         coder.reachFuture("ifskip"+id)
         elseblock.code(coder)
         coder.reachFuture("elseskip"+id)
+    }
+}
+
+class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
+    var endvarID = -1
+    override fun kids(): NODES { return super.kids().apply { add(index); add(start); add(end); add(code); }}
+    override fun scopeVars(scope: Node, meaner: Meaner) {
+        super.scopeVars(scope, meaner)
+        endvarID = meaner.variableToID(this, "_forend"+id, scope)
+    }
+    override fun setType(meaner: Meaner): Boolean {
+        val oldtype = index.type
+        meaner.learnVarType(index.varID, VAL_INT)
+        return oldtype == index.type
+    }
+    override fun checkType() {
+        if (start.type != VAL_INT || end.type != VAL_INT) throw CompileException("type error: for loop can only count int")
+    }
+    override fun code(coder: Coder) {
+        end.code(coder)
+        coder.code(OP_SETVAR, endvarID)
+        start.code(coder)
+        index.codeSet(coder)
+        val top = coder.addJumpPoint()
+        index.code(coder)
+        coder.code(OP_VAR, endvarID)
+        coder.code(OP_LEI)
+        coder.code(OP_IF)
+        coder.jumpFuture("forskip"+id)
+        code.code(coder)
+        coder.code(OP_INCVAR, index.varID)
+        coder.code(OP_JUMP, top)
+        coder.reachFuture("forskip"+id)
     }
 }
 

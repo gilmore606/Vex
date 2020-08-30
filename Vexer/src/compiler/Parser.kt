@@ -117,6 +117,7 @@ class Parser(
         parseSound()?.also { return it }
         parseLog()?.also { return it }
         parseRepeat(depth)?.also { return it }
+        parseFor(depth)?.also { return it }
         parseEach(depth)?.also { return it }
         parseAssign()?.also { return it }
 
@@ -166,6 +167,19 @@ class Parser(
         expectToken(T_COLON, "expected colon after repeat count expression")
         val code = parseCodeblock(depth + 1)
         return N_REPEAT(count, N_CODEBLOCK(code)).also { it.tag(this) }
+    }
+
+    fun parseFor(depth: Int): N_FOR? {
+        if (!(nextIDIs("for"))) return null
+        toss()
+        val index = parseIdentifier() ?: throw ParseException(this, "expected 'for var...'")
+        val start = parseExpression() ?: throw ParseException(this, "expected 'for var startexpr...'")
+        if (!(nextIDIs("to"))) throw ParseException(this, "expected 'for var startexpr to...'")
+        toss()
+        val end = parseExpression() ?: throw ParseException(this, "expected 'for var startexpr to endexpr'")
+        expectToken(T_COLON, "expected colon after for statement")
+        val code = parseCodeblock(depth + 1)
+        return N_FOR(index as N_VARIABLE, start, end, N_CODEBLOCK(code)).also { it.tag(this) }
     }
 
     fun parseEach(depth: Int): N_EACH? {
