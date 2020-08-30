@@ -23,7 +23,11 @@ class Meaner (
 
         // Built-in system functions
 
-        systemFuncs.add(FuncSig(true, "TEXT", 0, VAL_OBJECT, OBJ_SPRITE,
+        systemFuncs.add(FuncSig(true, "V", 0, VAL_VECTOR, null,
+                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
+        systemFuncs.add(FuncSig(true, "C", 1, VAL_COLOR, null,
+                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT); add(VAL_FLOAT) }))
+        systemFuncs.add(FuncSig(true, "TEXT", 2, VAL_OBJECT, OBJ_SPRITE,
                 TYPELIST().apply { add(VAL_STRING) }))
 
         // Built-in system class methods
@@ -101,6 +105,7 @@ class Meaner (
                     if (node is N_INTEGER && c.type == VAL_INT && node.value == c.integer) found = i
                     if (node is N_FLOAT && c.type == VAL_FLOAT && node.value == c.fp) found = i
                     if (node is N_VECTOR && c.type == VAL_VECTOR && node.v1 == c.v1 && node.v2 == c.v2) found = i
+                    if (node is N_COLOR && c.type == VAL_COLOR && node.c1 == c.c1 && node.c2 == c.c2 && node.c3 == c.c3) found = i
                     if (node is N_STRING && c.type == VAL_STRING && node.value == c.string) found = i
                 }
                 if (found == -1) {
@@ -110,6 +115,7 @@ class Meaner (
                         node is N_FLOAT -> VAL_FLOAT
                         node is N_VECTOR -> VAL_VECTOR
                         node is N_STRING -> VAL_STRING
+                        node is N_COLOR -> VAL_COLOR
                         else -> VAL_NIL
                     }
                     constants.add(Value(type,
@@ -118,6 +124,9 @@ class Meaner (
                             if (node is N_FLOAT) node.value else 0.0f,
                             if (node is N_VECTOR) node.v1 else 0.0f,
                             if (node is N_VECTOR) node.v2 else 0.0f,
+                            if (node is N_COLOR) node.c1 else 0.0f,
+                            if (node is N_COLOR) node.c2 else 0.0f,
+                            if (node is N_COLOR) node.c3 else 0.0f,
                             if (node is N_STRING) node.value else "",
                             null
                         ))

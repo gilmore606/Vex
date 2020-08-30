@@ -19,6 +19,7 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT, VAL_FLOAT -> VAL_FLOAT
                 VAL_VECTOR -> VAL_VECTOR
+                VAL_COLOR -> VAL_COLOR
                 else -> null
             }
             VAL_VECTOR -> when (arg2.type) {
@@ -26,15 +27,22 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
                 VAL_VECTOR -> if (this is N_MULTIPLY) VAL_FLOAT else VAL_VECTOR
                 else -> null
             }
+            VAL_COLOR -> when (arg2.type) {
+                VAL_FLOAT, VAL_COLOR -> VAL_COLOR
+                else -> null
+            }
             VAL_STRING -> VAL_STRING
             else -> null
         }
         return this.type == oldtype
     }
-    abstract fun codeInt(coder: Coder)
-    abstract fun codeFloat(coder: Coder)
-    abstract fun codeVector(coder: Coder)
-    abstract fun codeVecF(coder: Coder)
+    val typeE = CompileException("illegal types in math op")
+    open fun codeInt(coder: Coder) { throw typeE }
+    open fun codeFloat(coder: Coder) { throw typeE }
+    open fun codeVector(coder: Coder) { throw typeE }
+    open fun codeVecF(coder: Coder) { throw typeE }
+    open fun codeCF(coder: Coder) { throw typeE }
+    open fun codeColor(coder: Coder) { throw typeE }
     override fun code(coder: Coder) {
         when (arg1.type) {
             VAL_STRING -> {
@@ -66,6 +74,7 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
                     coder.code(OP_I2F)
                     codeVecF(coder)
                 }
+                else -> throw typeE
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT -> {
@@ -84,6 +93,12 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
                     arg1.code(coder)
                     codeVecF(coder)
                 }
+                VAL_COLOR -> {
+                    arg2.code(coder)
+                    arg1.code(coder)
+                    codeCF(coder)
+                }
+                else -> throw typeE
             }
             VAL_VECTOR -> when (arg2.type) {
                 VAL_INT -> {
@@ -102,7 +117,22 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
                     arg2.code(coder)
                     codeVector(coder)
                 }
+                else -> throw typeE
             }
+            VAL_COLOR -> when (arg2.type) {
+                VAL_FLOAT -> {
+                    arg1.code(coder)
+                    arg2.code(coder)
+                    codeCF(coder)
+                }
+                VAL_COLOR -> {
+                    arg1.code(coder)
+                    arg2.code(coder)
+                    codeColor(coder)
+                }
+                else -> throw typeE
+            }
+            else -> throw typeE
         }
     }
 }
@@ -111,6 +141,8 @@ class N_ADD(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
     override fun codeFloat(coder: Coder) { coder.code(OP_ADDF) }
     override fun codeVector(coder: Coder) { coder.code(OP_ADDV) }
     override fun codeVecF(coder: Coder) { coder.code(OP_ADDVF) }
+    override fun codeCF(coder: Coder) { coder.code(OP_ADDCF) }
+    override fun codeColor(coder: Coder) { coder.code(OP_ADDC) }
 }
 class N_SUBTRACT(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
     override fun codeInt(coder: Coder) { coder.code(OP_SUBI) }
@@ -122,6 +154,10 @@ class N_SUBTRACT(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg
     override fun codeVecF(coder: Coder) {
         coder.code(OP_NEGF)
         coder.code(OP_ADDVF)
+    }
+    override fun codeCF(coder: Coder) {
+        coder.code(OP_NEGV)
+        coder.code(OP_ADDCF)
     }
 }
 class N_MULTIPLY(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
@@ -178,12 +214,8 @@ class N_MODULO(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2)
     }
     override fun codeInt(coder: Coder) { coder.code(OP_MODI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_MODF) }
-    override fun codeVector(coder: Coder) { throw CompileException("type error: can't modulo vector") }
-    override fun codeVecF(coder: Coder) { throw CompileException("type error: can't modulo vector") }
 }
 class N_POWER(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
     override fun codeInt(coder: Coder) { coder.code(OP_POWI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_POWF) }
-    override fun codeVector(coder: Coder) { throw CompileException("type error: can't apply powers to vectors") }
-    override fun codeVecF(coder: Coder) { throw CompileException("type error: can't apply powers to vectors") }
 }

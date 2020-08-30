@@ -23,6 +23,7 @@ abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_B
             VAL_NIL -> { coder.code(OP_N2I); a1type = VAL_INT }
             VAL_BOOL -> { coder.code(OP_B2I); a1type = VAL_INT }
             VAL_VECTOR -> { coder.code(OP_V2F); a1type = VAL_FLOAT }
+            VAL_COLOR -> { coder.code(OP_C2F); a1type = VAL_FLOAT }
             VAL_INT, VAL_FLOAT -> { }
             else -> throw CompileException("incomparable types")
         }
@@ -46,6 +47,11 @@ abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_B
                 arg2.code(coder)
                 coder.code(OP_V2F)
             }
+            VAL_COLOR -> {
+                if (a1type == VAL_INT) coder.code(OP_I2F)
+                arg2.code(coder)
+                coder.code(OP_C2F)
+            }
             VAL_INT -> {
                 arg2.code(coder)
                 if (a1type !=VAL_INT) coder.code(OP_I2F)
@@ -64,6 +70,14 @@ class N_EQUAL(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_COMPARE_BINOP(arg1, arg
             arg1.code(coder)
             arg2.code(coder)
             coder.code(OP_EQS)
+        } else if ((arg1.type == VAL_VECTOR) && (arg2.type == VAL_VECTOR)) {
+            arg1.code(coder)
+            arg2.code(coder)
+            coder.code(OP_EQV)
+        } else if ((arg1.type == VAL_COLOR) && (arg2.type == VAL_COLOR)) {
+            arg1.code(coder)
+            arg2.code(coder)
+            coder.code(OP_EQC)
         } else super.code(coder)
     }
 }

@@ -138,15 +138,20 @@ class Parser(
         if (!(nextIDIs("if"))) return null
         toss()
         val test = parseExpression() ?: throw ParseException(this, "expected test expr after if")
-        expectToken(T_COLON, "expected colon after if expr")
-        val code = parseCodeblock(depth + 1)
+        val code = parseStatementOrBlock(depth + 1)
         if (!(nextIDnextLineIs("else"))) return N_IF(test, N_CODEBLOCK(code)).also { it.tag(this) }
         tossToNextLine()
         toss()
-        if (!nextTokenIs(T_COLON)) throw ParseException(this, "expected colon after else")
-        toss()
-        val elseblock = parseCodeblock(depth + 1)
+        val elseblock = parseStatementOrBlock(depth + 1)
         return N_IFELSE(test, N_CODEBLOCK(code), N_CODEBLOCK(elseblock)).also { it.tag(this) }
+    }
+
+    fun parseStatementOrBlock(depth: Int): List<N_STATEMENT> {
+        if (nextTokenIs(T_COLON)) {
+            toss()
+            return parseCodeblock(depth)
+        }
+        return parseStatement(0) ?: throw ParseException(this, "expected statement or codeblock")
     }
 
     fun parseWait(): N_WAIT? {
@@ -174,8 +179,7 @@ class Parser(
         if (!(nextIDIs("repeat"))) return null
         toss()
         val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
-        expectToken(T_COLON, "expected colon after repeat count expression")
-        val code = parseCodeblock(depth + 1)
+        val code = parseStatementOrBlock(depth + 1)
         return N_REPEAT(count, N_CODEBLOCK(code)).also { it.tag(this) }
     }
 
@@ -320,6 +324,7 @@ class Parser(
         if (nextTokenIs(T_IDENTIFIER)) return parseIdentifier()
         if (nextTokenIs(T_IDENTIFUNC)) {
             parseVector()?.also { return it }
+            parseColor()?.also { return it }
             parseFuncall()?.also { return it }
         }
         if (nextTokenIs(T_STRING)) return N_STRING(getToken().string).also { it.tag(this) }
@@ -344,6 +349,22 @@ class Parser(
                 val v2 = getToken()
                 toss()
                 return N_VECTOR(v1.float, v2.float).also { it.tag(this) }
+            }
+        }
+        return null
+    }
+
+    fun parseColor(): N_COLOR? {
+        if (nextTokensAre(T_IDENTIFUNC, T_FLOAT, T_COMMA, T_FLOAT, T_COMMA, T_FLOAT, T_PAREN_CLOSE)) {
+            if (nextToken().string == "C") {
+                toss()
+                val c1 = getToken()
+                toss()
+                val c2 = getToken()
+                toss()
+                val c3 = getToken()
+                toss()
+                return N_COLOR(c1.float, c2.float, c3.float).also { it.tag(this) }
             }
         }
         return null

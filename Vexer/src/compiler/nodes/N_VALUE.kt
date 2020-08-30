@@ -31,6 +31,9 @@ class N_STRING(val value: String): N_LITERAL() {
 class N_VECTOR(val v1: Float, val v2: Float): N_LITERAL() {
     override fun toString() = "VECTOR (" + v1 + "," + v2 + ")"
 }
+class N_COLOR(val c1: Float, val c2: Float, val c3: Float): N_LITERAL() {
+    override fun toString() = "COLOR (" + c1 + "," + c2 + "," + c3 + ")"
+}
 
 abstract class N_VARREF(): N_VALUE() {
     var varID: Int = -1

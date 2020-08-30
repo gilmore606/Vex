@@ -1,10 +1,10 @@
 to start:
 	text = TEXT("hello world")
     text.move(0.0,0.0).scale(0.3)
-	sound 1
-	wait 1500
-	sound 2
-    text.hide()
-	wait 500
-    text.write("goodbye world").show()
-	sound 1
+	col1 = C(0.3,0.4,0.9)
+	col2 = C(0.0,0.0,0.5)
+	col3 = col1 + col2
+	if (col1 > 0.7) sound 1
+	vek = V(0.35,0.35)
+	if (vek > 0.8) sound 2
+	

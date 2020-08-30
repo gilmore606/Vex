@@ -1,8 +1,6 @@
 import compiler.Value
 import compiler.ValueType.*
 import java.io.File
-import java.io.DataOutputStream
-import java.io.ByteArrayOutputStream
 
 class OutFile(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
 
@@ -109,6 +107,12 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
                 writeByte(5.toUByte())  // 1 byte = 5 (vector) 8 bytes 2 floats
                 write4ByteInt(v.v1.toBits())
                 write4ByteInt(v.v2.toBits())
+            }
+            VAL_COLOR -> {
+                writeByte(6.toUByte())   // 1 byte = 6 (color) 12 bytes 3 floats
+                write4ByteInt(v.c1.toBits())
+                write4ByteInt(v.c2.toBits())
+                write4ByteInt(v.c3.toBits())
             }
             VAL_STRING -> {
                 writeByte(6.toUByte())
