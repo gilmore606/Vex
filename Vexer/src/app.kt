@@ -52,10 +52,10 @@ fun main() {
 
     // Write particles
 
-    //gameConfig.particles.sortBy { it.id }
-    //gameConfig.particles.forEach { particle ->
-    //    particle.writeToFile(outFile, gameConfig)
-   // }
+    gameConfig.particles.sortBy { it.id }
+    gameConfig.particles.forEach { particle ->
+        particle.writeToFile(outFile, gameConfig)
+    }
 
     // Write fonts
 

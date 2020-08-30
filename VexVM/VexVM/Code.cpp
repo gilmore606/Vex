@@ -53,9 +53,10 @@ void Code::Read(ROMReader* rom) {
 	if (!rom->expectMarker("CONST")) throw "expected const block";
 	int constc = rom->next2Int();
 	for (int i = 0; i < constc; i++) {
-		constants.push_back(readVal(rom));
+		Value con = readVal(rom);
+		constants.push_back(con);
 	}
-	std::cout << "  read " << constc << " constants" << std::endl;
+	std::cout << "  " << constc << " constants" << std::endl;
 
 	// read variables
 
@@ -64,6 +65,7 @@ void Code::Read(ROMReader* rom) {
 	for (int i = 0; i < varc; i++) {
 		variables.push_back(Value{ VAL_NIL, {} });
 	}
+	std::cout << "  " << varc << " vars" << std::endl;
 
 	// read entry points
 
@@ -73,6 +75,7 @@ void Code::Read(ROMReader* rom) {
 		entryLabels.push_back(rom->nextString());
 		entriesRel.push_back(rom->next3Int());
 	}
+	std::cout << "  " << entryc << " entries" << std::endl;
 
 	// read jump points
 
@@ -81,6 +84,7 @@ void Code::Read(ROMReader* rom) {
 	for (int i = 0; i < jumpc; i++) {
 		jumpsRel.push_back(rom->next3Int());
 	}
+	std::cout << "  " << jumpc << " jumps" << std::endl;
 
 	// read bytecode
 
@@ -90,7 +94,7 @@ void Code::Read(ROMReader* rom) {
 	for (int i = 0; i < codec; i++) {
 		code[i] = rom->next();
 	}
-	std::cout << "  read " << codec << " bytecode instructions" << std::endl;
+	std::cout << "  " << codec << " bytecodes" << std::endl;
 
 	// build jump and entry tables
 

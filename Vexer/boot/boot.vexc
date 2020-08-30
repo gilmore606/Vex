@@ -1,4 +1,4 @@
 to start:
 	repeat 50:
-		foo = rand(10,30)
+		foo = rand(0.5,3.33)
 		log foo
