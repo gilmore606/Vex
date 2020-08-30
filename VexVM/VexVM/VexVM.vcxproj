@@ -161,6 +161,7 @@
     <ClCompile Include="DemoGame.cpp" />
     <ClCompile Include="DemoSynth.cpp" />
     <ClCompile Include="dependencies\rtmidi-4.0.0\RtMidi.cpp" />
+    <ClCompile Include="ParticleDef.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="Voice.cpp" />
     <ClCompile Include="CPU.cpp" />
@@ -177,7 +178,6 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="ROMReader.cpp" />
-    <ClCompile Include="Scheduler.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -192,6 +192,7 @@
     <ClInclude Include="DemoSynth.h" />
     <ClInclude Include="dependencies\rtmidi-4.0.0\RtMidi.h" />
     <ClInclude Include="Opcodes.h" />
+    <ClInclude Include="ParticleDef.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="Values.h" />
     <ClInclude Include="Voice.h" />
@@ -208,7 +209,6 @@
     <ClInclude Include="Line.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="ROMReader.h" />
-    <ClInclude Include="Scheduler.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Vector.h" />

@@ -36,6 +36,12 @@ Value Code::readVal(ROMReader* rom) {
 		c.as.vector[0] = rom->next4Float();
 		c.as.vector[1] = rom->next4Float();
 		break;
+	case 6:
+		c.type = VAL_COLOR;
+		c.as.color[0] = rom->next4Float();
+		c.as.color[1] = rom->next4Float();
+		c.as.color[2] = rom->next4Float();
+		break;
 	}
 	return c;
 }

@@ -8,6 +8,7 @@ data class Game(
     val code: String,
     val controls: ArrayList<Control>,
     val images: ArrayList<Image>,
+    val particles: ArrayList<Particle>,
     val fonts: ArrayList<Font>,
     val instruments: ArrayList<Instrument>,
     val songs: ArrayList<Song>

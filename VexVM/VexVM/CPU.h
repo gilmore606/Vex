@@ -53,6 +53,7 @@ private:
 	int countPressed;
 
 	void callSFUN(int fi);
+	void callSMETH(int fi, Value vthis);
 
 	inline int READ_I16() {
 		int i = (int)*ip++;

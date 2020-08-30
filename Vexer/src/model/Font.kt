@@ -20,7 +20,7 @@ data class Font(
             outFile.writeByte(c.toByte().toUByte())
             // 2 bytes for float count
             outFile.write2ByteInt(data.size)
-            outFile.writeFloats(data)
+            outFile.write2ByteFloats(data)
         }
         println("wrote FNT " + id + " (" + glyphs.size + " glyphs)")
     }

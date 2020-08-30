@@ -32,17 +32,17 @@ public:
 	bool expectMarker(std::string expected);
 	std::string getMarker();
 
+	long cursor = 0;
 private:
 	
 	Song* readSong(int id);
 	Code* readCode();
 	void readControls(Input* input);
-	void readInstr();
 	Image* readImage(int id);
+	ParticleDef readParticle(int id);
 	Font* readFont(int id);
 	void readData();
 
 	const char* filename;
 	std::vector<BYTE> data;
-	long cursor = 0;
 };

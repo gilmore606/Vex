@@ -59,7 +59,7 @@ class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
     override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
-        sig = meaner.getFuncSig(name)
+        sig = meaner.getFuncSig(name, args)
         this.type = sig!!.returnType
         this.objtype = sig!!.returnObjType
         return oldtype == this.type
@@ -72,7 +72,7 @@ class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
         }
     }
     override fun code(coder: Coder) {
-        args.forEach {
+        args.reversed().forEach {
             it.code(coder)
         }
         sig?.also { sig ->

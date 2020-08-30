@@ -41,6 +41,8 @@ void ROMReader::Read(CPU* cpu, GPU* gpu, APU* apu, Input* input) {
 				readControls(input);
 			} else if (marker.compare("IMG") == 0) {
 				gpu->loadImage(readImage(std::stoi(resourceName)));
+			} else if (marker.compare("PRT") == 0) {
+				gpu->loadParticle(readParticle(std::stoi(resourceName)));
 			} else if (marker.compare("FNT") == 0) {
 				gpu->loadFont(readFont(std::stoi(resourceName)));
 			} else if (marker.compare("DAT") == 0) {
@@ -160,14 +162,18 @@ void ROMReader::readControls(Input* input) {
 	}
 }
 
-void ROMReader::readInstr() {
-	std::cout << "reading instr..." << std::endl;
-}
-
 Image* ROMReader::readImage(int id) {
 	Image* image = new Image();
 	image->Read(this);
 	return image;
+}
+
+ParticleDef ROMReader::readParticle(int id) {
+	ParticleDef p;
+	p.id = id;
+	p.Read(this);
+	std::cout << " read particle " << id << std::endl;
+	return p;
 }
 
 Font* ROMReader::readFont(int id) {

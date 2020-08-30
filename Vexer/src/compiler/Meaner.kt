@@ -27,7 +27,15 @@ class Meaner (
                 TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
         systemFuncs.add(FuncSig(true, "C", 1, VAL_COLOR, null,
                 TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT); add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "TEXT", 2, VAL_OBJECT, OBJ_SPRITE,
+        systemFuncs.add(FuncSig(true, "rand", 2, VAL_FLOAT, null,
+                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
+        systemFuncs.add(FuncSig(true, "rand", 3, VAL_INT, null,
+                TYPELIST().apply { add(VAL_INT); add(VAL_INT) }))
+        systemFuncs.add(FuncSig(true, "rand", 4, VAL_INT, null,
+                TYPELIST().apply { add(VAL_INT) }))
+        systemFuncs.add(FuncSig(true, "rand", 5, VAL_FLOAT, null,
+                TYPELIST() ))
+        systemFuncs.add(FuncSig(true, "TEXT", 6, VAL_OBJECT, OBJ_SPRITE,
                 TYPELIST().apply { add(VAL_STRING) }))
 
         // Built-in system class methods
@@ -74,8 +82,15 @@ class Meaner (
     }
 
     // Look up signature of named function
-    fun getFuncSig(name: String): FuncSig {
-        systemFuncs.forEach { if (it.name == name) return it }
+    fun getFuncSig(name: String, args: List<Node.N_EXPRESSION>): FuncSig {
+        systemFuncs.forEach { if (it.name == name) {
+            var match = true
+            it.argtypes.forEachIndexed { i, type ->
+                if (i > args.lastIndex) match = false
+                else if (type != args[i].type) match = false
+            }
+            if (match) return it
+        } }
         throw CompileException("unknown function call")
     }
 

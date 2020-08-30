@@ -39,9 +39,6 @@
     <ClCompile Include="ROMReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scheduler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GPU.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -108,15 +105,15 @@
     <ClCompile Include="Task.cpp">
       <Filter>CPU</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleDef.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ROMReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sprite.h">
@@ -196,6 +193,9 @@
     </ClInclude>
     <ClInclude Include="Task.h">
       <Filter>CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleDef.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

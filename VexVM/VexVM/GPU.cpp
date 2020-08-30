@@ -68,6 +68,9 @@ void GPU::ToggleFullscreen() {
 void GPU::loadImage(Image* image) {
 	images.push_back(image);
 }
+void GPU::loadParticle(ParticleDef particle) {
+	particleDefs.push_back(particle);
+}
 void GPU::loadFont(Font* font) {
 	fonts.push_back(font);
 }

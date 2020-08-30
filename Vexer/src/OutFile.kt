@@ -67,13 +67,22 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
         outBytes.add(b3.toUByte())
     }
 
-    fun writeFloats(floats: ArrayList<Float>) {
+    fun write2ByteFloats(floats: ArrayList<Float>) {
         floats.forEach { f ->
             var s = f
             if (f >= 1.0f) s = 0.9999f
             if (f <= -1.0f) s = -0.9999f
             val i = ((s + 1.0f) * 0.5f * 65536.0f).toInt()
             write2ByteInt(i)
+        }
+    }
+
+    fun write4ByteFloat(f: Float) {
+        write4ByteInt(f.toBits())
+    }
+    fun write4ByteFloats(floats: ArrayList<Float>) {
+        floats.forEach { f ->
+            write4ByteInt(f.toBits())
         }
     }
 

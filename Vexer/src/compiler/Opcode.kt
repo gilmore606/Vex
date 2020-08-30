@@ -15,8 +15,6 @@ enum class Opcode {
 
     OP_VAR,      // [2:var] Get var
     OP_CONST,    // [2:const] Get const
-    OP_RANDF,    // Get random float 0-1
-    OP_RANDI,    // Get random int 0-(stacktop-1)
     OP_INCVAR,   // [2:var] Increment int var
     OP_DECVAR,   // [2:var] Decrement int var
     OP_SETVAR,   // [2:var] Store stacktop in var

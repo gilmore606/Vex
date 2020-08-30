@@ -4,6 +4,7 @@ import OutFile
 
 data class Image(
         val id: Int,
+        val name: String,
         val lines: ArrayList<Float> = ArrayList(),
         val points: ArrayList<Float> = ArrayList()
 ) {
@@ -13,10 +14,10 @@ data class Image(
         outFile.writeMarker(id.toString())
         // 2 bytes for line float count
         outFile.write2ByteInt(lines.size)
-        outFile.writeFloats(lines)
+        outFile.write2ByteFloats(lines)
         // 2 bytes for point float count
         outFile.write2ByteInt(points.size)
-        outFile.writeFloats(points)
+        outFile.write2ByteFloats(points)
         println("wrote IMG " + id + " (" + lines.size + " linefloat " + points.size + " pointfloat)")
     }
 }

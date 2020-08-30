@@ -16,12 +16,13 @@ typedef enum {
 
     OP_VAR,      // [2:var] Get var
     OP_CONST,    // [2:const] Get const
-    OP_RANDF,    // Get random float 0-1
-    OP_RANDI,    // Get random int 0-(stacktop-1)
     OP_INCVAR,   // [2:var] Increment int var
     OP_DECVAR,   // [2:var] Decrement int var
     OP_SETVAR,   // [2:var] Store stacktop in var
     OP_SETSYS,   // [2:sys] Store stacktop in system setting
+    OP_FUN,      // [2:fun] Call function with stack args, push return on stack
+    OP_SFUN,     // [2:sysfun] Call system function with stack args, push return on stack
+    OP_SMETH,    // [2:sysclassmeth] Call system class method with stack args (this on top), push return on stack
 
     OP_INC,      // i++
     OP_DEC,      // i--
@@ -39,18 +40,24 @@ typedef enum {
     OP_MODF,     // f % f
     OP_POWF,     // f ^ f
     OP_NEGF,     // -f
+
     OP_NEGV,     // -v
     OP_ADDV,     // v + v
     OP_MULTV,	 // v * v
     OP_DIVV,	 // v / v
-
     OP_ADDVF,    // v + f
     OP_MULTVF,   // v * f (dot product, produce float)
     OP_DIVVF,    // v / f (????)
 
+    OP_ADDC,     // c + c
+    OP_ADDCF,    // c + f
+    OP_MULTC,    // c * c (average)
+    OP_MULTCF,   // c * f
+
     OP_I2F,      // int to float
     OP_F2I,      // float to int (trunc)
     OP_V2F,      // vector to float (length)
+    OP_C2F,      // color to float (brightness)
     OP_B2I,      // boolean to int (0, 1)
     OP_N2I,      // nil to int (0)
 
@@ -73,6 +80,9 @@ typedef enum {
     OP_LTF,      // f < f
     OP_LEF,      // f <= f
     OP_EQF,      // f == f
+
+    OP_EQV,      // v == v
+    OP_EQC,      // c == c
 
     OP_SONG,     // Play song (id=stacktop)
     OP_SPRITE,   // Create sprite

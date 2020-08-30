@@ -9,6 +9,7 @@
 #include "Point.h"
 #include "Line.h"
 #include "Image.h"
+#include "ParticleDef.h"
 #include "GPUSprite.h"
 #include "GPUParticle.h"
 #include "Font.h"
@@ -67,6 +68,7 @@ public:
 	void Collide(float delta);
 	void Stop();
 	void loadImage(Image* image);
+	void loadParticle(ParticleDef particle);
 	void loadFont(Font* font);
 	GPUSpriteTicket createSprite(int image);
 	GPUSpriteTicket createText(int font, std::string* text, Color color, float charSpacing, float lineSpacing);
@@ -104,6 +106,7 @@ private:
 	int particlec = 0;
 
 	std::vector<Image*> images;
+	std::vector<ParticleDef> particleDefs;
 	std::vector<Font*> fonts;
 
 	int w, h, screenw, screenh;

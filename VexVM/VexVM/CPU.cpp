@@ -100,7 +100,7 @@ void CPU::run(uint8_t* address) {
 	Value* vp;
 	VStr* vs1;
 	VStr* vs2;
-	int vi, ji;
+	int vi, ji, fi;
 	float f, f2;
 
 	for (;;) {
@@ -131,12 +131,6 @@ void CPU::run(uint8_t* address) {
 		case OP_CONST:   
 			push(code->constants[READ_I16()]);
 			break;
-		case OP_RANDF:
-			push(FLOAT_VAL(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)));
-			break;
-		case OP_RANDI:
-			push(INT_VAL(rand() % AS_INT(pop())));
-			break;
 		case OP_INCVAR:  
 			vp = &code->variables[READ_I16()];
 			vp->as.integer += 1;
@@ -150,6 +144,16 @@ void CPU::run(uint8_t* address) {
 			break;
 		case OP_SETSYS: 
 
+			break;
+		case OP_FUN:
+			fi = READ_I16();
+
+			break;
+		case OP_SFUN:
+			callSFUN(READ_I16());
+			break;
+		case OP_SMETH:
+			callSMETH(READ_I16(), pop());
 			break;
 
 
@@ -216,6 +220,10 @@ void CPU::run(uint8_t* address) {
 		case OP_V2F:
 			v = pop();
 			push(FLOAT_VAL(std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1])));
+			break;
+		case OP_C2F:
+			v = pop();
+			push(FLOAT_VAL((v.as.color[0] + v.as.color[1] + v.as.color[2]) * 0.333f));
 			break;
 		case OP_B2I:
 			push(INT_VAL(AS_BOOL(pop()) ? 1 : 0));
@@ -288,6 +296,42 @@ void CPU::run(uint8_t* address) {
 			break;
 
 
+			// Color math
+
+		case OP_ADDC:
+			v1 = pop();
+			v2 = pop();
+			v1.as.color[0] += v2.as.color[0];
+			v1.as.color[1] += v2.as.color[1];
+			v1.as.color[2] += v2.as.color[2];
+			push(v1);
+			break;
+		case OP_MULTC:
+			v1 = pop();
+			v2 = pop();
+			v1.as.color[0] = (v1.as.color[0] + v2.as.color[0]) * 0.5;
+			v1.as.color[1] = (v1.as.color[1] + v2.as.color[1]) * 0.5;
+			v1.as.color[2] = (v1.as.color[2] + v2.as.color[2]) * 0.5;
+			push(v1);
+			break;
+		case OP_ADDCF:
+			v1 = pop();
+			f = AS_FLOAT(pop());
+			v1.as.color[0] += f;
+			v1.as.color[1] += f;
+			v1.as.color[2] += f;
+			push(v1);
+			break;
+		case OP_MULTCF:
+			v1 = pop();
+			f = AS_FLOAT(pop());
+			v1.as.color[0] *= f;
+			v1.as.color[1] *= f;
+			v1.as.color[2] *= f;
+			push(v1);
+			break;
+
+
 			// Logic
 
 		case OP_NOT:
@@ -332,6 +376,16 @@ void CPU::run(uint8_t* address) {
 			break;
 		case OP_EQF:
 			push(BOOL_VAL(AS_FLOAT(pop()) == AS_FLOAT(pop())));
+			break;
+		case OP_EQV:
+			v1 = pop();
+			v2 = pop();
+			push(BOOL_VAL((v1.as.vector[0] == v2.as.vector[0]) && (v1.as.vector[1] == v2.as.vector[1])));
+			break;
+		case OP_EQC:
+			v1 = pop();
+			v2 = pop();
+			push(BOOL_VAL((v1.as.color[0] == v2.as.color[0]) && (v1.as.color[1] == v2.as.color[1]) && (v1.as.color[2] == v2.as.color[2])));
 			break;
 
 
@@ -385,4 +439,47 @@ void CPU::run(uint8_t* address) {
 void CPU::resume(Task task) {
 	CLEAR_STACK();
 	run(task.ip);
+}
+
+void CPU::callSFUN(int fi) {
+	float f1;
+	int v1;
+	int v2;
+	VStr* text;
+	switch (fi) {
+	case 0: // vector = V(f,f)
+		push(VECTOR_VAL(AS_FLOAT(pop()), AS_FLOAT(pop())));
+		break;
+	case 1: // color = C(f,f,f)
+		push(COLOR_VAL(AS_FLOAT(pop()), AS_FLOAT(pop()), AS_FLOAT(pop())));
+		break;
+	case 2: // float = RAND(f,f)
+		f1 = AS_FLOAT(pop());
+		push(FLOAT_VAL(f1 + (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * (AS_FLOAT(pop()) - f1)));
+		break;
+	case 3: // int = RAND(i,i)
+		v1 = AS_INT(pop());
+		v2 = AS_INT(pop());
+		push(INT_VAL(v1 + (rand() % (v2 - v1))));
+		break;
+	case 4: // int = RAND(i)
+		push(INT_VAL(rand() % AS_INT(pop())));
+		break;
+	case 5: // float = RAND()
+		push(FLOAT_VAL(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)));
+		break;
+	case 6: // sprite = TEXT("text")
+		text = pop().as.string;
+
+		break;
+
+	case 7: // sprite = SPRITE(imageid)
+		v1 = pop().as.integer;
+
+		break;
+	}
+}
+
+void CPU::callSMETH(int fi, Value vthis) {
+
 }
