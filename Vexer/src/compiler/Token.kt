@@ -15,6 +15,8 @@ enum class TokenType {
     T_SUBTRACT,           // -
     T_ADD_ASSIGN,         // +=
     T_SUBTRACT_ASSIGN,    // -=
+    T_MULT_ASSIGN,        // *=
+    T_DIV_ASSIGN,         // /=
     T_INCREMENT,                // ++
     T_DECREMENT,                // --
     T_MULTIPLY,               // *

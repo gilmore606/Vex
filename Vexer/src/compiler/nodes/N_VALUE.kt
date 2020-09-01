@@ -60,16 +60,19 @@ class N_PARAM(val name: String): N_VARREF() {
 
 class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
     var sig: FuncSig? = null
+    var meaner: Meaner? = null
     override fun toString() = "FUN:" + name + "(" + args.joinToString(",") + ")"
     override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         sig = meaner.getFuncSig(name, args)
+        this.meaner = meaner
         this.type = sig!!.returnType
         this.objtype = sig!!.returnObjType
         return oldtype == this.type
     }
     override fun checkType() {
+        if (sig == null) setType(meaner!!)
         sig?.also { sig ->
             args.forEachIndexed { i, arg ->
                 if (arg.type != sig.argtypes[i]) throw CompileException("illegal type function arg")

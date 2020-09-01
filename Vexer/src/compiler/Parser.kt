@@ -235,9 +235,16 @@ class Parser(
         if (!nextTokenIs(T_IDENTIFIER)) return null
         val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
         if (identifier !is N_VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
-        toss()
+        val oper = getToken()
         val expression = parseExpression() ?: throw ParseException(this, "expected expression on right side of assignment")
-        return N_ASSIGN(identifier, expression).also { it.tag(this) }
+        return when (oper.type) {
+            T_ASSIGN -> N_ASSIGN(identifier, expression)
+            T_ADD_ASSIGN -> N_ASSIGN_ADD(identifier, expression)
+            T_SUBTRACT_ASSIGN -> N_ASSIGN_SUB(identifier, expression)
+            T_MULT_ASSIGN -> N_ASSIGN_MULT(identifier, expression)
+            T_DIV_ASSIGN -> N_ASSIGN_DIV(identifier, expression)
+            else -> throw ParseException(this, "illegal statement operator")
+        }.also { it.tag(this) }
     }
 
     fun parseExpression(): N_EXPRESSION? {

@@ -50,8 +50,13 @@ class Lexer(val fVerbose: Boolean) {
                     '-' -> emit(Token(T_DECREMENT))
                     else -> finish(Token(T_SUBTRACT), c)
                 }
-                T_DIVIDE ->
-                    if (c == '/') inType = T_COMMENT else finish(Token(T_DIVIDE), c)
+                T_MULTIPLY ->
+                    if (c == '=') emit(Token(T_MULT_ASSIGN)) else finish(Token(T_MULTIPLY), c)
+                T_DIVIDE -> when (c) {
+                    '/' -> inType = T_COMMENT
+                    '=' -> emit(Token(T_DIV_ASSIGN))
+                    else -> finish(Token(T_DIVIDE), c)
+                }
                 T_LOGIC_OR ->
                     if (c == '|') emit(Token(T_LOGIC_OR)) else throw LexException(
                         this,
@@ -96,7 +101,7 @@ class Lexer(val fVerbose: Boolean) {
                 '<' -> begin(T_LESS_THAN)
                 '+' -> begin(T_ADD)
                 '-' -> begin(T_SUBTRACT, c)
-                '*' -> emit(Token(T_MULTIPLY))
+                '*' -> begin(T_MULTIPLY)
                 '/' -> begin(T_DIVIDE)
                 '.' -> emit(Token(T_DOTJOIN))
                 '!' -> begin(T_NOTEQUALS)

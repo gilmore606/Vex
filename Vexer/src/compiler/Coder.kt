@@ -127,8 +127,10 @@ class Coder(
                     out += " c" + a1.toString() + " [" + constants[a1].toString() + "]"
                 } else if (op==OP_FUN || op==OP_SFUN || op==OP_SMETH) {
                     out += " f" + a1.toString()
-                } else if (op==OP_LDI || op==OP_STAT) {
+                } else if (op==OP_STAT) {
                     out += " s" + a1.toString()
+                } else if (op==OP_LDI) {
+                    out += " int " + a1.toString()
                 } else {
                     out += " v" + a1.toString() + " [" + variables[a1].name + "]"
                 }

@@ -1,15 +1,9 @@
 to start:
-	for i 0 to 40:
-		x = 666
-		log x
-		SONG 1
-		x = x + 1
-		log x
-		wait 750
-		SONG 2:
-			vol=0.5
-		x = x + 5
-		log x
-		wait 350
-	x = 999
-	log x
+	speed = 0.1
+	for i 0 to 300:
+		PARTICLE 0:
+			p = V(0.3, 0.7 - speed)
+			v = V(0.3, speed)
+			vv = V(-0.1, -0.4)
+		speed += 0.03
+		wait 150

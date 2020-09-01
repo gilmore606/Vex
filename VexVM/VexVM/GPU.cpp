@@ -68,11 +68,14 @@ void GPU::ToggleFullscreen() {
 void GPU::loadImage(Image* image) {
 	images.push_back(image);
 }
-void GPU::loadParticle(ParticleDef particle) {
+void GPU::loadParticleDef(ParticleDef particle) {
 	particleDefs.push_back(particle);
 }
 void GPU::loadFont(Font* font) {
 	fonts.push_back(font);
+}
+ParticleDef* GPU::fetchParticleDef(int id) {
+	return &particleDefs[id];
 }
 
 void GPU::spawnParticle(int image, Pos p, Vec v, Vec vv, Color color0, Color color1, 

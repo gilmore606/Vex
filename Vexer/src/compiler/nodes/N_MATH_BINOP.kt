@@ -137,6 +137,7 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
     }
 }
 class N_ADD(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun toString() = " + "
     override fun codeInt(coder: Coder) { coder.code(OP_ADDI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_ADDF) }
     override fun codeVector(coder: Coder) { coder.code(OP_ADDV) }
@@ -145,6 +146,7 @@ class N_ADD(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
     override fun codeColor(coder: Coder) { coder.code(OP_ADDC) }
 }
 class N_SUBTRACT(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun toString() = " - "
     override fun codeInt(coder: Coder) { coder.code(OP_SUBI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_SUBF) }
     override fun codeVector(coder: Coder) {
@@ -161,12 +163,14 @@ class N_SUBTRACT(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg
     }
 }
 class N_MULTIPLY(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun toString() = " * "
     override fun codeInt(coder: Coder) { coder.code(OP_MULI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_MULF) }
     override fun codeVector(coder: Coder) { coder.code(OP_MULV) }
     override fun codeVecF(coder: Coder) { coder.code(OP_MULVF) }
 }
 class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun toString() = " / "
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         this.type = when (arg1.type) {
@@ -196,6 +200,7 @@ class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2)
     override fun codeVecF(coder: Coder) { coder.code(OP_DIVVF) }
 }
 class N_MODULO(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun toString() = " % "
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         this.type = when (arg1.type) {
@@ -216,6 +221,7 @@ class N_MODULO(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2)
     override fun codeFloat(coder: Coder) { coder.code(OP_MODF) }
 }
 class N_POWER(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
+    override fun toString() = " ^ "
     override fun codeInt(coder: Coder) { coder.code(OP_POWI) }
     override fun codeFloat(coder: Coder) { coder.code(OP_POWF) }
 }

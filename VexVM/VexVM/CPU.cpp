@@ -488,22 +488,31 @@ void CPU::callSTAT(int fi, int paramc) {
 		params[pi] = pop();
 	}
 	switch (fi) {
-		int particleID, songID, transpose;
-		float vol, pan, timescale;
-		bool loop;
-
-	case 0: // PARTICLE
-		particleID = AS_INT(pop());
+	case 0: { // PARTICLE
+		int particleID = AS_INT(pop());
+		ParticleDef* def = gpu->fetchParticleDef(particleID);
+		Pos p =			 (params.count(0) > 0) ? LIFT_POS(params[0]) : Pos(0.0f, 0.0f);
+		Vec v =			 (params.count(1) > 0) ? LIFT_VECTOR(params[1]) : LIFT_VECTOR(def->v);
+		Vec vv =		 (params.count(2) > 0) ? LIFT_VECTOR(params[2]) : LIFT_VECTOR(def->vv);
+		Color c0 =		 (params.count(3) > 0) ? LIFT_COLOR(params[3]) : LIFT_COLOR(def->color0);
+		Color c1 =		 (params.count(4) > 0) ? LIFT_COLOR(params[4]) : LIFT_COLOR(def->color1);
+		Vec sc1 =		 (params.count(5) > 0) ? LIFT_VECTOR(params[5]) : LIFT_VECTOR(def->scale0);
+		Vec sc2 =		 (params.count(6) > 0) ? LIFT_VECTOR(params[6]) : LIFT_VECTOR(def->scale1);
+		float rot =		 (params.count(7) > 0) ? AS_FLOAT(params[7]) : (def->rot);
+		float rotv =	 (params.count(8) > 0) ? AS_FLOAT(params[8]) : (def->rotv);
+		float lifetime = (params.count(9) > 0) ? AS_FLOAT(params[9]) : (def->lifetime);
+		gpu->spawnParticle(def->image, p, v, vv, c0, c1, sc1, sc2, rot, rotv, lifetime);
 		break;
-
-	case 1: // SONG
-		songID = AS_INT(pop());
-		vol =			(params.count(0) > 0) ? AS_FLOAT(params[0]) : 1.0f;
-		pan =			(params.count(1) > 0) ? AS_FLOAT(params[1]) : 0.5f;
-		transpose =		(params.count(2) > 0) ? AS_INT(params[2])	: 0;
-		timescale =		(params.count(3) > 0) ? AS_FLOAT(params[3]) : 1.0f;
-		loop =			(params.count(4) > 0) ? AS_BOOL(params[4])	: false;
+	}
+	case 1: { // SONG
+		int songID = AS_INT(pop());
+		float vol =			(params.count(0) > 0) ? AS_FLOAT(params[0]) : 1.0f;
+		float pan =			(params.count(1) > 0) ? AS_FLOAT(params[1]) : 0.5f;
+		int transpose =		(params.count(2) > 0) ? AS_INT(params[2]) : 0;
+		float timescale =	(params.count(3) > 0) ? AS_FLOAT(params[3]) : 1.0f;
+		bool loop =			(params.count(4) > 0) ? AS_BOOL(params[4]) : false;
 		apu->PlaySong(songID, vol, pan, loop);
 		break;
+	}
 	}
 }

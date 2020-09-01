@@ -62,3 +62,7 @@ typedef struct {
 #define IS_COLOR(value)      ((value).type == VAL_COLOR)
 #define IS_STRING(value)    ((value).type == VAL_STRING)
 #define IS_OBJECT(value)    ((value).type == VAL_OBJECT)
+
+#define LIFT_VECTOR(value)   Vec((value).as.vector[0], (value).as.vector[1])
+#define LIFT_POS(value)      Pos((value).as.vector[0], (value).as.vector[1])
+#define LIFT_COLOR(value)    Color((value).as.color[0], (value).as.color[1], (value).as.color[2])

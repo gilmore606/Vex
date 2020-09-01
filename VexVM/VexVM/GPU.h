@@ -68,12 +68,13 @@ public:
 	void Collide(float delta);
 	void Stop();
 	void loadImage(Image* image);
-	void loadParticle(ParticleDef particle);
+	void loadParticleDef(ParticleDef particle);
 	void loadFont(Font* font);
 	GPUSpriteTicket createSprite(int image);
 	GPUSpriteTicket createText(int font, std::string* text, Color color, float charSpacing, float lineSpacing);
 	void drawText(GPUSprite* sprite, int font, std::string* text, Color color, float charSpacing = 0.2f, float lineSpacing = 1.1f);
 	void destroySprite(int id);
+	ParticleDef* fetchParticleDef(int id);
 	void spawnParticle(int image, Pos p, Vec v, Vec vv, Color color0, Color color1, 
 		Vec scale0, Vec scale1, float rot, float rotv, float lifetime);
 
