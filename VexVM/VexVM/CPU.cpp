@@ -86,6 +86,9 @@ void CPU::logValue(Value v) {
 	case VAL_VECTOR:
 		std::cout << "V(" << v.as.vector[0] << "," << v.as.vector[1] << ")";
 		break;
+	case VAL_COLOR:
+		std::cout << "C(" << v.as.color[0] << "," << v.as.color[1] << "," << v.as.color[2] << ")";
+		break;
 	case VAL_STRING:
 		std::cout << v.as.string->s;
 		break;
@@ -454,23 +457,26 @@ void CPU::callSFUN(int fi) {
 		f1 = AS_FLOAT(pop());
 		push(FLOAT_VAL(f1 + (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * (AS_FLOAT(pop()) - f1)));
 		break;
-	case 3: // int = RAND(i,i)
+	case 3: // float = RAND(f)
+		push(FLOAT_VAL((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * AS_FLOAT(pop())));
+		break;
+	case 4: // int = RAND(i,i)
 		v1 = AS_INT(pop());
 		v2 = AS_INT(pop());
 		push(INT_VAL(v1 + (rand() % (v2 - v1))));
 		break;
-	case 4: // int = RAND(i)
+	case 5: // int = RAND(i)
 		push(INT_VAL(rand() % AS_INT(pop())));
 		break;
-	case 5: // float = RAND()
+	case 6: // float = RAND()
 		push(FLOAT_VAL(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)));
 		break;
-	case 6: // sprite = TEXT("text")
+	case 7: // sprite = TEXT("text")
 		text = pop().as.string;
 
 		break;
 
-	case 7: // sprite = SPRITE(imageid)
+	case 8: // sprite = SPRITE(imageid)
 		v1 = pop().as.integer;
 
 		break;

@@ -283,6 +283,7 @@ void GPU::Setup(void (*onResize)(GLFWwindow* window, int neww, int newh)) {
 }
 
 void GPU::Stop() {
+	if (isFullscreen) ToggleFullscreen();
 	glfwTerminate();
 }
 
