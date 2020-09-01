@@ -53,6 +53,11 @@ class N_VARIABLE(val name: String): N_VARREF() {
     }
 }
 
+class N_PARAM(val name: String): N_VARREF() {
+    override fun toString() = "PARAM (" + name + ")"
+    override fun codeSet(coder: Coder) { }
+}
+
 class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
     var sig: FuncSig? = null
     override fun toString() = "FUN:" + name + "(" + args.joinToString(",") + ")"

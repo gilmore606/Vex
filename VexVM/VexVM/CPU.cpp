@@ -1,6 +1,7 @@
 #include "CPU.h"
 #include <string>
 #include <iostream>
+#include <map>
 
 CPU::CPU() {
 	this->elapsed = 0.0;
@@ -39,22 +40,23 @@ void CPU::OnUpdate(float deltaTime) {
 	}
 	tasks = undone;
 
-	if (countPressed > 0) {
-		CLEAR_STACK();
-		push(INT_VAL(countPressed));
-		for (int i = 0; i < 32; i++) {
-			if (buttonPressed[i]) {
-				push(INT_VAL(i));
-				buttonPressed[i] = false;
-			}
-		}
-		countPressed = 0;
-		run(code->entryInput);
-	}
+	// TODO: implement
+	//if (countPressed > 0) {
+	//	CLEAR_STACK();
+	//	push(INT_VAL(countPressed));
+	//	for (int i = 0; i < 32; i++) {
+	//		if (buttonPressed[i]) {
+	//			push(INT_VAL(i));
+	//			buttonPressed[i] = false;
+	//		}
+	//	}
+	//	countPressed = 0;
+	//	run(code->entryInput);
+	//}
 
-	CLEAR_STACK();
-	push(FLOAT_VAL(deltaTime));
-	run(code->entryUpdate);
+	// CLEAR_STACK();
+	// push(FLOAT_VAL(deltaTime));
+	// run(code->entryUpdate);
 }
 
 void CPU::OnInput(int input) {
@@ -121,7 +123,12 @@ void CPU::run(uint8_t* address) {
 		case OP_WAIT:
 			tasks.push_back(Task(ip, (double)AS_INT(pop()) / 1000.0 + elapsed));
 			return;
-
+		case OP_INPUT:
+			push(BOOL_VAL(input->isPressed(AS_INT(pop()))));
+			break;
+		case OP_BUTTON:
+			push(BOOL_VAL(buttonPressed[AS_INT(pop())]));
+			break;
 
 			// Values
 
@@ -155,6 +162,13 @@ void CPU::run(uint8_t* address) {
 		case OP_SMETH:
 			callSMETH(READ_I16(), pop());
 			break;
+		case OP_STAT:
+			fi = READ_I16();
+			callSTAT(fi, READ_I16());
+			break;
+		case OP_LDI:
+			push(INT_VAL(READ_I16()));
+			break;
 
 
 			// Stack math
@@ -171,7 +185,7 @@ void CPU::run(uint8_t* address) {
 		case OP_SUBI:
 			push(INT_VAL(AS_INT(pop()) - AS_INT(pop())));
 			break;
-		case OP_MULTI:
+		case OP_MULI:
 			push(INT_VAL(AS_INT(pop()) * AS_INT(pop())));
 			break;
 		case OP_DIVI:
@@ -192,7 +206,7 @@ void CPU::run(uint8_t* address) {
 		case OP_SUBF:
 			push(FLOAT_VAL(AS_FLOAT(pop()) - AS_FLOAT(pop())));
 			break;
-		case OP_MULTF:
+		case OP_MULF:
 			push(FLOAT_VAL(AS_FLOAT(pop()) * AS_FLOAT(pop())));
 			break;
 		case OP_DIVF:
@@ -267,7 +281,7 @@ void CPU::run(uint8_t* address) {
 			v2 = pop();
 			push(VECTOR_VAL(v1.as.vector[0] + v2.as.vector[0], v1.as.vector[1] + v2.as.vector[1]));
 			break;
-		case OP_MULTV:   // dot product
+		case OP_MULV:   // dot product
 			v1 = pop();
 			v2 = pop();
 			push(FLOAT_VAL(v1.as.vector[0] * v2.as.vector[0] + v1.as.vector[1] * v2.as.vector[1]));
@@ -284,7 +298,7 @@ void CPU::run(uint8_t* address) {
 			f2 = (f2 + f) / f2;
 			push(VECTOR_VAL(v.as.vector[0] * f2, v.as.vector[1] * f2));
 			break;
-		case OP_MULTVF:  
+		case OP_MULVF:  
 			v = pop();
 			f = AS_FLOAT(pop());
 			push(VECTOR_VAL(v.as.vector[0] * f, v.as.vector[1] * f));
@@ -306,7 +320,7 @@ void CPU::run(uint8_t* address) {
 			v1.as.color[2] += v2.as.color[2];
 			push(v1);
 			break;
-		case OP_MULTC:
+		case OP_MULC:
 			v1 = pop();
 			v2 = pop();
 			v1.as.color[0] = (v1.as.color[0] + v2.as.color[0]) * 0.5;
@@ -322,7 +336,7 @@ void CPU::run(uint8_t* address) {
 			v1.as.color[2] += f;
 			push(v1);
 			break;
-		case OP_MULTCF:
+		case OP_MULCF:
 			v1 = pop();
 			f = AS_FLOAT(pop());
 			v1.as.color[0] *= f;
@@ -415,23 +429,6 @@ void CPU::run(uint8_t* address) {
 			}
 			break;
 
-
-			// I/O
-
-		case OP_SONG:
-			apu->PlaySong(AS_INT(pop()), 1.0, 0.5, false);
-			break;
-		case OP_SPRITE:
-
-			break;
-		case OP_PARTI:
-
-			break;
-		case OP_INPUT:
-			push(BOOL_VAL(input->isPressed(AS_INT(pop()))));
-			break;
-		case OP_BUTTON:
-			push(BOOL_VAL(buttonPressed[AS_INT(pop())]));
 		}
 	}
 }
@@ -482,4 +479,31 @@ void CPU::callSFUN(int fi) {
 
 void CPU::callSMETH(int fi, Value vthis) {
 
+}
+
+void CPU::callSTAT(int fi, int paramc) {
+	std::map<int, Value> params;
+	for (int i = 0; i < paramc; i++) {
+		int pi = AS_INT(pop());
+		params[pi] = pop();
+	}
+	switch (fi) {
+		int particleID, songID, transpose;
+		float vol, pan, timescale;
+		bool loop;
+
+	case 0: // PARTICLE
+		particleID = AS_INT(pop());
+		break;
+
+	case 1: // SONG
+		songID = AS_INT(pop());
+		vol =			(params.count(0) > 0) ? AS_FLOAT(params[0]) : 1.0f;
+		pan =			(params.count(1) > 0) ? AS_FLOAT(params[1]) : 0.5f;
+		transpose =		(params.count(2) > 0) ? AS_INT(params[2])	: 0;
+		timescale =		(params.count(3) > 0) ? AS_FLOAT(params[3]) : 1.0f;
+		loop =			(params.count(4) > 0) ? AS_BOOL(params[4])	: false;
+		apu->PlaySong(songID, vol, pan, loop);
+		break;
+	}
 }

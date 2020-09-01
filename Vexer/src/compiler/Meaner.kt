@@ -27,13 +27,13 @@ class Meaner (
                 TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
         systemFuncs.add(FuncSig(true, "C", 1, VAL_COLOR, null,
                 TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT); add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "rand", 2, VAL_FLOAT, null,
+        systemFuncs.add(FuncSig(true, "RAND", 2, VAL_FLOAT, null,
                 TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "rand", 3, VAL_INT, null,
+        systemFuncs.add(FuncSig(true, "RAND", 3, VAL_INT, null,
                 TYPELIST().apply { add(VAL_INT); add(VAL_INT) }))
-        systemFuncs.add(FuncSig(true, "rand", 4, VAL_INT, null,
+        systemFuncs.add(FuncSig(true, "RAND", 4, VAL_INT, null,
                 TYPELIST().apply { add(VAL_INT) }))
-        systemFuncs.add(FuncSig(true, "rand", 5, VAL_FLOAT, null,
+        systemFuncs.add(FuncSig(true, "RAND", 5, VAL_FLOAT, null,
                 TYPELIST() ))
         systemFuncs.add(FuncSig(true, "TEXT", 6, VAL_OBJECT, OBJ_SPRITE,
                 TYPELIST().apply { add(VAL_STRING) }))

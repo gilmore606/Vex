@@ -17,46 +17,34 @@ abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_B
     abstract fun codeFloat(coder: Coder)
     abstract fun codeInt(coder: Coder)
     override fun code(coder: Coder) {
-        arg1.code(coder)
-        var a1type = arg1.type
-        when (arg1.type) {
-            VAL_NIL -> { coder.code(OP_N2I); a1type = VAL_INT }
-            VAL_BOOL -> { coder.code(OP_B2I); a1type = VAL_INT }
-            VAL_VECTOR -> { coder.code(OP_V2F); a1type = VAL_FLOAT }
-            VAL_COLOR -> { coder.code(OP_C2F); a1type = VAL_FLOAT }
-            VAL_INT, VAL_FLOAT -> { }
+
+        var a1type = when (arg1.type) {
+            VAL_INT, VAL_NIL, VAL_BOOL -> VAL_INT
+            VAL_FLOAT, VAL_VECTOR, VAL_COLOR -> VAL_FLOAT
             else -> throw CompileException("incomparable types")
         }
+        arg2.code(coder)
         when (arg2.type) {
             VAL_NIL -> {
-                arg2.code(coder)
                 coder.code(OP_N2I)
                 if (a1type == VAL_FLOAT) coder.code(OP_I2F)
             }
             VAL_BOOL -> {
-                arg2.code(coder)
                 coder.code(OP_B2I)
                 if (a1type == VAL_FLOAT) coder.code(OP_I2F)
             }
-            VAL_FLOAT -> {
-                if (a1type == VAL_INT) coder.code(OP_I2F)
-                arg2.code(coder)
-            }
-            VAL_VECTOR -> {
-                if (a1type == VAL_INT) coder.code(OP_I2F)
-                arg2.code(coder)
-                coder.code(OP_V2F)
-            }
-            VAL_COLOR -> {
-                if (a1type == VAL_INT) coder.code(OP_I2F)
-                arg2.code(coder)
-                coder.code(OP_C2F)
-            }
-            VAL_INT -> {
-                arg2.code(coder)
-                if (a1type !=VAL_INT) coder.code(OP_I2F)
-            }
+            VAL_VECTOR -> coder.code(OP_V2F)
+            VAL_COLOR -> coder.code(OP_C2F)
+            VAL_INT -> if (a1type == VAL_FLOAT) coder.code(OP_I2F)
             VAL_STRING -> throw CompileException("incomparable types")
+        }
+        arg1.code(coder)
+        when (arg1.type) {
+            VAL_NIL -> { coder.code(OP_N2I); if (arg2.type != VAL_INT) coder.code(OP_I2F) }
+            VAL_BOOL -> { coder.code(OP_B2I); if (arg2.type != VAL_INT) coder.code(OP_I2F) }
+            VAL_INT -> { if (arg2.type != VAL_INT) coder.code(OP_I2F) }
+            VAL_VECTOR -> { coder.code(OP_V2F) }
+            VAL_COLOR -> { coder.code(OP_C2F) }
         }
         if (a1type == VAL_FLOAT) codeFloat(coder) else codeInt(coder)
     }

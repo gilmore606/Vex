@@ -130,8 +130,8 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
         start.code(coder)
         index.codeSet(coder)
         val top = coder.addJumpPoint()
-        index.code(coder)
         coder.code(OP_VAR, endvarID)
+        index.code(coder)
         coder.code(OP_LEI)
         coder.code(OP_IF)
         coder.jumpFuture("forskip"+id)
@@ -139,17 +139,6 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
         coder.code(OP_INCVAR, index.varID)
         coder.code(OP_JUMP, top)
         coder.reachFuture("forskip"+id)
-    }
-}
-
-class N_SOUND(val soundid: N_EXPRESSION): N_STATEMENT() {
-    override fun kids(): NODES { return super.kids().apply { add(soundid) }}
-    override fun checkType() {
-        if (soundid.type != VAL_INT) throw CompileException("type error: sound statement expects int id")
-    }
-    override fun code(coder: Coder) {
-        soundid.code(coder)
-        coder.code(OP_SONG)
     }
 }
 

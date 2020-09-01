@@ -54,6 +54,7 @@ private:
 
 	void callSFUN(int fi);
 	void callSMETH(int fi, Value vthis);
+	void callSTAT(int fi, int paramc);
 
 	inline int READ_I16() {
 		int i = (int)*ip++;

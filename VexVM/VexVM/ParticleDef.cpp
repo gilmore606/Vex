@@ -9,7 +9,6 @@ void ParticleDef::Read(ROMReader* rom) {
 	float f1 = rom->next4Float();
 	float f2 = rom->next4Float();
 	v = VECTOR_VAL(f1, f2);
-	std::cout << "v1 was " << v.as.vector[0] << std::endl;
 	f1 = rom->next4Float();
 	f2 = rom->next4Float();
 	vv = VECTOR_VAL(f1, f2);
@@ -30,7 +29,4 @@ void ParticleDef::Read(ROMReader* rom) {
 	rot = rom->next4Float();
 	rotv = rom->next4Float();
 	lifetime = rom->next4Float();
-	std::cout << "rotv was " << rotv << std::endl;
-	std::cout << "lifetime was " << lifetime << std::endl;
-	std::cout << "cursor at " << rom->cursor << std::endl;
 }

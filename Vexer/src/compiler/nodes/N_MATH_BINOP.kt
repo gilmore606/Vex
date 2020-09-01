@@ -47,8 +47,8 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
         when (arg1.type) {
             VAL_STRING -> {
                 if (this !is N_ADD) throw CompileException("illegal string op")
-                arg1.code(coder)
                 arg2.code(coder)
+                arg1.code(coder)
                 when (arg2.type) {
                     VAL_INT -> coder.code(OP_I2S)
                     VAL_FLOAT -> coder.code(OP_F2S)
@@ -58,76 +58,76 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
             }
             VAL_INT -> when (arg2.type) {
                 VAL_INT -> {
-                    arg1.code(coder)
                     arg2.code(coder)
+                    arg1.code(coder)
                     codeInt(coder)
                 }
                 VAL_FLOAT -> {
+                    arg2.code(coder)
                     arg1.code(coder)
                     coder.code(OP_I2F)
-                    arg2.code(coder)
                     codeFloat(coder)
                 }
                 VAL_VECTOR -> {
-                    arg2.code(coder)
                     arg1.code(coder)
                     coder.code(OP_I2F)
+                    arg2.code(coder)
                     codeVecF(coder)
                 }
                 else -> throw typeE
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT -> {
-                    arg1.code(coder)
                     arg2.code(coder)
                     coder.code(OP_I2F)
+                    arg1.code(coder)
                     codeFloat(coder)
                 }
                 VAL_FLOAT -> {
-                    arg1.code(coder)
                     arg2.code(coder)
+                    arg1.code(coder)
                     codeFloat(coder)
                 }
                 VAL_VECTOR -> {
-                    arg2.code(coder)
                     arg1.code(coder)
                     codeVecF(coder)
+                    arg2.code(coder)
                 }
                 VAL_COLOR -> {
                     arg2.code(coder)
-                    arg1.code(coder)
                     codeCF(coder)
+                    arg1.code(coder)
                 }
                 else -> throw typeE
             }
             VAL_VECTOR -> when (arg2.type) {
                 VAL_INT -> {
-                    arg1.code(coder)
                     arg2.code(coder)
                     coder.code(OP_I2F)
+                    arg1.code(coder)
                     codeVecF(coder)
                 }
                 VAL_FLOAT -> {
-                    arg1.code(coder)
                     arg2.code(coder)
+                    arg1.code(coder)
                     codeVecF(coder)
                 }
                 VAL_VECTOR -> {
-                    arg1.code(coder)
                     arg2.code(coder)
+                    arg1.code(coder)
                     codeVector(coder)
                 }
                 else -> throw typeE
             }
             VAL_COLOR -> when (arg2.type) {
                 VAL_FLOAT -> {
-                    arg1.code(coder)
                     arg2.code(coder)
+                    arg1.code(coder)
                     codeCF(coder)
                 }
                 VAL_COLOR -> {
-                    arg1.code(coder)
                     arg2.code(coder)
+                    arg1.code(coder)
                     codeColor(coder)
                 }
                 else -> throw typeE
@@ -161,10 +161,10 @@ class N_SUBTRACT(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg
     }
 }
 class N_MULTIPLY(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
-    override fun codeInt(coder: Coder) { coder.code(OP_MULTI) }
-    override fun codeFloat(coder: Coder) { coder.code(OP_MULTF) }
-    override fun codeVector(coder: Coder) { coder.code(OP_MULTV) }
-    override fun codeVecF(coder: Coder) { coder.code(OP_MULTVF) }
+    override fun codeInt(coder: Coder) { coder.code(OP_MULI) }
+    override fun codeFloat(coder: Coder) { coder.code(OP_MULF) }
+    override fun codeVector(coder: Coder) { coder.code(OP_MULV) }
+    override fun codeVecF(coder: Coder) { coder.code(OP_MULVF) }
 }
 class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2) {
     override fun setType(meaner: Meaner): Boolean {

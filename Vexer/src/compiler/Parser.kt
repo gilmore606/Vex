@@ -23,9 +23,9 @@ class Parser(
     fun charPos() = if (tokens.isEmpty()) 0 else tokens[0].charPos
 
 
-    // compiler.Token lookahead functions
+    // Token lookahead functions
 
-    fun getToken() = tokens.removeAt(0)
+    fun getToken() = if (tokens.isEmpty()) Token(T_EOP) else tokens.removeAt(0)
     fun toss() = getToken()
     fun tossToNextLine() {
         while (nextToken().type == T_INDENT) { toss() }
@@ -43,6 +43,7 @@ class Parser(
         }
         return true
     }
+    fun nextTokenOneOf(vararg types: TokenType): Boolean = nextToken().type in types
     fun nextIDIs(ident: String): Boolean {
         if (nextToken().type != T_IDENTIFIER) return false
         return nextToken().string == ident
@@ -53,7 +54,6 @@ class Parser(
         if (nextToken(i).type != T_IDENTIFIER) return false
         return nextToken(i).string == ident
     }
-    fun nextTokenOneOf(vararg types: TokenType): Boolean = nextToken().type in types
 
 
     // Parsing functions
@@ -70,10 +70,7 @@ class Parser(
         val token = getToken()
         if (token.string.equals("to")) {
             val handler = getToken()
-            if (getToken().type != T_COLON) throw ParseException(
-                this,
-                "expected colon after method declaration"
-            )
+            if (getToken().type != T_COLON) throw ParseException(this, "expected colon after method declaration")
             if (fVerbose) println("parsing codeblock " + handler)
             return N_FUNCTION(handler.string, N_CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
         } else if (nextToken().type == T_COLON) {
@@ -82,10 +79,7 @@ class Parser(
                 token.string.equals("settings") -> N_SETTINGS(parseSettings())
                 else -> throw ParseException(this, "unknown top-level block type")
             }
-        } else throw ParseException(
-            this,
-            "only top-level block declarations are allowed at top level"
-        )
+        } else throw ParseException(this, "only top-level block declarations are allowed at top level")
     }
 
     fun parseSettings(): List<N_ASSIGN> {
@@ -108,10 +102,11 @@ class Parser(
         repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
         repeat (depth) { toss() }
         val l = ArrayList<N_STATEMENT>()
+        parseParticle(depth)?.also { l.add(it); return l }
+        parseSong(depth)?.also { l.add(it); return l }
         parseMethcalls()?.also { return it }
         parseIf(depth)?.also { l.add(it); return l }
         parseWait()?.also { l.add(it); return l }
-        parseSound()?.also { l.add(it); return l }
         parseLog()?.also { l.add(it); return l }
         parseRepeat(depth)?.also { l.add(it); return l }
         parseFor(depth)?.also { l.add(it); return l }
@@ -119,6 +114,37 @@ class Parser(
         parseAssign()?.also { l.add(it); return l }
 
         return null
+    }
+
+    fun parseParticle(depth: Int): N_PARTICLE? {
+        if (!(nextIDIs("PARTICLE"))) return null
+        toss()
+        val partid = parseExpression() ?: throw ParseException(this, "expected particle id expression")
+        val params = parseParams(depth + 1)
+        return N_PARTICLE(partid, params).also { it.tag(this) }
+    }
+
+    fun parseSong(depth: Int): N_SONG? {
+        if (!(nextIDIs("SONG"))) return null
+        toss()
+        val songid = parseExpression() ?: throw ParseException(this, "expected song id expression")
+        val params = parseParams(depth + 1)
+        return N_SONG(songid, params).also { it.tag(this) }
+    }
+
+    fun parseParams(depth: Int): List<N_PARAMSET> {
+        if (!nextTokenIs(T_COLON)) return ArrayList()
+        toss()
+        val params = parseCodeblock(depth)
+        val checked = ArrayList<N_PARAMSET>()
+        params.forEach {
+            if (it !is N_ASSIGN) throw ParseException(this, "only assignments allowed in param block")
+            if (it.target !is N_VARIABLE) throw ParseException(this, "only plain param names allowed in param block")
+            val p = N_PARAM(it.target.name).also { it.tag(this) }
+            val pset = N_PARAMSET(p, it.value)
+            checked.add(pset)
+        }
+        return checked
     }
 
     fun parseMethcalls(): List<N_METHCALL>? {
@@ -159,13 +185,6 @@ class Parser(
         toss()
         val time = parseExpression() ?: throw ParseException(this, "expected wait time expression")
         return N_WAIT(time).also { it.tag(this) }
-    }
-
-    fun parseSound(): N_SOUND? {
-        if (!(nextIDIs("sound"))) return null
-        toss()
-        val id = parseExpression() ?: throw ParseException(this, "expected sound id expression")
-        return N_SOUND(id).also { it.tag(this) }
     }
 
     fun parseLog(): N_LOG? {

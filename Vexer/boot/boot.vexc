@@ -1,4 +1,15 @@
 to start:
-	repeat 50:
-		foo = rand(0.5,3.33)
-		log foo
+	for i 0 to 40:
+		x = 666
+		log x
+		SONG 1
+		x = x + 1
+		log x
+		wait 750
+		SONG 2:
+			vol=0.5
+		x = x + 5
+		log x
+		wait 350
+	x = 999
+	log x
