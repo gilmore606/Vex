@@ -1,9 +1,9 @@
 package compiler
 
 enum class TokenType {
-    T_PAREN_OPEN,
-    T_PAREN_CLOSE,
-    T_COLON,
+    T_PAREN_OPEN,         // (
+    T_PAREN_CLOSE,        // )
+    T_COLON,              // :
     T_ASSIGN,             // =
     T_EQUALS,             // ==
     T_NOTEQUALS,          // !=
@@ -17,10 +17,10 @@ enum class TokenType {
     T_SUBTRACT_ASSIGN,    // -=
     T_MULT_ASSIGN,        // *=
     T_DIV_ASSIGN,         // /=
-    T_INCREMENT,                // ++
-    T_DECREMENT,                // --
-    T_MULTIPLY,               // *
-    T_DIVIDE,                // /
+    T_INCREMENT,          // ++
+    T_DECREMENT,          // --
+    T_MULTIPLY,           // *
+    T_DIVIDE,             // /
     T_DOTJOIN,            // .
     T_BANG,               // !
     T_POWER,              // ^
@@ -28,13 +28,16 @@ enum class TokenType {
     T_LOGIC_AND,          // &&
     T_COMMA,              // ,
     T_MODULUS,            // %
-    T_IDENTIFIER,
+    T_IDENTIFIER,         // bare word
     T_IDENTIFUNC,         // ident(
-    T_INDENT,
-    T_COMMENT,
-    T_STRING,
-    T_INTEGER,
-    T_FLOAT,
+    T_IDENTIDEX,          // ident[
+    T_BRACKET_OPEN,       // [
+    T_BRACKET_CLOSE,      // ]
+    T_INDENT,             // tab or 4 spaces
+    T_COMMENT,            // // you know...
+    T_STRING,             // "a string"
+    T_INTEGER,            // 1324
+    T_FLOAT,              // 0.741
     T_EOP
 }
 

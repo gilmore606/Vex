@@ -47,25 +47,25 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
         when (arg1.type) {
             VAL_STRING -> {
                 if (this !is N_ADD) throw CompileException("illegal string op")
-                arg2.code(coder)
                 arg1.code(coder)
                 when (arg2.type) {
                     VAL_INT -> coder.code(OP_I2S)
                     VAL_FLOAT -> coder.code(OP_F2S)
                     else -> throw CompileException("can only add int and float to string")
                 }
+                arg2.code(coder)
                 coder.code(OP_CAT)
             }
             VAL_INT -> when (arg2.type) {
                 VAL_INT -> {
-                    arg2.code(coder)
                     arg1.code(coder)
+                    arg2.code(coder)
                     codeInt(coder)
                 }
                 VAL_FLOAT -> {
-                    arg2.code(coder)
                     arg1.code(coder)
                     coder.code(OP_I2F)
+                    arg2.code(coder)
                     codeFloat(coder)
                 }
                 VAL_VECTOR -> {
@@ -78,14 +78,14 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT -> {
+                    arg1.code(coder)
                     arg2.code(coder)
                     coder.code(OP_I2F)
-                    arg1.code(coder)
                     codeFloat(coder)
                 }
                 VAL_FLOAT -> {
-                    arg2.code(coder)
                     arg1.code(coder)
+                    arg2.code(coder)
                     codeFloat(coder)
                 }
                 VAL_VECTOR -> {
@@ -94,40 +94,40 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
                     arg2.code(coder)
                 }
                 VAL_COLOR -> {
+                    arg1.code(coder)
                     arg2.code(coder)
                     codeCF(coder)
-                    arg1.code(coder)
                 }
                 else -> throw typeE
             }
             VAL_VECTOR -> when (arg2.type) {
                 VAL_INT -> {
+                    arg1.code(coder)
                     arg2.code(coder)
                     coder.code(OP_I2F)
-                    arg1.code(coder)
                     codeVecF(coder)
                 }
                 VAL_FLOAT -> {
-                    arg2.code(coder)
                     arg1.code(coder)
+                    arg2.code(coder)
                     codeVecF(coder)
                 }
                 VAL_VECTOR -> {
-                    arg2.code(coder)
                     arg1.code(coder)
+                    arg2.code(coder)
                     codeVector(coder)
                 }
                 else -> throw typeE
             }
             VAL_COLOR -> when (arg2.type) {
                 VAL_FLOAT -> {
-                    arg2.code(coder)
                     arg1.code(coder)
+                    arg2.code(coder)
                     codeCF(coder)
                 }
                 VAL_COLOR -> {
-                    arg2.code(coder)
                     arg1.code(coder)
+                    arg2.code(coder)
                     codeColor(coder)
                 }
                 else -> throw typeE

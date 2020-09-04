@@ -1,12 +1,13 @@
 import com.beust.klaxon.Klaxon
 import compiler.Compiler
 import model.Game
-import model.Image
 import model.OutInstrument
 import java.io.File
 import java.lang.RuntimeException
 
 fun main() {
+    println("GREETINGS PROFESSOR FALKEN.")
+    println("")
     println("SHALL WE COMPILE A GAME?")
     println("")
 
@@ -22,7 +23,7 @@ fun main() {
 
     println("Compiling " + gameConfig.title + " from " + sourceDir + "/" + romName + ".json")
 
-    val outFile = OutFile(romName, gameConfig.title, gameConfig.aspectRatio)
+    val outFile = Writer(romName, gameConfig.title, gameConfig.aspectRatio)
     outFile.open()
 
 

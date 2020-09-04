@@ -1,6 +1,6 @@
 package model
 
-import OutFile
+import Writer
 
 data class Particle(
         val id: Int,
@@ -17,17 +17,17 @@ data class Particle(
         val lifetime: Float = 1.0f
 ) {
 
-    fun writeToFile(outFile: OutFile, game: Game) {
-        outFile.writeMarker("PRT")
-        outFile.writeMarker(id.toString())
-        outFile.write2ByteInt(game.images.find{it.name == image}!!.id)
-        outFile.write4ByteFloats(v)
-        outFile.write4ByteFloats(vv)
-        outFile.write4ByteFloats(color0)
-        outFile.write4ByteFloats(color1)
-        outFile.write4ByteFloats(scale0)
-        outFile.write4ByteFloats(scale1)
-        outFile.write4ByteFloats(ArrayList<Float>().apply { add(rot); add(rotv); add(lifetime); })
+    fun writeToFile(writer: Writer, game: Game) {
+        writer.writeMarker("PRT")
+        writer.writeMarker(id.toString())
+        writer.write2ByteInt(game.images.find{it.name == image}!!.id)
+        writer.write4ByteFloats(v)
+        writer.write4ByteFloats(vv)
+        writer.write4ByteFloats(color0)
+        writer.write4ByteFloats(color1)
+        writer.write4ByteFloats(scale0)
+        writer.write4ByteFloats(scale1)
+        writer.write4ByteFloats(ArrayList<Float>().apply { add(rot); add(rotv); add(lifetime); })
         println("wrote PRT " + name + " (" + id + ")")
     }
 }

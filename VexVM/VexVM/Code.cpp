@@ -101,6 +101,7 @@ void Code::Read(ROMReader* rom) {
 	for (int i = 0; i < entryc; i++) {
 		uint8_t* point = code + entriesRel[i];
 		entries.push_back(point);
+		if (entryLabels[i] == "state") { entryState = point; }
 		if (entryLabels[i] == "start") { entryStart = point; }
 		if (entryLabels[i] == "update") { entryUpdate = point; }
 		if (entryLabels[i] == "input") { entryInput = point; }

@@ -38,6 +38,7 @@ abstract class N_PARAM_STATEMENT(val params: List<N_PARAMSET>): N_STATEMENT() {
 }
 
 class N_PARAMSET(val target: N_PARAM, val value: N_EXPRESSION): N_STATEMENT() {
+    override fun toString() = "SET PARAM"
     var paramID: Int = -1
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
     override fun checkType() {

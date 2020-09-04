@@ -10,6 +10,7 @@
 
 #define READ_BYTE() (*ip++)
 #define CLEAR_STACK() stacktop = stack
+#define TOPVAL() (*(stacktop - 1))
 
 const static int STACK_MAX = 256;
 

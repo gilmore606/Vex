@@ -18,6 +18,7 @@ public:
 	std::vector<std::string> entryLabels;
 	std::vector<uint8_t*> jumps;  // pointers into code
 
+	uint8_t* entryState;
 	uint8_t* entryStart;
 	uint8_t* entryUpdate;
 	uint8_t* entryInput;

@@ -1,6 +1,6 @@
 package compiler
 
-import OutFile
+import Writer
 import java.io.File
 
 class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolean) {
@@ -47,11 +47,11 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
             parser.parse()
         } catch (e: ParseException) {
             println("")
+            println("last token was " + parser.tokens.get(0).toString() + " " + parser.tokens.get(1).toString())
             println("Syntax error at line " + e.parser.linePos() + "," + e.parser.charPos() + ": ")
             println("  " + e.m)
             throw RuntimeException(e.m)
         }
-        if (fVerbose) parser.dumpTree()
 
         try {
 
@@ -75,11 +75,11 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
         }
     }
 
-    fun writeToFile(outFile: OutFile) {
-        outFile.writeMarker("COD")
-        outFile.writeMarker(chunkName)
+    fun writeToFile(writer: Writer) {
+        writer.writeMarker("COD")
+        writer.writeMarker(chunkName)
 
-        coder.writeToFile(outFile, meaner.constants, meaner.variables)
+        coder.writeToFile(writer, meaner.constants, meaner.variables)
 
         println("  wrote code " + chunkName)
     }

@@ -1,6 +1,6 @@
 package model
 
-import OutFile
+import Writer
 
 data class Image(
         val id: Int,
@@ -9,15 +9,15 @@ data class Image(
         val points: ArrayList<Float> = ArrayList()
 ) {
 
-    fun writeToFile(outFile: OutFile) {
-        outFile.writeMarker("IMG")
-        outFile.writeMarker(id.toString())
+    fun writeToFile(writer: Writer) {
+        writer.writeMarker("IMG")
+        writer.writeMarker(id.toString())
         // 2 bytes for line float count
-        outFile.write2ByteInt(lines.size)
-        outFile.write2ByteFloats(lines)
+        writer.write2ByteInt(lines.size)
+        writer.write2ByteFloats(lines)
         // 2 bytes for point float count
-        outFile.write2ByteInt(points.size)
-        outFile.write2ByteFloats(points)
+        writer.write2ByteInt(points.size)
+        writer.write2ByteFloats(points)
         println("wrote IMG " + id + " (" + lines.size + " linefloat " + points.size + " pointfloat)")
     }
 }

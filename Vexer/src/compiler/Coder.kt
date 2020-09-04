@@ -1,11 +1,11 @@
 package compiler
 
-import OutFile
+import Writer
 import compiler.Opcode.*
 import compiler.nodes.Node
 
 class Coder(
-        val ast: ArrayList<Node>
+        val ast: Node
 ) {
 
     val outBytes = ArrayList<UByte>()
@@ -16,7 +16,7 @@ class Coder(
 
     fun generate() {
 
-        ast[0].code(this)
+        ast.code(this)
 
     }
 
@@ -34,7 +34,7 @@ class Coder(
         outBytes.add(b1.toUByte())
     }
 
-    // Nodes call this back during codegen to register entry / jump points
+    // Nodes call these back during codegen to register entry / jump points
     fun addEntryPoint(name: String) {
         val addr = outBytes.size
         entries[name] = addr
@@ -44,6 +44,7 @@ class Coder(
         jumps.add(addr)
         return jumps.size - 1
     }
+
     // Write placeholder jump ID for a jump we'll mark in the future
     fun jumpFuture(name: String) {
         if (futureJumps.containsKey(name)) {
@@ -53,6 +54,7 @@ class Coder(
         }
         arg2i(0)  // placeholder
     }
+
     // Resolve jump ID and write into past placeholders
     fun reachFuture(name: String) {
         val jumpID = addJumpPoint()
@@ -65,45 +67,45 @@ class Coder(
         futureJumps.remove(name)
     }
 
-    fun writeToFile(outFile: OutFile, constants: ArrayList<Value>, variables: ArrayList<Variable>) {
+    fun writeToFile(writer: Writer, constants: ArrayList<Value>, variables: ArrayList<Variable>) {
 
         // Write constants
-        outFile.writeMarker("CONST")
+        writer.writeMarker("CONST")
         // 2 bytes for constant count
-        outFile.write2ByteInt(constants.size)
+        writer.write2ByteInt(constants.size)
         constants.forEachIndexed { i, it ->
-            outFile.writeValue(it)
+            writer.writeValue(it)
             println("  constant " + i.toString() + ":  " + it.toString())
         }
 
         // Write variables
-        outFile.writeMarker("VARS")
+        writer.writeMarker("VARS")
         // 2 bytes for var count
-        outFile.write2ByteInt(variables.size)
+        writer.write2ByteInt(variables.size)
 
         // Write entries
-        outFile.writeMarker("ENTRY")
+        writer.writeMarker("ENTRY")
         // 1 byte for entry count
-        outFile.writeByte(entries.size.toUByte())
+        writer.writeByte(entries.size.toUByte())
         entries.keys.forEach {
-            outFile.writeString(it)
-            outFile.write3ByteInt(entries[it]!!)
+            writer.writeString(it)
+            writer.write3ByteInt(entries[it]!!)
         }
 
         // Write jumps
-        outFile.writeMarker("JUMP")
+        writer.writeMarker("JUMP")
         // 2 bytes for jump count
-        outFile.write2ByteInt(jumps.size)
+        writer.write2ByteInt(jumps.size)
         jumps.forEachIndexed { i, it ->
-            outFile.write3ByteInt(it)
+            writer.write3ByteInt(it)
             println("  jump " + i.toString() + ":  " + it.toString())
         }
 
         // Write code
-        outFile.writeMarker("BC")
+        writer.writeMarker("BC")
         // 3 bytes for bytecode count
-        outFile.write3ByteInt(outBytes.size)
-        outFile.writeBytes(outBytes)
+        writer.write3ByteInt(outBytes.size)
+        writer.writeBytes(outBytes)
         disassemble(constants, variables)
     }
 

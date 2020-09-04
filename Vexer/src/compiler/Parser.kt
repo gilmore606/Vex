@@ -11,13 +11,7 @@ class Parser(
     var methodNames: ArrayList<MethodSpec>,
     val fVerbose: Boolean
 ) {
-    val ast = ArrayList<Node>()
-
-    // Print the full AST for debugging
-    fun dumpTree() {
-        println("AST DUMP:")
-        ast.forEach { it.print(0) }
-    }
+    lateinit var ast: Node
 
     fun linePos() = if (tokens.isEmpty()) 0 else tokens[0].linePos
     fun charPos() = if (tokens.isEmpty()) 0 else tokens[0].charPos
@@ -56,38 +50,40 @@ class Parser(
     }
 
 
-    // Parsing functions
+    // Top level
 
     fun parse() {
-        val blocks = ArrayList<N_BLOCK>()
+        val blocks = ArrayList<N_TOPBLOCK>()
         while (tokens.isNotEmpty()) {
-            blocks.add(parseTop())
+            var done = true
+            parseTop(0)?.also { blocks.add(it) ; done = false }
+            while (nextTokenOneOf(T_INDENT, T_COMMENT)) toss()
+            if (done && tokens.isNotEmpty()) throw ParseException(this, "code outside top blocks")
         }
-        ast.add(N_PROGRAM(blocks))
+        ast = N_PROGRAM(blocks)
     }
 
-    fun parseTop(): N_BLOCK {
-        val token = getToken()
-        if (token.string.equals("to")) {
-            val handler = getToken()
-            if (getToken().type != T_COLON) throw ParseException(this, "expected colon after method declaration")
-            if (fVerbose) println("parsing codeblock " + handler)
-            return N_FUNCTION(handler.string, N_CODEBLOCK(parseCodeblock(1))).also { it.tag(this) }
-        } else if (nextToken().type == T_COLON) {
-            toss()
-            return when  {
-                token.string.equals("settings") -> N_SETTINGS(parseSettings())
-                else -> throw ParseException(this, "unknown top-level block type")
-            }
-        } else throw ParseException(this, "only top-level block declarations are allowed at top level")
+    fun parseTop(depth: Int): N_TOPBLOCK? {
+        parseOnMethod(depth)?.also { return it }
+        parseState(depth)?.also { return it }
+        return null
     }
 
-    fun parseSettings(): List<N_ASSIGN> {
-        val assigns = ArrayList<N_ASSIGN>()
-        while (true) {
-            val nextAssign = parseAssign() ?: return assigns
-            assigns.add(nextAssign)
-        }
+    fun parseOnMethod(depth: Int): N_TOPBLOCK? {
+        if (!(nextIDIs("on"))) return null
+        toss()
+        val handler = getToken().string
+        expectToken(T_COLON, "expected colon after method declaration")
+        val code = N_CODEBLOCK(parseCodeblock(depth + 1)).also { it.tag(this) }
+        return N_TOP_HANDLER(handler, code).also { it.tag(this) }
+    }
+
+    fun parseState(depth: Int): N_TOPBLOCK? {
+        if (!(nextIDIs("state"))) return null
+        toss()
+        expectToken(T_COLON, "expected colon after state block declaration")
+        val assigns = N_CODEBLOCK(parseAssignblock(depth + 1)).also { it.tag(this) }
+        return N_TOP_STATE(assigns).also { it.tag(this) }
     }
 
     fun parseCodeblock(depth: Int): List<N_STATEMENT> {
@@ -97,6 +93,19 @@ class Parser(
             statements.addAll(nextStatements)
         }
     }
+
+    fun parseAssignblock(depth: Int): List<N_STATEMENT> {
+        val statements = ArrayList<N_ASSIGN>()
+        while (true) {
+            repeat (depth) { if (nextToken(it).type != T_INDENT) return statements }
+            repeat (depth) { toss() }
+            val nextAssign = parseAssign() ?: return statements
+            statements.add(nextAssign)
+        }
+    }
+
+
+    // STATEMENTS
 
     fun parseStatement(depth: Int): List<N_STATEMENT>? {
         repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
@@ -246,6 +255,9 @@ class Parser(
             else -> throw ParseException(this, "illegal statement operator")
         }.also { it.tag(this) }
     }
+
+
+    // EXPRESSIONS
 
     fun parseExpression(): N_EXPRESSION? {
         return parseAndOr()

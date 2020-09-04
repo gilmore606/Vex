@@ -2,7 +2,7 @@ import compiler.Value
 import compiler.ValueType.*
 import java.io.File
 
-class OutFile(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
+class Writer(val filename: String, val gameTitle: String, val aspectRatio: ArrayList<Int>) {
 
     lateinit var file: File
     val outBytes = ArrayList<UByte>()
@@ -96,29 +96,27 @@ class OutFile(val filename: String, val gameTitle: String, val aspectRatio: Arra
 
     fun writeValue(v: Value) {
         when (v.type) {
-            // nil  1 byte = 0 (nil type)
-            VAL_NIL -> {
-                writeByte(0.toUByte()) // type nil
+            VAL_NIL -> { // 1 byte = 0 (nil type)
+                writeByte(0.toUByte())
             }
-            // bool  1 byte = 1 (false) 2 (true)
-            VAL_BOOL -> {
-                writeByte(if (v.boolean) 2.toUByte() else 1.toUByte()) // type boolfalse (1) or booltrue (2)
-            } // int   4 bytes = 3 (int type) + 3 LSB byte int
-            VAL_INT -> {
-                writeByte(3.toUByte()) // type int
+            VAL_BOOL -> { // 1 byte = 1 (booltrue type) or 2 (boolfalse type)
+                writeByte(if (v.boolean) 2.toUByte() else 1.toUByte())
+            }
+            VAL_INT -> { // 1 byte = 3 (int type)  3 bytes = LSB int
+                writeByte(3.toUByte())
                 write3ByteInt(v.integer)
             }
-            VAL_FLOAT -> {
-                writeByte(4.toUByte())  // 1 byte = 4 (float) 4 bytes float
+            VAL_FLOAT -> { // 1 byte = 4 (float) 4 bytes = ieee754float
+                writeByte(4.toUByte())
                 write4ByteInt(v.fp.toBits())
             }
-            VAL_VECTOR -> {
-                writeByte(5.toUByte())  // 1 byte = 5 (vector) 8 bytes 2 floats
+            VAL_VECTOR -> { // 1 byte = 5 (vector) 8 bytes = 2 ieee754floats
+                writeByte(5.toUByte())
                 write4ByteInt(v.v1.toBits())
                 write4ByteInt(v.v2.toBits())
             }
-            VAL_COLOR -> {
-                writeByte(6.toUByte())   // 1 byte = 6 (color) 12 bytes 3 floats
+            VAL_COLOR -> { // 1 byte = 6 (color) 12 bytes = 3 ieee754floats
+                writeByte(6.toUByte())
                 write4ByteInt(v.c1.toBits())
                 write4ByteInt(v.c2.toBits())
                 write4ByteInt(v.c3.toBits())

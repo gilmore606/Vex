@@ -24,6 +24,7 @@ void CPU::Boot() {
 	srand(static_cast <unsigned> (glfwGetTime())); // seed rng
 
 	CLEAR_STACK();
+	run(code->entryState);
 	run(code->entryStart);
 }
 
@@ -107,6 +108,7 @@ void CPU::run(uint8_t* address) {
 	VStr* vs2;
 	int vi, ji, fi;
 	float f, f2;
+	boolean b;
 
 	for (;;) {
 		uint8_t ins;
@@ -177,77 +179,92 @@ void CPU::run(uint8_t* address) {
 			// Stack math
 
 		case OP_INC:
-			stacktop->as.integer = ++((*stacktop).as.integer);
+			TOPVAL().as.integer++;
 			break;
 		case OP_DEC:
-			stacktop->as.integer = --((*stacktop).as.integer);
+			TOPVAL().as.integer--;
 			break;
 		case OP_ADDI:
-			push(INT_VAL(AS_INT(pop()) + AS_INT(pop())));
+			vi = pop().as.integer;
+			TOPVAL().as.integer += vi;
 			break;
 		case OP_SUBI:
-			push(INT_VAL(AS_INT(pop()) - AS_INT(pop())));
+			vi = pop().as.integer;
+			TOPVAL().as.integer -= vi;
 			break;
 		case OP_MULI:
-			push(INT_VAL(AS_INT(pop()) * AS_INT(pop())));
+			vi = pop().as.integer;
+			TOPVAL().as.integer *= vi;
 			break;
 		case OP_DIVI:
-			push(INT_VAL(AS_INT(pop()) / AS_INT(pop())));
+			vi = pop().as.integer;
+			TOPVAL().as.integer /= vi;
 			break;
 		case OP_MODI:
-			push(INT_VAL(AS_INT(pop()) % AS_INT(pop())));
+			vi = pop().as.integer;
+			TOPVAL().as.integer = TOPVAL().as.integer % vi;
 			break;
 		case OP_POWI:
-			push(INT_VAL(AS_INT(pop()) ^ AS_INT(pop())));
+			vi = pop().as.integer;
+			TOPVAL().as.integer = TOPVAL().as.integer ^ vi;
 			break;
 		case OP_NEGI:
-			stacktop->as.integer = -((*stacktop).as.integer);
+			TOPVAL().as.integer = -TOPVAL().as.integer;
 			break;
 		case OP_ADDF:
-			push(FLOAT_VAL(AS_FLOAT(pop()) + AS_FLOAT(pop())));
+			f = pop().as.fp;
+			TOPVAL().as.fp += f;
 			break;
 		case OP_SUBF:
-			push(FLOAT_VAL(AS_FLOAT(pop()) - AS_FLOAT(pop())));
+			f = pop().as.fp;
+			TOPVAL().as.fp -= f;
 			break;
 		case OP_MULF:
-			push(FLOAT_VAL(AS_FLOAT(pop()) * AS_FLOAT(pop())));
+			f = pop().as.fp;
+			TOPVAL().as.fp *= f;
 			break;
 		case OP_DIVF:
-			push(FLOAT_VAL(AS_FLOAT(pop()) / AS_FLOAT(pop())));
+			f = pop().as.fp;
+			TOPVAL().as.fp /= f;
 			break;
 		case OP_MODF:
-			push(FLOAT_VAL(std::fmod(pop().as.fp, pop().as.fp)));
+			f = pop().as.fp;
+			TOPVAL().as.fp = std::fmod(TOPVAL().as.fp, f);
 			break;
 		case OP_POWF:
-			push(FLOAT_VAL(std::pow(pop().as.fp, pop().as.fp)));
+			f = pop().as.fp;
+			TOPVAL().as.fp = std::pow(TOPVAL().as.fp, f);
 			break;
 		case OP_NEGF:
-			stacktop->as.fp = -((*stacktop).as.fp);
+			TOPVAL().as.fp = -TOPVAL().as.fp;
 			break;
 
 
 			// Type conversion
 
 		case OP_I2F:
-			push(FLOAT_VAL((float)AS_INT(pop())));
+			TOPVAL().as.fp = static_cast<float>(TOPVAL().as.integer);
+			TOPVAL().type = VAL_FLOAT;
 			break;
 		case OP_F2I:
-			push(INT_VAL((int)AS_FLOAT(pop())));
+			TOPVAL().as.integer = static_cast<int>(TOPVAL().as.fp);
+			TOPVAL().type = VAL_INT;
 			break;
 		case OP_V2F:
-			v = pop();
-			push(FLOAT_VAL(std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1])));
+			TOPVAL().as.fp = std::sqrt(TOPVAL().as.vector[0] * TOPVAL().as.vector[0] + TOPVAL().as.vector[1] * TOPVAL().as.vector[1]);
+			TOPVAL().type = VAL_FLOAT;
 			break;
 		case OP_C2F:
-			v = pop();
-			push(FLOAT_VAL((v.as.color[0] + v.as.color[1] + v.as.color[2]) * 0.333f));
+			TOPVAL().as.fp = (TOPVAL().as.color[0] + TOPVAL().as.color[1] + TOPVAL().as.color[2]) * 0.3333f;
+			TOPVAL().type = VAL_FLOAT;
 			break;
 		case OP_B2I:
-			push(INT_VAL(AS_BOOL(pop()) ? 1 : 0));
+			TOPVAL().as.integer = (TOPVAL().as.boolean ? 1 : 0);
+			TOPVAL().type = VAL_INT;
 			break;
 		case OP_N2I:
-			pop();
-			push(INT_VAL(0));
+			TOPVAL().as.integer = 0;
+			TOPVAL().type = VAL_INT;
 			break;
 
 
@@ -276,40 +293,40 @@ void CPU::run(uint8_t* address) {
 			// Vector math
 
 		case OP_NEGV:
-			stacktop->as.vector[0] = -((*stacktop).as.vector[0]);
-			stacktop->as.vector[1] = -((*stacktop).as.vector[1]);
+			TOPVAL().as.vector[0] = -TOPVAL().as.vector[0];
+			TOPVAL().as.vector[1] = -TOPVAL().as.vector[1];
 			break;
 		case OP_ADDV:
 			v1 = pop();
-			v2 = pop();
-			push(VECTOR_VAL(v1.as.vector[0] + v2.as.vector[0], v1.as.vector[1] + v2.as.vector[1]));
+			TOPVAL().as.vector[0] += v1.as.vector[0];
+			TOPVAL().as.vector[1] += v1.as.vector[1];
 			break;
 		case OP_MULV:   // dot product
 			v1 = pop();
-			v2 = pop();
-			push(FLOAT_VAL(v1.as.vector[0] * v2.as.vector[0] + v1.as.vector[1] * v2.as.vector[1]));
+			TOPVAL().as.fp = TOPVAL().as.vector[0] * v1.as.vector[0] + TOPVAL().as.vector[1] * v1.as.vector[1];
+			TOPVAL().type = VAL_FLOAT;
 			break;
 		case OP_DIVV:    // ??? replace with something useful
 			v1 = pop();
 			v2 = pop();
 			push(VECTOR_VAL(v1.as.vector[0] / v2.as.vector[0], v1.as.vector[1] / v2.as.vector[1]));
 			break;
-		case OP_ADDVF:
-			v = pop();
-			f = AS_FLOAT(pop());
-			f2 = (std::sqrt(v.as.vector[0] * v.as.vector[0] + v.as.vector[1] * v.as.vector[1]));
+		case OP_ADDVF:    // lengthen vector by scalar amount
+			f = pop().as.fp;
+			f2 = std::sqrt(TOPVAL().as.vector[0] * TOPVAL().as.vector[0] + TOPVAL().as.vector[1] * TOPVAL().as.vector[1]);
 			f2 = (f2 + f) / f2;
-			push(VECTOR_VAL(v.as.vector[0] * f2, v.as.vector[1] * f2));
+			TOPVAL().as.vector[0] *= f2;
+			TOPVAL().as.vector[1] *= f2;
 			break;
-		case OP_MULVF:  
-			v = pop();
-			f = AS_FLOAT(pop());
-			push(VECTOR_VAL(v.as.vector[0] * f, v.as.vector[1] * f));
+		case OP_MULVF:
+			f = pop().as.fp;
+			TOPVAL().as.vector[0] *= f;
+			TOPVAL().as.vector[1] *= f;
 			break;
 		case OP_DIVVF:
-			v = pop();
-			f = AS_FLOAT(pop());
-			push(VECTOR_VAL(v.as.vector[0] / f, v.as.vector[1] / f));
+			f = pop().as.fp;
+			TOPVAL().as.vector[0] /= f;
+			TOPVAL().as.vector[1] /= f;
 			break;
 
 
@@ -352,13 +369,15 @@ void CPU::run(uint8_t* address) {
 			// Logic
 
 		case OP_NOT:
-			stacktop->as.boolean = !((*stacktop).as.boolean);
+			TOPVAL().as.boolean = !TOPVAL().as.boolean;
 			break;
 		case OP_OR:
-			push(BOOL_VAL(AS_BOOL(pop()) || AS_BOOL(pop())));
+			b = pop().as.boolean;
+			TOPVAL().as.boolean = TOPVAL().as.boolean || b;
 			break;
 		case OP_AND:
-			push(BOOL_VAL(AS_BOOL(pop()) && AS_BOOL(pop())));
+			b = pop().as.boolean;
+			TOPVAL().as.boolean = TOPVAL().as.boolean && b;
 			break;
 
 

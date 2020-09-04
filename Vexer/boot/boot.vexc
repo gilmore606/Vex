@@ -1,39 +1,13 @@
-to start:
-	speed = 0.1
-	for i 0 to 30000:
-		for j 0 to 5:
-			PARTICLE 0:
-				p = V(RAND(-0.3,0.3),RAND(-0.3,-0.2))
-				v = V(0.0, speed + RAND(0.5))
-				vv = V(RAND(-0.5,0.5), speed * -2.0)
-				color0 = C(0.0,0.6,1.3)
-		speed += 0.02
-		if (speed > 1.0) speed = 0.1
-		wait 70
-
-
 state:
-	speed = 0.0
+	speed = 0.5
 	dir = 1.5
 	fountainOn = true
 
-to start:
-	SPURT(40)
 
-on button:
-	any:
-		fountainOn = !fountainOn
-		song "ping"
-
-on update:
-	speed += dir * delta  // speed by dir
-	if speed > 1.5 or speed < -1.5 dir = -dir
-	every 150 if fountainOn SPURT(12)
-
-to SPURT(count = 1):
-	repeat count:
-		spark "smoke":
-			p = V(rand(-0.3,0.3),rand(-0.3,-0.2))
-			v = V(rand(-0.5,0.5), speed + rand(0.5))
-			vv = V(0.0, speed * -2.0)
-			color0 = C(speed * 0.1,0.6,1.3)
+on start:
+	speed = 30.0
+	speed = speed / 3.0
+	log speed
+	testv = V(-3.9,2.6)
+	testv = testv + 1.5
+	log testv

@@ -25,6 +25,13 @@ typedef enum {
     OP_SMETH,    // [2:sysclassmeth] Call system class method with stack args (this on top), push return on stack
     OP_STAT,     // [2:sid] [2:paramcount] Call system statement <sid> with <paramcount> stack args
 
+    // for compiler optimizations:
+
+    //OP_C2VAR,    // [2:const] [2:var] Copy const to var
+    //OP_V2VAR,    // [2:var] [2:var] Copy var to var
+    //OP_IFVAR,    // [2:var] Jump if var = false
+    //OP_ACCVAR,  // [2:var] i + var -> var
+
     OP_INPUT,    // Get value of input (id=stacktop)
     OP_BUTTON,   // Get pressed-this-frame status of button (id=stacktop)
 

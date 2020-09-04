@@ -35,6 +35,7 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
 }
 
 open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
+    override fun toString() = "ASSIGN " + value.type + " to " + target.type
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = target.type

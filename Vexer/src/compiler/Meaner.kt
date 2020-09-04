@@ -1,6 +1,7 @@
 package compiler
 
 import compiler.nodes.Node
+import compiler.nodes.Node.*
 import compiler.nodes.*
 import compiler.ValueType.*
 import compiler.ObjectType.*
@@ -9,83 +10,50 @@ typealias FUNCLIST = ArrayList<FuncSig>
 typealias TYPELIST = ArrayList<ValueType>
 
 class Meaner (
-        val ast: ArrayList<Node>,
+        val ast: Node,
         val fVerbose: Boolean
 ) {
 
     val constants = ArrayList<Value>()
     val variables = ArrayList<Variable>()
-
-    val systemFuncs = FUNCLIST()
-    val systemClasses = HashMap<ObjectType, FUNCLIST>()
-
-    init {
-
-        // Built-in system functions
-
-        systemFuncs.add(FuncSig(true, "V", 0, VAL_VECTOR, null,
-                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "C", 1, VAL_COLOR, null,
-                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT); add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "RAND", 2, VAL_FLOAT, null,
-                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "RAND", 3, VAL_FLOAT, null,
-                TYPELIST().apply { add(VAL_FLOAT) }))
-        systemFuncs.add(FuncSig(true, "RAND", 4, VAL_INT, null,
-                TYPELIST().apply { add(VAL_INT); add(VAL_INT) }))
-        systemFuncs.add(FuncSig(true, "RAND", 5, VAL_INT, null,
-                TYPELIST().apply { add(VAL_INT) }))
-        systemFuncs.add(FuncSig(true, "RAND", 6, VAL_FLOAT, null,
-                TYPELIST() ))
-        systemFuncs.add(FuncSig(true, "TEXT", 7, VAL_OBJECT, OBJ_SPRITE,
-                TYPELIST().apply { add(VAL_STRING) }))
-
-        // Built-in system class methods
-
-        systemClasses[OBJ_SPRITE] = FUNCLIST().apply {
-            add(FuncSig(true, "move", 0, VAL_NIL, null,
-                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
-            add(FuncSig(true, "move", 1, VAL_NIL, null,
-                TYPELIST().apply { add(VAL_VECTOR) }))
-            add(FuncSig(true, "scale", 2, VAL_NIL, null,
-                TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT) }))
-            add(FuncSig(true, "scale", 3, VAL_NIL, null,
-                TYPELIST().apply { add(VAL_FLOAT) }))
-            add(FuncSig(true, "hide", 4, VAL_NIL, null,
-                TYPELIST()))
-            add(FuncSig(true, "show", 5, VAL_NIL, null,
-                TYPELIST()))
-            add(FuncSig(true, "write", 6, VAL_NIL, null,
-                TYPELIST().apply { add(VAL_STRING) }))
-        }
-
-    }
+    var globalCount = 0
 
     // Get ID of named variable in my scope
     fun variableToID(sourceNode: Node, name: String, scope: Node): Int {
-        variables.forEach {
-            if (it.scope == scope && it.name == name) {
-                if (sourceNode is N_VARIABLE) it.nodes.add(sourceNode)
-                return it.id
+        variables.forEachIndexed { i, v ->
+            if ((i < globalCount) && (v.name == name)) {  // global
+                if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
+                return v.id
+            }
+            if (v.scope == scope && v.name == name) {  // local
+                if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
+                return v.id
             }
         }
-        val v = Variable(variables.size, name, scope, null)
+        val v = Variable(variables.size, name, scope, null, null)
         if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
         variables.add(v)
         return v.id
     }
 
+    // Do we already know this var's type?
+    fun varTypeKnown(varID: Int): Boolean = variables.find { it.id == varID }?.let { it.type != null } ?: false
+
     // Set type of all nodes for a variable
     fun learnVarType(varID: Int, type: ValueType, objtype: ObjectType?) {
-        variables.find { it.id == varID }!!.nodes.forEach {
-            it.type = type
-            it.objtype = objtype
+        variables.find { it.id == varID }!!.also { v ->
+            v.type = type
+            v.objtype = objtype
+            v.nodes.forEach {
+                it.type = type
+                it.objtype = objtype
+            }
         }
     }
 
     // Look up signature of named function
-    fun getFuncSig(name: String, args: List<Node.N_EXPRESSION>): FuncSig {
-        systemFuncs.forEach { if (it.name == name) {
+    fun getFuncSig(name: String, args: List<N_EXPRESSION>): FuncSig {
+        Syscalls.funcs.forEach { if (it.name == name) {
             var match = true
             it.argtypes.forEachIndexed { i, type ->
                 if (i > args.lastIndex) match = false
@@ -97,8 +65,8 @@ class Meaner (
     }
 
     // Look up signature of system class method
-    fun getMethodSig(type: ObjectType, name: String, args: List<Node.N_EXPRESSION>): FuncSig {
-        systemClasses[type]!!.forEach {
+    fun getMethodSig(type: ObjectType, name: String, args: List<N_EXPRESSION>): FuncSig {
+        Syscalls.classes[type]!!.forEach {
             if (it.name == name && it.returnType == VAL_NIL) {
                 var match = true
                 it.argtypes.forEachIndexed { i, methArg ->
@@ -111,10 +79,61 @@ class Meaner (
         throw CompileException("unknown system method call")
     }
 
+
     fun mean() {
 
         // Index all literal constants (and set their type)
-        ast[0].traverse { node ->
+        findConstants()
+
+        // Index state (global) variables, get count
+        // All variables from 0-(globalCount-1) are globals
+        globalCount = scopeGlobals()
+        println("found " + globalCount + " globals")
+        // Index local variables
+        ast.scopeVars(ast, this)
+
+
+        ast.print(0)
+
+        // Set global types globally
+        variables.forEachIndexed { i, v ->
+            if (i < globalCount) {
+                println("     " + v.toString())
+                learnVarType(v.id, v.type!!, null)
+            }
+        }
+
+        // Infer all local expression types
+        annealTypes(ast)
+
+        // Check types for sanity
+        ast.traverse { it.checkType() }
+
+
+        // TODO: Index all function entries
+
+    }
+
+    fun annealTypes(top: Node) {
+        var settled = false
+        while (!settled) {
+            settled = true
+            top.traverse {
+                if (!it.setType(this)) settled = false
+            }
+        }
+    }
+
+    fun scopeGlobals(): Int {
+        ast.findNode { it is N_TOP_STATE }?.also { state ->
+            state.scopeVars(ast, this)
+            annealTypes(state)
+        }
+        return variables.size
+    }
+
+    fun findConstants() {
+        ast.traverse { node ->
             if (node is N_LITERAL) {
                 var found = -1
                 constants.forEachIndexed { i, c ->
@@ -146,32 +165,12 @@ class Meaner (
                             if (node is N_COLOR) node.c3 else 0.0f,
                             if (node is N_STRING) node.value else "",
                             null
-                        ))
+                    ))
                     found = constants.lastIndex
                 }
                 node.constID = found
                 node.type = constants[found].type
             }
         }
-
-        // Index all variables
-        ast[0].scopeVars(ast[0], this)
-
-        // Infer all expression types
-        var settled = false
-        while (!settled) {
-            settled = true
-            ast[0].traverse {
-                if (!it.setType(this)) settled = false
-            }
-        }
-
-        // Check types for sanity
-        ast[0].traverse { it.checkType() }
-
-
-        // TODO: Index all function entries
-
     }
-
 }

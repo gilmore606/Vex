@@ -150,15 +150,15 @@ class MidiParser(val song: Song, val filepath: String, val instrumentCount: Int,
         println("    " + filepath + ": " + events.size + " notes on " + channelMap.keys.size + " channels at " + resolution + " tpq")
     }
 
-    fun writeToFile(outFile: OutFile, songConfig: Song, instruments: HashMap<String,OutInstrument>) {
-        outFile.writeMarker("SNG")
-        outFile.writeMarker(songConfig.id)
-        outFile.writeBytes(outBytes)
+    fun writeToFile(writer: Writer, songConfig: Song, instruments: HashMap<String,OutInstrument>) {
+        writer.writeMarker("SNG")
+        writer.writeMarker(songConfig.id)
+        writer.writeBytes(outBytes)
         println("  wrote song " + songConfig.id)
-        outFile.writeMarker("INS")
+        writer.writeMarker("INS")
         songConfig.voices.forEachIndexed { i, instrument ->
             val outInstrument = instruments[instrument] ?: throw RuntimeException("song uses undefined instrument")
-            outInstrument.writeToFile(outFile, songConfig.volumes[i], songConfig.pans[i])
+            outInstrument.writeToFile(writer, songConfig.volumes[i], songConfig.pans[i])
         }
     }
 }

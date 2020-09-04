@@ -41,11 +41,20 @@ abstract class N_VARREF(): N_VALUE() {
 }
 
 class N_VARIABLE(val name: String): N_VARREF() {
-    override fun toString() = "VARIABLE (" + name + "):" + varID
+    override fun toString() = "VARIABLE " + this.type + " (" + name + "):" + varID
     override fun scopeVars(scope: Node, meaner: Meaner) {
         varID = meaner.variableToID(this, name, scope)
     }
+    override fun setType(meaner: Meaner): Boolean {
+        var unchanged = true
+        if ((type != null) && !meaner.varTypeKnown(varID)) {
+            unchanged = false
+            meaner.learnVarType(varID, type!!, objtype)
+        }
+        return unchanged
+    }
     override fun code(coder: Coder) {
+        if (varID == -1) throw CompileException("unknown variable")
         coder.code(OP_VAR, varID)
     }
     override fun codeSet(coder: Coder) {
@@ -61,7 +70,7 @@ class N_PARAM(val name: String): N_VARREF() {
 class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
     var sig: FuncSig? = null
     var meaner: Meaner? = null
-    override fun toString() = "FUN:" + name + "(" + args.joinToString(",") + ")"
+    override fun toString() = "FUN:" + name
     override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type

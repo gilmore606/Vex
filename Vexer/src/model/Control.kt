@@ -1,6 +1,6 @@
 package model
 
-import OutFile
+import Writer
 
 data class Control(
     val name: String,
@@ -8,14 +8,14 @@ data class Control(
     val type: String = "button",
     val debounce: Int = 0
 ) {
-    fun writeToFile(outFile: OutFile) {
-        outFile.write2ByteInt(keyToGL(key))
-        outFile.writeByte(when (type) {
+    fun writeToFile(writer: Writer) {
+        writer.write2ByteInt(keyToGL(key))
+        writer.writeByte(when (type) {
             "switch" -> 0
             "button" -> 1
             else -> throw RuntimeException("unknown control type")
         }.toUByte())
-        outFile.write2ByteInt(debounce)
+        writer.write2ByteInt(debounce)
         println("    control " + name + " " + key)
     }
 

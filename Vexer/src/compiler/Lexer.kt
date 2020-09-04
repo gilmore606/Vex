@@ -82,6 +82,7 @@ class Lexer(val fVerbose: Boolean) {
                 }
                 T_IDENTIFIER -> {
                     if (c == '(')  { emit(Token(T_IDENTIFUNC, inBuf)) ; return }
+                    if (c == '[')  { emit(Token(T_IDENTIDEX, inBuf)) ; return }
                     if (isIdentChar(c)) inBuf += c else finish(Token(T_IDENTIFIER, inBuf), c)
                 }
                 T_INDENT ->
@@ -94,6 +95,8 @@ class Lexer(val fVerbose: Boolean) {
             when (c) {
                 '(' -> emit(Token(T_PAREN_OPEN))
                 ')' -> emit(Token(T_PAREN_CLOSE))
+                '[' -> emit(Token(T_BRACKET_OPEN))
+                ']' -> emit(Token(T_BRACKET_CLOSE))
                 ':' -> emit(Token(T_COLON))
                 ',' -> emit(Token(T_COMMA))
                 '=' -> begin(T_ASSIGN)

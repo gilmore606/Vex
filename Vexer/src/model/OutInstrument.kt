@@ -1,6 +1,6 @@
 package model
 
-import OutFile
+import Writer
 import java.lang.RuntimeException
 
 class OutInstrument() {
@@ -67,14 +67,14 @@ class OutInstrument() {
         return this
     }
 
-    fun writeToFile(outFile: OutFile, volume: Int?, pan: Int?) {
+    fun writeToFile(writer: Writer, volume: Int?, pan: Int?) {
         if (volume == null || pan == null) throw RuntimeException("unspecified voice parameter")
 
-        outFile.writeBytes(outBytes)
+        writer.writeBytes(outBytes)
 
         // 2 bytes for volume and pan
-        outFile.writeByte(volume.toUByte())
-        outFile.writeByte(pan.toUByte())
+        writer.writeByte(volume.toUByte())
+        writer.writeByte(pan.toUByte())
 
         println("    wrote voice " + name)
     }

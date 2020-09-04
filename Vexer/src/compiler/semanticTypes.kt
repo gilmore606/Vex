@@ -25,7 +25,8 @@ data class Value(val type: ValueType,
 
 data class ValueObj(val name: String, val type: ObjectType)
 
-data class Variable(val id: Int, val name: String, val scope: Node, val type: ValueType?, val nodes: ArrayList<N_VARIABLE> = ArrayList())
+data class Variable(val id: Int, val name: String, val scope: Node,
+                    var type: ValueType?, var objtype: ObjectType?, val nodes: ArrayList<N_VARIABLE> = ArrayList())
 
 data class FuncSig(val sys: Boolean, val name: String, val funcID: Int,
                    val returnType: ValueType, val returnObjType: ObjectType?, val argtypes: List<ValueType>)
