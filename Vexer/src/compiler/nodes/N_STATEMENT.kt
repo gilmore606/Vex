@@ -46,8 +46,35 @@ open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT(
         if (target.type != value.type) throw CompileException("type error: mismatched types in assignment")
     }
     override fun code(coder: Coder) {
-        value.code(coder)
-        target.codeSet(coder)
+        if ((target is N_VARIABLE) && (value is N_VARIABLE)) {
+            coder.code(OP_V2VAR, value.varID, target.varID)
+        } else if ((target is N_VARIABLE) && (value is N_LITERAL)) {
+            if (value is N_BOOLEAN) {
+                coder.code(if (value.value) OP_VTRUE else OP_VFALSE, target.varID)
+                return
+            }
+            coder.code(OP_C2VAR, value.constID, target.varID)
+        } else if ((target is N_VARIABLE) && (value is N_ADD) && (value.arg1 is N_VARIABLE) && (value.arg1.varID == target.varID)) {
+            val added = value.arg2
+            if ((added is N_INTEGER) && (target.type == VAL_INT)) {
+                if (added.value == 1) {
+                    coder.code(OP_INCVAR, target.varID)
+                } else if (added.value == -1) {
+                    coder.code(OP_DECVAR, target.varID)
+                } else {
+                    added.code(coder)
+                    coder.code(OP_ACCVAR, target.varID)
+                }
+            } else if ((added is N_FLOAT) && (target.type == VAL_FLOAT)) {
+                added.code(coder)
+                coder.code(OP_ACCVARF, target.varID)
+            }
+        } else if ((target is N_VARIABLE) && (value is N_INVERSE) && (value.arg is N_VARIABLE) && (value.arg.varID == target.varID)) {
+            coder.code(OP_VFLIP, target.varID)
+        } else {
+            value.code(coder)
+            target.codeSet(coder)
+        }
     }
 }
 

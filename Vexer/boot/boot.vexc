@@ -11,3 +11,12 @@ on start:
 	testv = V(-3.9,2.6)
 	testv = testv + 1.5
 	log testv
+
+on button:
+	start:
+		fountainOn = !fountainOn
+		SONG 1
+	f1:
+		log speed
+	f2:
+		log fountainOn

@@ -27,6 +27,11 @@ class Coder(
         arg3?.also { arg2i(it) }
     }
 
+    fun code(op: Opcode, arg1: UByte) {
+        outBytes.add(op.ordinal.toUByte())
+        outBytes.add(arg1)
+    }
+
     fun arg2i(iarg: Int) {
         val b0 = (iarg % 256)
         val b1 = (iarg - b0) / 256
@@ -121,11 +126,12 @@ class Coder(
             out += op.toString()
             if (op==OP_JUMP || op==OP_IF || op==OP_VAR || op==OP_CONST || op==OP_INCVAR || op==OP_DECVAR || op==OP_SETVAR
                     || op==OP_SETSYS || op==OP_JUMPZ || op==OP_JUMPNZ || op==OP_FUN || op==OP_SFUN || op==OP_SMETH
-                    || op==OP_LDI || op==OP_STAT) {
+                    || op==OP_LDI || op==OP_STAT || op==OP_C2VAR || op==OP_V2VAR || op==OP_ACCVAR || op==OP_ACCVARF
+                    || op==OP_VFLIP || op==OP_VTRUE || op==OP_VFALSE) {
                 val a1 = outBytes[ip+1].toInt() + outBytes[ip+2].toInt()*256
                 if (op==OP_JUMP || op==OP_IF) {
                     out += " j" + a1.toString() + " [" + jumps[a1].toString() + "]"
-                } else if (op==OP_CONST) {
+                } else if (op==OP_CONST || op==OP_C2VAR) {
                     out += " c" + a1.toString() + " [" + constants[a1].toString() + "]"
                 } else if (op==OP_FUN || op==OP_SFUN || op==OP_SMETH) {
                     out += " f" + a1.toString()
@@ -147,6 +153,15 @@ class Coder(
                     out += " pc" + a2.toString()
                     ip += 2
                 }
+                if (op==OP_C2VAR || op==OP_V2VAR) {
+                    val a2 = outBytes[ip+1].toInt() + outBytes[ip+2].toInt()*256
+                    out += " v" + a2.toString() + " [" + variables[a2].name + "]"
+                    ip += 2
+                }
+            } else if (op==OP_BUTTON) {
+                val a1 = outBytes[ip+1].toInt()
+                out += " b" + a1.toString()
+                ip += 1
             }
 
             println(out)

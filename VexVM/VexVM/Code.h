@@ -21,7 +21,7 @@ public:
 	uint8_t* entryState;
 	uint8_t* entryStart;
 	uint8_t* entryUpdate;
-	uint8_t* entryInput;
+	uint8_t* entryButton;
 
 	Code();
 	void Read(ROMReader* rom);

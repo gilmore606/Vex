@@ -5,6 +5,7 @@ import compiler.nodes.Node.*
 import compiler.nodes.*
 import compiler.ValueType.*
 import compiler.ObjectType.*
+import model.Game
 
 typealias FUNCLIST = ArrayList<FuncSig>
 typealias TYPELIST = ArrayList<ValueType>
@@ -80,20 +81,23 @@ class Meaner (
     }
 
 
-    fun mean() {
+    fun mean(config: Game) {
 
         // Index all literal constants (and set their type)
         findConstants()
+
+        // Resolve all resource references to IDs
+        ast.traverse { it.resolveResources(config) }
 
         // Index state (global) variables, get count
         // All variables from 0-(globalCount-1) are globals
         globalCount = scopeGlobals()
         println("found " + globalCount + " globals")
+
         // Index local variables
         ast.scopeVars(ast, this)
 
 
-        ast.print(0)
 
         // Set global types globally
         variables.forEachIndexed { i, v ->
@@ -103,8 +107,11 @@ class Meaner (
             }
         }
 
+
         // Infer all local expression types
         annealTypes(ast)
+
+        ast.print(0)
 
         // Check types for sanity
         ast.traverse { it.checkType() }

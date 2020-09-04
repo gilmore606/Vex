@@ -104,7 +104,7 @@ void Code::Read(ROMReader* rom) {
 		if (entryLabels[i] == "state") { entryState = point; }
 		if (entryLabels[i] == "start") { entryStart = point; }
 		if (entryLabels[i] == "update") { entryUpdate = point; }
-		if (entryLabels[i] == "input") { entryInput = point; }
+		if (entryLabels[i] == "button") { entryButton = point; }
 	}
 	for (int i = 0; i < jumpc; i++) {
 		jumps.push_back(code + jumpsRel[i]);

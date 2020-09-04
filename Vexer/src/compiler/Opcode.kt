@@ -24,8 +24,16 @@ enum class Opcode {
     OP_SMETH,    // [2:sysclassmeth] Call system class method with stack args (this on top), push return on stack
     OP_STAT,     // [2:sid] [2:paramcount] Call system statement <sid> with <paramcount> stack args
 
+    OP_C2VAR,    // [2:const] [2:var] Copy const to var
+    OP_V2VAR,    // [2:var1] [2:var2] Copy var1 to var2
+    OP_ACCVAR,   // [2:var] Add stacktop int to int var
+    OP_ACCVARF,  // [2:var] Add stacktop float to float var
+    OP_VFLIP,    // [2:var] Flip boolean var
+    OP_VTRUE,    // [2:var] Set boolean var = true
+    OP_VFALSE,   // [2:var] Set boolean var = false
+
     OP_INPUT,    // Get value of input (id=stacktop)
-    OP_BUTTON,   // Get pressed-this-frame status of button (id=stacktop)
+    OP_BUTTON,   // [1:buttonid] Get pressed-this-frame status of button  (true = pressed)
 
     OP_INC,      // i++
     OP_DEC,      // i--

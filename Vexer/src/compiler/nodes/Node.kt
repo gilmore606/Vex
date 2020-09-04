@@ -3,6 +3,7 @@ package compiler.nodes
 import compiler.*
 import compiler.Opcode.*
 import compiler.ValueType.*
+import model.Game
 
 typealias NODES = ArrayList<Node>
 
@@ -42,7 +43,7 @@ open class Node {
     }
 
     open fun setType(meaner: Meaner): Boolean { return true }
-
+    open fun resolveResources(config: Game) { }
     open fun checkType() { }
 
     open val localScope = false
@@ -68,29 +69,6 @@ open class Node {
         override fun kids(): NODES = super.kids().apply { blocks.forEach { add(it) } }
         override fun code(coder: Coder) {
             blocks.forEach { it.code(coder) }
-        }
-    }
-
-    abstract class N_TOPBLOCK(): Node()
-
-    class N_TOP_HANDLER(val name: String, val code: N_CODEBLOCK): N_TOPBLOCK() {
-        override val localScope = true
-        override fun toString() = "HANDLER on " + name + ":"
-        override fun kids(): NODES = super.kids().apply { add(code) }
-        override fun code(coder: Coder) {
-            coder.addEntryPoint(name)
-            code.code(coder)
-            coder.code(OP_EXIT)
-        }
-    }
-
-    class N_TOP_STATE(val assigns: N_CODEBLOCK): N_TOPBLOCK() {
-        override fun toString() = "HANDLER state:"
-        override fun kids(): NODES = super.kids().apply { add(assigns) }
-        override fun code(coder: Coder) {
-            coder.addEntryPoint("state")
-            assigns.code(coder)
-            coder.code(OP_EXIT)
         }
     }
 

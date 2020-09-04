@@ -24,6 +24,11 @@ class Parser(
     fun tossToNextLine() {
         while (nextToken().type == T_INDENT) { toss() }
     }
+    fun tossDepth(depth: Int): Boolean {
+        repeat (depth) { if (nextToken(it).type != T_INDENT) return false }
+        repeat (depth) { toss() }
+        return true
+    }
     fun expectToken(type: TokenType, failMessage: String): Token {
         val t = getToken()
         if (t.type != type) throw ParseException(this, failMessage)
@@ -74,8 +79,24 @@ class Parser(
         toss()
         val handler = getToken().string
         expectToken(T_COLON, "expected colon after method declaration")
+        if (handler == "button") {
+            return parseButtonHandlers(depth+1)
+        }
         val code = N_CODEBLOCK(parseCodeblock(depth + 1)).also { it.tag(this) }
         return N_TOP_HANDLER(handler, code).also { it.tag(this) }
+    }
+
+    fun parseButtonHandlers(depth: Int): N_TOPBLOCK? {
+        tossDepth(depth) || return null
+        val handlers = ArrayList<N_BUTTON_HANDLER>()
+        while (nextTokensAre(T_IDENTIFIER, T_COLON)) {
+            val button = getToken().string
+            toss()
+            val code = parseCodeblock(depth + 1)
+            handlers.add(N_BUTTON_HANDLER(button, N_CODEBLOCK(code).also { it.tag(this) }).also { it.tag(this) })
+            tossDepth(depth) || break
+        }
+        return N_TOP_BUTTONS(handlers).also { it.tag(this) }
     }
 
     fun parseState(depth: Int): N_TOPBLOCK? {
@@ -108,8 +129,7 @@ class Parser(
     // STATEMENTS
 
     fun parseStatement(depth: Int): List<N_STATEMENT>? {
-        repeat (depth) { if (nextToken(it).type != T_INDENT) return null }
-        repeat (depth) { toss() }
+        tossDepth(depth) || return null
         val l = ArrayList<N_STATEMENT>()
         parseParticle(depth)?.also { l.add(it); return l }
         parseSong(depth)?.also { l.add(it); return l }
@@ -351,7 +371,7 @@ class Parser(
     fun parseUnary(): N_EXPRESSION? {
         if (nextTokenOneOf(T_BANG, T_SUBTRACT)) {
             val operator = getToken()
-            val rightExpr = parseUnary() ?: throw ParseException(this, "expected value after unary operator")
+            val rightExpr = parseExpression() ?: throw ParseException(this, "expected value after unary operator")
             return if (operator.type == T_BANG) N_INVERSE(rightExpr).also { it.tag(this) }
                 else N_NEGATE(rightExpr).also { it.tag(this) }
         }

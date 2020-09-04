@@ -7,6 +7,7 @@ import compiler.Opcode.*
 import compiler.ValueType.*
 
 abstract class N_UNOP(val arg: N_EXPRESSION): Node.N_EXPRESSION() {
+    override fun kids(): NODES { return super.kids().apply { add(arg) }}
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         this.type = arg.type
@@ -14,6 +15,7 @@ abstract class N_UNOP(val arg: N_EXPRESSION): Node.N_EXPRESSION() {
     }
 }
 class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
+    override fun toString() = "NEGATE"
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         this.type = arg.type
@@ -30,6 +32,7 @@ class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
     }
 }
 class N_INVERSE(arg: N_EXPRESSION): N_UNOP(arg) {
+    override fun toString() = "NOT"
     override fun setType(meaner: Meaner): Boolean {
         if (this.type != VAL_BOOL) {
             this.type = VAL_BOOL

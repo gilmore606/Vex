@@ -154,6 +154,26 @@ void CPU::run(uint8_t* address) {
 		case OP_SETVAR:  
 			code->variables[READ_I16()] = pop();
 			break;
+		case OP_C2VAR:
+			v = code->constants[READ_I16()];
+			code->variables[READ_I16()] = v;
+			break;
+		case OP_V2VAR:
+			v = code->variables[READ_I16()];
+			code->variables[READ_I16()] = v;
+			break;
+		case OP_ACCVAR:
+			fi = pop().as.integer;
+			code->variables[READ_I16()].as.integer += fi;
+			break;
+		case OP_ACCVARF:
+			f = pop().as.fp;
+			code->variables[READ_I16()].as.fp += f;
+			break;
+		case OP_VFLIP:
+			vi = READ_I16();
+			code->variables[vi].as.boolean = !code->variables[vi].as.boolean;
+			break;
 		case OP_SETSYS: 
 
 			break;

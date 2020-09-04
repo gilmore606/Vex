@@ -30,7 +30,7 @@ fun main() {
     // Compile the main code block
 
     val compiler = Compiler(sourceDir + "/" + gameConfig.code, "MAIN", fVerbose)
-    compiler.compile()
+    compiler.compile(gameConfig)
     compiler.writeToFile(outFile)
 
 

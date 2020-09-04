@@ -1,6 +1,7 @@
 package compiler
 
 import Writer
+import model.Game
 import java.io.File
 
 class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolean) {
@@ -14,7 +15,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
     lateinit var meaner: Meaner
     lateinit var coder: Coder
 
-    fun compile() {
+    fun compile(config: Game) {
 
         val inStream = File(filepath).inputStream();
 
@@ -61,7 +62,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
 
             // Fill in symbols and types
             meaner = Meaner(parser.ast, fVerbose)
-            meaner.mean()
+            meaner.mean(config)
 
             // Generate code
             coder = Coder(parser.ast)
