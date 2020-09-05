@@ -130,7 +130,7 @@ void CPU::run(uint8_t* address) {
 			tasks.push_back(Task(ip, (double)AS_INT(pop()) / 1000.0 + elapsed));
 			return;
 		case OP_INPUT:
-			push(BOOL_VAL(input->isPressed(AS_INT(pop()))));
+			push(BOOL_VAL(input->isPressed(READ_BYTE())));
 			break;
 		case OP_BUTTON:
 			push(BOOL_VAL(buttonPressed[READ_BYTE()]));
@@ -200,6 +200,12 @@ void CPU::run(uint8_t* address) {
 			break;
 		case OP_LDI:
 			push(INT_VAL(READ_I16()));
+			break;
+		case OP_LDBT:
+			push(BOOL_VAL(true));
+			break;
+		case OP_LDBF:
+			push(BOOL_VAL(false));
 			break;
 
 
@@ -489,6 +495,7 @@ void CPU::resume(Task task) {
 
 void CPU::callSFUN(int fi) {
 	float f1;
+	float f2;
 	int v1;
 	int v2;
 	VStr* text;
@@ -517,12 +524,65 @@ void CPU::callSFUN(int fi) {
 	case 6: // float = RAND()
 		push(FLOAT_VAL(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)));
 		break;
-	case 7: // sprite = TEXT("text")
+	case 7: // int = MIN(i, i)
+		v1 = AS_INT(pop());
+		TOPVAL().as.integer = std::min(TOPVAL().as.integer, v1);
+		break;
+	case 8: // int = MAX(i, i)
+		v1 = AS_INT(pop());
+		TOPVAL().as.integer = std::max(TOPVAL().as.integer, v1);
+		break;
+	case 9: // int = ABS(i)
+		TOPVAL().as.integer = std::abs(TOPVAL().as.integer);
+		break;
+	case 10: // int = SIGN(i)
+		TOPVAL().as.integer = (TOPVAL().as.integer > 0) ? 1 : (TOPVAL().as.integer < 0) ? -1 : 0;
+		break;
+	case 11: // float = MIN(f, f)
+		f1 = AS_FLOAT(pop());
+		TOPVAL().as.fp = std::min(TOPVAL().as.fp, f1);
+		break;
+	case 12: // float = MAX(f, f)
+		f1 = AS_FLOAT(pop());
+		TOPVAL().as.fp = std::max(TOPVAL().as.fp, f1);
+		break;
+	case 13: // float = ABS(f)
+		TOPVAL().as.fp = std::abs(TOPVAL().as.fp);
+		break;
+	case 14: // int = SIGN(f)
+		TOPVAL().as.integer = (TOPVAL().as.fp > 0.0f) ? 1 : (TOPVAL().as.fp < 0.0f) ? -1 : 0;
+		TOPVAL().type = VAL_INT;
+		break;
+	case 15: // float = SIN(f)
+		TOPVAL().as.fp = std::sin(TOPVAL().as.fp);
+		break;
+	case 16: // float = COS(f)
+		TOPVAL().as.fp = std::cos(TOPVAL().as.fp);
+		break;
+	case 17: // int = CLAMP(i val, i min, i max)
+		v1 = AS_INT(pop());
+		v2 = AS_INT(pop());
+		TOPVAL().as.integer = std::min(std::max(TOPVAL().as.integer, v1), v2);
+		break;
+	case 18: // float = CLAMP(f val, f min, f max)
+		f1 = AS_FLOAT(pop());
+		f2 = AS_FLOAT(pop());
+		TOPVAL().as.fp = std::min(std::max(TOPVAL().as.fp, f1), f2);
+		break;
+	case 19: // float = SQRT(f)
+		TOPVAL().as.fp = std::sqrt(TOPVAL().as.fp);
+		break;
+	case 20: // bool = CHANCE(f)
+		f1 = AS_FLOAT(pop());
+		push(BOOL_VAL((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) <= f1));
+		break;
+
+	case 30: // sprite = TEXT("text")
 		text = pop().as.string;
 
 		break;
 
-	case 8: // sprite = SPRITE(imageid)
+	case 31: // sprite = SPRITE(imageid)
 		v1 = pop().as.integer;
 
 		break;
