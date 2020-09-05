@@ -68,6 +68,9 @@ open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT(
             } else if ((added is N_FLOAT) && (target.type == VAL_FLOAT)) {
                 added.code(coder)
                 coder.code(OP_ACCVARF, target.varID)
+            } else {
+                value.code(coder)
+                target.codeSet(coder)
             }
         } else if ((target is N_VARIABLE) && (value is N_INVERSE) && (value.arg is N_VARIABLE) && (value.arg.varID == target.varID)) {
             coder.code(OP_VFLIP, target.varID)
