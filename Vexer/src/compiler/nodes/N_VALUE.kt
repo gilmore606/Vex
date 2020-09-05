@@ -18,9 +18,16 @@ abstract class N_LITERAL: N_VALUE() {
 
 class N_BOOLEAN(val value: Boolean): N_LITERAL() {
     override fun toString() = if (value) "TRUE" else "FALSE"
+    override fun code(coder: Coder) {
+        coder.code(if (value) OP_LDBT else OP_LDBF)
+    }
 }
 class N_INTEGER(val value: Int): N_LITERAL() {
     override fun toString() = "INT (" + value.toString() + ")"
+    override fun code(coder: Coder) {
+        if (value < 65535) coder.code(OP_LDI, value)
+        else super.code(coder)
+    }
 }
 class N_FLOAT(val value: Float): N_LITERAL() {
     override fun toString() = "FLOAT (" + value.toString() + ")"
