@@ -4,6 +4,7 @@ import compiler.*
 import compiler.Opcode.*
 import compiler.ValueType.*
 import compiler.nodes.Node.*
+import model.Game
 
 data class ParamInfo(val id: Int, val type: ValueType)
 typealias PARAMMAP = HashMap<String,ParamInfo>
@@ -50,7 +51,7 @@ class N_PARAMSET(val target: N_PARAM, val value: N_EXPRESSION): N_STATEMENT() {
     }
 }
 
-class N_PARTICLE(val partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEMENT(params) {
+class N_PARTICLE(var partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEMENT(params) {
     override val codeID = 0
     override val paramInfo = PARAMMAP().apply {
         set("p", ParamInfo(0, VAL_VECTOR))
@@ -66,6 +67,16 @@ class N_PARTICLE(val partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_ST
     }
     override fun toString() = "PARTICLE"
     override fun kids(): NODES = super.kids().apply { add(partid) }
+    override fun resolveResources(config: Game) {
+        if (partid is N_STRING) {
+            config.particles.forEach {
+                if (it.name == (partid as N_STRING).value) {
+                    partid = N_INTEGER(it.id)
+                    partid.type = VAL_INT
+                }
+            }
+        }
+    }
     override fun checkType() {
         if (partid.type != VAL_INT) throw CompileException("particle id must be int")
     }
@@ -74,7 +85,7 @@ class N_PARTICLE(val partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_ST
     }
 }
 
-class N_SONG(val songid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEMENT(params) {
+class N_SONG(var songid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEMENT(params) {
     override val codeID = 1
     override val paramInfo = PARAMMAP().apply {
         set("vol", ParamInfo(0, VAL_FLOAT))
@@ -85,6 +96,17 @@ class N_SONG(val songid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEM
     }
     override fun toString() = "SONG"
     override fun kids(): NODES = super.kids().apply { add(songid) }
+    override fun resolveResources(config: Game) {
+        if (songid is N_STRING) {
+            config.songs.forEach {
+                if (it.name == (songid as N_STRING).value) {
+                    this.songid = N_INTEGER(it.id)
+                    this.songid.type = VAL_INT
+                    return
+                }
+            }
+        }
+    }
     override fun checkType() {
         if (songid.type != VAL_INT) throw CompileException("song id must be int")
     }

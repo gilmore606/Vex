@@ -117,6 +117,12 @@ class Coder(
     fun disassemble(constants: ArrayList<Value>, variables: ArrayList<Variable>) {
         var ip = 0
         while (ip < outBytes.size) {
+            entries.keys.forEach { entryName ->
+                if (entries[entryName] == ip) {
+                    println("")
+                    println("ENTRY POINT: " + entryName)
+                }
+            }
             var out = ""
             val ji = jumps.indexOf(ip)
             if (ji >= 0) out = "j" + ji.toString() + " " else out = "   "

@@ -30,6 +30,8 @@ typedef enum {
     OP_ACCVAR,   // [2:var] Add stacktop int to int var
     OP_ACCVARF,  // [2:var] Add stacktop float to float var
     OP_VFLIP,    // [2:var] Flip boolean var
+    OP_VTRUE,    // [2:var] Set boolean var = true
+    OP_VFALSE,   // [2:var] Set boolean var = false
 
     OP_INPUT,    // Get value of input (id=stacktop)
     OP_BUTTON,   // [1:buttonid] Get pressed-this-frame status of button  (true = pressed)

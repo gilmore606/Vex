@@ -152,7 +152,7 @@ class MidiParser(val song: Song, val filepath: String, val instrumentCount: Int,
 
     fun writeToFile(writer: Writer, songConfig: Song, instruments: HashMap<String,OutInstrument>) {
         writer.writeMarker("SNG")
-        writer.writeMarker(songConfig.id)
+        writer.writeMarker(songConfig.id.toString())
         writer.writeBytes(outBytes)
         println("  wrote song " + songConfig.id)
         writer.writeMarker("INS")

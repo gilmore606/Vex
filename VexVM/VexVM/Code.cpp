@@ -2,9 +2,10 @@
 #include "ROMReader.h"
 
 Code::Code() {
+	entryState = nullptr;
 	entryStart = nullptr;
 	entryUpdate = nullptr;
-	entryInput = nullptr;
+	entryButton = nullptr;
 	codec = 0;
 	code = nullptr;
 }

@@ -47,6 +47,7 @@ protected:
 	void run(uint8_t* address);
 	void resume(Task task);
 	void logValue(Value v);
+	void clearInput();
 
 private:
 

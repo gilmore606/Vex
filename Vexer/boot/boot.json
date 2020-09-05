@@ -59,7 +59,8 @@
 	],
 	"songs": [
 		{
-			"id": "1",
+			"id": 1,
+            "name": "start1",
 			"notes": [
 				{ "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 70, "d2": 127 },
 				{ "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 70, "d2": 0 }
@@ -69,7 +70,8 @@
 			"pans": [ 128 ]
 		},
 		{
-			"id": "2",
+			"id": 2,
+            "name": "start2",
 			"notes": [
 				{ "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 90, "d2": 127 },
 				{ "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 90, "d2": 0 }

@@ -15,7 +15,8 @@ on start:
 on button:
 	start:
 		fountainOn = !fountainOn
-		SONG 1
+		SONG "start1"
+		log 666
 	f1:
 		log speed
 	f2:

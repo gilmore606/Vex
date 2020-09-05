@@ -29,6 +29,12 @@ void CPU::Boot() {
 }
 
 void CPU::OnUpdate(float deltaTime) {
+	if (countPressed > 0) {
+		CLEAR_STACK();
+		run(code->entryButton);
+		clearInput();
+	}
+
 	elapsed += deltaTime;
 	std::vector<Task> undone;
 	for (int i = 0; i < tasks.size(); i++) {
@@ -41,26 +47,21 @@ void CPU::OnUpdate(float deltaTime) {
 	}
 	tasks = undone;
 
-	// TODO: implement
-	//if (countPressed > 0) {
-	//	CLEAR_STACK();
-	//	push(INT_VAL(countPressed));
-	//	for (int i = 0; i < 32; i++) {
-	//		if (buttonPressed[i]) {
-	//			push(INT_VAL(i));
-	//			buttonPressed[i] = false;
-	//		}
-	//	}
-	//	countPressed = 0;
-	//	run(code->entryInput);
-	//}
 
 	// CLEAR_STACK();
 	// push(FLOAT_VAL(deltaTime));
 	// run(code->entryUpdate);
 }
 
+void CPU::clearInput() {
+	for (int i = 0; i < 32; i++) {
+		buttonPressed[i] = false;
+	}
+	countPressed = 0;
+}
+
 void CPU::OnInput(int input) {
+	std::cout << "INPUT button: " << input << std::endl;
 	buttonPressed[input] = true;
 	countPressed++;
 }
@@ -132,7 +133,7 @@ void CPU::run(uint8_t* address) {
 			push(BOOL_VAL(input->isPressed(AS_INT(pop()))));
 			break;
 		case OP_BUTTON:
-			push(BOOL_VAL(buttonPressed[AS_INT(pop())]));
+			push(BOOL_VAL(buttonPressed[READ_BYTE()]));
 			break;
 
 			// Values
@@ -173,6 +174,12 @@ void CPU::run(uint8_t* address) {
 		case OP_VFLIP:
 			vi = READ_I16();
 			code->variables[vi].as.boolean = !code->variables[vi].as.boolean;
+			break;
+		case OP_VTRUE:
+			code->variables[READ_I16()].as.boolean = true;
+			break;
+		case OP_VFALSE:
+			code->variables[READ_I16()].as.boolean = false;
 			break;
 		case OP_SETSYS: 
 

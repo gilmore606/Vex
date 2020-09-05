@@ -83,11 +83,12 @@ class Meaner (
 
     fun mean(config: Game) {
 
+        // Resolve all resource references to IDs
+        ast.traverse { it.resolveResources(config) }
+
         // Index all literal constants (and set their type)
         findConstants()
 
-        // Resolve all resource references to IDs
-        ast.traverse { it.resolveResources(config) }
 
         // Index state (global) variables, get count
         // All variables from 0-(globalCount-1) are globals

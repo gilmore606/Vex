@@ -36,6 +36,7 @@ class N_TOP_BUTTONS(val handlers: List<N_BUTTON_HANDLER>): N_TOPBLOCK() {
     override fun toString() = "HANDLER on button:"
     override fun kids(): NODES = super.kids().apply { handlers.forEach { add(it) }}
     override fun code(coder: Coder) {
+        coder.addEntryPoint("button")
         handlers.forEachIndexed { i, handler ->
             handler.code(i, coder)
         }
