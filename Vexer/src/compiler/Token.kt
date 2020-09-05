@@ -23,6 +23,7 @@ enum class TokenType {
     T_DIVIDE,             // /
     T_DOTJOIN,            // .
     T_BANG,               // !
+    T_QUESTION,           // ?
     T_POWER,              // ^
     T_LOGIC_OR,           // ||
     T_LOGIC_AND,          // &&

@@ -11,6 +11,8 @@ on start:
 	testv = V(-3.9,2.6)
 	testv = testv + 1.5
 	log testv
+	foo = fountainOn ? 4 : 12
+	log foo
 
 on button:
 	start:

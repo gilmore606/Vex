@@ -284,16 +284,30 @@ class Parser(
     }
 
     fun parseAndOr(): N_EXPRESSION? {
-        var leftExpr = parseEquality() ?: return null
+        var leftExpr = parseConditional() ?: return null
         while (nextTokenOneOf(T_LOGIC_AND, T_LOGIC_OR)) {
             val operator = getToken()
-            val rightExpr = parseEquality()
+            val rightExpr = parseConditional()
             if (rightExpr != null) {
                 leftExpr = if (operator.type == T_LOGIC_AND) N_LOGIC_AND(leftExpr, rightExpr).also { it.tag(this) }
                 else N_LOGIC_OR(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
+    }
+
+    fun parseConditional(): N_EXPRESSION? {
+        val cond = parseEquality() ?: return null
+        if (nextTokenIs(T_QUESTION)) {
+            toss()
+            val yesval = parseEquality() ?: throw ParseException(this, "expected expr after conditional")
+            if (nextTokenIs(T_COLON)) {
+                toss()
+                val noval = parseEquality() ?: throw ParseException(this, "expected expr after conditional")
+                return N_CONDITIONAL(cond, yesval, noval).also { it.tag(this) }
+            }
+        }
+        return cond
     }
 
     fun parseEquality(): N_EXPRESSION? {

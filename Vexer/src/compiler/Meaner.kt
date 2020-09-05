@@ -83,12 +83,11 @@ class Meaner (
 
     fun mean(config: Game) {
 
-        // Resolve all resource references to IDs
+        // Resolve resource references to IDs
         ast.traverse { it.resolveResources(config) }
 
-        // Index all literal constants (and set their type)
+        // Index literal constants (and set their type)
         findConstants()
-
 
         // Index state (global) variables, get count
         // All variables from 0-(globalCount-1) are globals
@@ -97,8 +96,6 @@ class Meaner (
 
         // Index local variables
         ast.scopeVars(ast, this)
-
-
 
         // Set global types globally
         variables.forEachIndexed { i, v ->
@@ -133,6 +130,11 @@ class Meaner (
     }
 
     fun scopeGlobals(): Int {
+        // Include system variables as globals
+        Syscalls.vars.forEach {
+            it.scope = ast
+            variables.add(it)
+        }
         ast.findNode { it is N_TOP_STATE }?.also { state ->
             state.scopeVars(ast, this)
             annealTypes(state)

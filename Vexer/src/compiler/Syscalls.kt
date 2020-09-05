@@ -6,9 +6,14 @@ import compiler.FuncSig
 import compiler.Meaner
 import compiler.Opcode.*
 import compiler.*
+import compiler.nodes.Node
 import compiler.ValueType.*
 
 object Syscalls {
+
+    val vars = ArrayList<Variable>().apply {
+        add(Variable(0, "delta", Node(), VAL_FLOAT))
+    }
 
     val funcs = FUNCLIST().apply {
         add(FuncSig(true, "V", 0, VAL_VECTOR, null,
@@ -50,6 +55,8 @@ object Syscalls {
         add(FuncSig(true, "CLAMP", 18, VAL_FLOAT, null,
                 TYPELIST().apply { add(VAL_FLOAT); add(VAL_FLOAT); add(VAL_FLOAT) }))
         add(FuncSig(true, "SQRT", 19, VAL_FLOAT, null,
+                TYPELIST().apply { add(VAL_FLOAT) }))
+        add(FuncSig(true, "CHANCE", 20, VAL_BOOL, null,
                 TYPELIST().apply { add(VAL_FLOAT) }))
 
         add(FuncSig(true, "TEXT", 30, VAL_OBJECT, ObjectType.OBJ_SPRITE,

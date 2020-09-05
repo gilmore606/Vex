@@ -108,6 +108,7 @@ class Lexer(val fVerbose: Boolean) {
                 '/' -> begin(T_DIVIDE)
                 '.' -> emit(Token(T_DOTJOIN))
                 '!' -> begin(T_NOTEQUALS)
+                '?' -> emit(Token(T_QUESTION))
                 '"' -> begin(T_STRING)
                 '^' -> emit(Token(T_POWER))
                 '%' -> emit(Token(T_MODULUS))

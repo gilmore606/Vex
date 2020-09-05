@@ -36,7 +36,7 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
 
 open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
     override fun toString() = "ASSIGN " + value.type + " to " + target.type
-    override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
+    override fun kids(): NODES = super.kids().apply { add(target); add(value) }
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = target.type
         if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!, value.objtype)
@@ -46,6 +46,7 @@ open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT(
         if (target.type != value.type) throw CompileException("type error: mismatched types in assignment")
     }
     override fun code(coder: Coder) {
+        // Optimizations
         if ((target is N_VARIABLE) && (value is N_VARIABLE)) {
             coder.code(OP_V2VAR, value.varID, target.varID)
         } else if ((target is N_VARIABLE) && (value is N_LITERAL)) {
@@ -83,7 +84,7 @@ open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT(
 
 class N_REPEAT(val count: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
     var loopVarID = -1
-    override fun kids(): NODES { return super.kids().apply { add(count); add(code) }}
+    override fun kids(): NODES = super.kids().apply { add(count); add(code) }
     override fun scopeVars(scope: Node, meaner: Meaner) {
         super.scopeVars(scope, meaner)
         loopVarID = meaner.variableToID(this, "_loop"+id, scope)
@@ -105,11 +106,11 @@ class N_REPEAT(val count: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
 }
 
 class N_EACH(val iterator: N_VARIABLE, val code: N_CODEBLOCK): N_STATEMENT() {
-    override fun kids(): NODES { return super.kids().apply { add(iterator); add(code) }}
+    override fun kids(): NODES = super.kids().apply { add(iterator); add(code) }
 }
 
 class N_IF(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK): N_STATEMENT() {
-    override fun kids(): NODES { return super.kids().apply { add(condition); add(ifblock); }}
+    override fun kids(): NODES = super.kids().apply { add(condition); add(ifblock); }
     override fun checkType() {
         if (condition.type != VAL_BOOL) throw CompileException("type error: if statement expects boolean expr")
     }
@@ -123,7 +124,7 @@ class N_IF(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK): N_STATEMENT()
 }
 
 class N_IFELSE(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK, val elseblock: N_CODEBLOCK): N_STATEMENT() {
-    override fun kids(): NODES { return super.kids().apply { add(condition); add(ifblock); add(elseblock) }}
+    override fun kids(): NODES = super.kids().apply { add(condition); add(ifblock); add(elseblock) }
     override fun checkType() {
         if (condition.type != VAL_BOOL) throw CompileException("type error: if statement expects boolean expr")
     }
@@ -142,7 +143,7 @@ class N_IFELSE(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK, val elsebl
 
 class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
     var endvarID = -1
-    override fun kids(): NODES { return super.kids().apply { add(index); add(start); add(end); add(code); }}
+    override fun kids(): NODES = super.kids().apply { add(index); add(start); add(end); add(code); }
     override fun scopeVars(scope: Node, meaner: Meaner) {
         super.scopeVars(scope, meaner)
         endvarID = meaner.variableToID(this, "_forend"+id, scope)
@@ -174,7 +175,7 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
 }
 
 class N_WAIT(val time: N_EXPRESSION): N_STATEMENT() {
-    override fun kids(): NODES { return super.kids().apply { add(time) }}
+    override fun kids(): NODES = super.kids().apply { add(time) }
     override fun checkType() {
         if (time.type != VAL_INT) throw CompileException("type error: wait statement expects int msec")
     }
@@ -185,7 +186,7 @@ class N_WAIT(val time: N_EXPRESSION): N_STATEMENT() {
 }
 
 class N_LOG(val expr: N_EXPRESSION): N_STATEMENT() {
-    override fun kids(): NODES { return super.kids().apply { add(expr) }}
+    override fun kids(): NODES = super.kids().apply { add(expr) }
     override fun code(coder: Coder) {
         expr.code(coder)
         coder.code(OP_DEBUG)
