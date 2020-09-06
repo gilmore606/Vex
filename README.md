@@ -14,6 +14,8 @@ You can [download an .exe demo](https://raw.githubusercontent.com/gilmore606/Vex
 
 # Updates
 
+9/5: Lots of compiler and VM work -- math functions, optimized bytecode, conditionals, input handlers, global variables, and lots more little things I forgot.
+
 8/30: Compiler: added the concept of system functions and system object classes, and function/method call parsing and compiling to go with.  We'll need this to
 meaningfully interact with the GPU and APU.
 
