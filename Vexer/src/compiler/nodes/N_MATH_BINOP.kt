@@ -36,7 +36,7 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
         }
         return this.type == oldtype
     }
-    val typeE = CompileException("illegal types in math op")
+    val typeE = CompileException(this, "illegal types in math op")
     open fun codeInt(coder: Coder) { throw typeE }
     open fun codeFloat(coder: Coder) { throw typeE }
     open fun codeVector(coder: Coder) { throw typeE }
@@ -46,12 +46,12 @@ abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINO
     override fun code(coder: Coder) {
         when (arg1.type) {
             VAL_STRING -> {
-                if (this !is N_ADD) throw CompileException("illegal string op")
+                if (this !is N_ADD) throw CompileException(this, "illegal string op")
                 arg1.code(coder)
                 when (arg2.type) {
                     VAL_INT -> coder.code(OP_I2S)
                     VAL_FLOAT -> coder.code(OP_F2S)
-                    else -> throw CompileException("can only add int and float to string")
+                    else -> throw CompileException(this, "can only add int and float to string")
                 }
                 arg2.code(coder)
                 coder.code(OP_CAT)
@@ -182,7 +182,7 @@ class N_DIVIDE(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_MATH_BINOP(arg1, arg2)
             }
             VAL_FLOAT -> when (arg2.type) {
                 VAL_INT, VAL_FLOAT -> VAL_FLOAT
-                VAL_VECTOR -> throw CompileException("type error: can't divide float by vector")
+                VAL_VECTOR -> throw CompileException(this, "type error: can't divide float by vector")
                 else -> null
             }
             VAL_VECTOR -> when (arg2.type) {

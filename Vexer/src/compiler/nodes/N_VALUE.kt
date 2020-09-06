@@ -49,6 +49,9 @@ abstract class N_VARREF(): N_VALUE() {
 
 class N_VARIABLE(val name: String): N_VARREF() {
     override fun toString() = "VARIABLE " + this.type + " (" + name + "):" + varID
+    override fun checkTypeResolved() {
+        if (this.type == null) throw CompileException(this, "variable read before init (unknown variable '" + name + "')")
+    }
     override fun scopeVars(scope: Node, meaner: Meaner) {
         varID = meaner.variableToID(this, name, scope)
     }
@@ -61,7 +64,7 @@ class N_VARIABLE(val name: String): N_VARREF() {
         return unchanged
     }
     override fun code(coder: Coder) {
-        if (varID == -1) throw CompileException("unknown variable")
+        if (varID == -1) throw CompileException(this, "unknown variable")
         coder.code(OP_VAR, varID)
     }
     override fun codeSet(coder: Coder) {
@@ -80,18 +83,19 @@ class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
     override fun toString() = "FUN:" + name
     override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
     override fun setType(meaner: Meaner): Boolean {
+        args.forEach { if (it.type == null) return true }
         val oldtype = this.type
-        sig = meaner.getFuncSig(name, args)
+        sig = meaner.getFuncSig(this, name, args)
         this.meaner = meaner
         this.type = sig!!.returnType
         this.objtype = sig!!.returnObjType
         return oldtype == this.type
     }
-    override fun checkType() {
+    override fun checkTypeSane() {
         if (sig == null) setType(meaner!!)
         sig?.also { sig ->
             args.forEachIndexed { i, arg ->
-                if (arg.type != sig.argtypes[i]) throw CompileException("illegal type function arg")
+                if (arg.type != sig.argtypes[i]) throw CompileException(this, "illegal type function arg")
             }
         }
     }
@@ -101,6 +105,6 @@ class N_FUNCALL(val name: String, val args: List<N_EXPRESSION>): N_VALUE() {
         }
         sig?.also { sig ->
             coder.code(if (sig.sys) OP_SFUN else OP_FUN, sig.funcID)
-        } ?: throw CompileException("unknown function signature")
+        } ?: throw CompileException(this, "unknown function signature")
     }
 }

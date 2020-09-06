@@ -44,6 +44,39 @@ class N_TOP_BUTTONS(val handlers: List<N_BUTTON_HANDLER>): N_TOPBLOCK() {
     }
 }
 
+class N_TOP_USERFUNC(val name: String, val args: List<FuncArg>, val returnType: ValueType, val code: N_CODEBLOCK): N_TOPBLOCK() {
+    override val localScope = true
+    var funID = -1
+    val argIDs = ArrayList<Int>()
+    init { args.forEach { argIDs.add(-1) } }
+    override fun toString() = "USERFUNC to " + name + ":"
+    override fun kids(): NODES = super.kids().apply { add(code) }
+    override fun scopeVars(scope: Node, meaner: Meaner) {
+        funID = meaner.assignFunctionID(this)
+        args.forEachIndexed { i, arg ->
+            argIDs[i] = meaner.variableToID(this, arg.name, this)
+        }
+        super.scopeVars(scope, meaner)
+    }
+    override fun setType(meaner: Meaner): Boolean {
+        var unchanged = true
+        args.forEachIndexed { i, arg ->
+            if (!meaner.varTypeKnown(argIDs[i])) {
+                unchanged = false
+                meaner.learnVarType(argIDs[i], arg.type, null)
+            }
+        }
+        return unchanged
+    }
+    override fun code(coder: Coder) {
+        coder.addEntryPoint(name)
+        code.code(coder)
+        if (coder.lastByte() != OP_RETURN.ordinal.toUByte()) {
+            coder.code(OP_RETURN)
+        }
+    }
+}
+
 class N_BUTTON_HANDLER(val button: String, val code: N_CODEBLOCK): Node() {
     var buttonID = -1
     override fun toString() = "BUTTON " + button
@@ -52,7 +85,7 @@ class N_BUTTON_HANDLER(val button: String, val code: N_CODEBLOCK): Node() {
         config.controls.forEachIndexed { i, c ->
             if (c.name == button) buttonID = i
         }
-        if (buttonID == -1) throw CompileException("undefined button '" + button + "'")
+        if (buttonID == -1) throw CompileException(this, "undefined button '" + button + "'")
     }
     fun code(i: Int, coder: Coder) {
         coder.code(OP_BUTTON, buttonID.toUByte())

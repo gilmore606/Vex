@@ -11,8 +11,8 @@ abstract class N_ASSIGN_BINOP(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN(t
     override fun setType(meaner: Meaner): Boolean {
         return mathNode.setType(meaner)
     }
-    override fun checkType() {
-        mathNode.checkType()
+    override fun checkTypeSane() {
+        mathNode.checkTypeSane()
     }
     override fun code(coder: Coder) {
         mathNode.code(coder)

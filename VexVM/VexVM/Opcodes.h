@@ -22,6 +22,7 @@ typedef enum {
     OP_LDI,      // [2:int] Push int to the stack as value
     OP_LDBT,     // Push true to the stack
     OP_LDBF,     // Push false to the stack
+
     OP_FUN,      // [2:fun] Call function with stack args, push return on stack
     OP_SFUN,     // [2:sysfun] Call system function with stack args, push return on stack
     OP_SMETH,    // [2:sysclassmeth] Call system class method with stack args (this on top), push return on stack

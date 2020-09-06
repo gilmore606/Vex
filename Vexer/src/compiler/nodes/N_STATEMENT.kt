@@ -1,9 +1,6 @@
 package compiler.nodes
 
-import compiler.Coder
-import compiler.CompileException
-import compiler.FuncSig
-import compiler.Meaner
+import compiler.*
 import compiler.Opcode.*
 import compiler.ValueType.*
 import compiler.nodes.Node.*
@@ -17,14 +14,14 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
     override fun setType(meaner: Meaner): Boolean {
         val oldsig = sig
         if (obj.type == VAL_OBJECT) {
-            sig = meaner.getMethodSig(obj.objtype!!, name, args)
+            sig = meaner.getMethodSig(this, obj.objtype!!, name, args)
         }
         return oldsig == sig
     }
-    override fun checkType() {
-        if (obj.type != VAL_OBJECT) throw CompileException("can't call method on non-object")
+    override fun checkTypeSane() {
+        if (obj.type != VAL_OBJECT) throw CompileException(this, "can't call method on non-object")
         sig!!.argtypes.forEachIndexed { i, argtype ->
-            if (argtype != args[i].type) throw CompileException("wrong arg type in system method call")
+            if (argtype != args[i].type) throw CompileException(this, "wrong arg type in system method call")
         }
     }
     override fun code(coder: Coder) {
@@ -42,8 +39,8 @@ open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT(
         if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!, value.objtype)
         return oldtype == target.type
     }
-    override fun checkType() {
-        if (target.type != value.type) throw CompileException("type error: mismatched types in assignment")
+    override fun checkTypeSane() {
+        if (target.type != value.type) throw CompileException(this, "type error: mismatched types in assignment")
     }
     override fun code(coder: Coder) {
         // Optimizations
@@ -89,8 +86,8 @@ class N_REPEAT(val count: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
         super.scopeVars(scope, meaner)
         loopVarID = meaner.variableToID(this, "_loop"+id, scope)
     }
-    override fun checkType() {
-        if (count.type != VAL_INT) throw CompileException("type error: repeat statement expects int count")
+    override fun checkTypeSane() {
+        if (count.type != VAL_INT) throw CompileException(this, "type error: repeat statement expects int count")
     }
     override fun code(coder: Coder) {
         count.code(coder)
@@ -111,8 +108,8 @@ class N_EACH(val iterator: N_VARIABLE, val code: N_CODEBLOCK): N_STATEMENT() {
 
 class N_IF(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(condition); add(ifblock); }
-    override fun checkType() {
-        if (condition.type != VAL_BOOL) throw CompileException("type error: if statement expects boolean expr")
+    override fun checkTypeSane() {
+        if (condition.type != VAL_BOOL) throw CompileException(this, "type error: if statement expects boolean expr")
     }
     override fun code(coder: Coder) {
         condition.code(coder)
@@ -125,8 +122,8 @@ class N_IF(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK): N_STATEMENT()
 
 class N_IFELSE(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK, val elseblock: N_CODEBLOCK): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(condition); add(ifblock); add(elseblock) }
-    override fun checkType() {
-        if (condition.type != VAL_BOOL) throw CompileException("type error: if statement expects boolean expr")
+    override fun checkTypeSane() {
+        if (condition.type != VAL_BOOL) throw CompileException(this, "type error: if statement expects boolean expr")
     }
     override fun code(coder: Coder) {
         condition.code(coder)
@@ -153,8 +150,8 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
         meaner.learnVarType(index.varID, VAL_INT, null)
         return oldtype == index.type
     }
-    override fun checkType() {
-        if (start.type != VAL_INT || end.type != VAL_INT) throw CompileException("type error: for loop can only count int")
+    override fun checkTypeSane() {
+        if (start.type != VAL_INT || end.type != VAL_INT) throw CompileException(this, "type error: for loop can only count int")
     }
     override fun code(coder: Coder) {
         end.code(coder)
@@ -176,12 +173,48 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
 
 class N_WAIT(val time: N_EXPRESSION): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(time) }
-    override fun checkType() {
-        if (time.type != VAL_INT) throw CompileException("type error: wait statement expects int msec")
+    override fun checkTypeSane() {
+        if (time.type != VAL_INT) throw CompileException(this, "type error: wait statement expects int msec")
     }
     override fun code(coder: Coder) {
         time.code(coder)
         coder.code(OP_WAIT)
+    }
+}
+
+class N_EVERY(val time: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
+    var elapsedVarID = -1
+    override fun kids(): NODES = super.kids().apply { add(time); add(code) }
+    override fun scopeVars(scope: Node, meaner: Meaner) {
+        super.scopeVars(scope, meaner)
+        elapsedVarID = meaner.variableToID(this, "_every" + id, scope)
+    }
+    override fun checkTypeSane() {
+        if (time.type != VAL_INT) throw CompileException(this, "type error: every statement expects int msec")
+    }
+    override fun code(coder: Coder) {
+        coder.code(OP_VAR, Syscalls.vars.find{it.name=="delta"}!!.id)
+        coder.code(OP_ACCVAR, elapsedVarID)
+        coder.code(OP_VAR, elapsedVarID)
+        time.code(coder)
+        coder.code(OP_GTF)
+        coder.code(OP_IF)
+        coder.jumpFuture("everyskip"+id)
+        code.code(coder)
+        coder.code(OP_LDI, 0)
+        coder.code(OP_SETVAR, elapsedVarID)
+        coder.reachFuture("everyskip"+id)
+    }
+}
+
+class N_RETURN(val value: N_EXPRESSION?): N_STATEMENT() {
+    override fun kids(): NODES = super.kids().apply { value?.also { add(it) }}
+    override fun checkTypeSane() {
+        // TODO: make sure we return the returntype of the func we're in
+    }
+    override fun code(coder: Coder) {
+        value?.also { value.code(coder) }
+        coder.code(OP_RETURN)
     }
 }
 

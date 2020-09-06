@@ -4,6 +4,8 @@
 #include "Values.h"
 #include "string"
 
+#define SYSVAR_DELTA 0
+
 class ROMReader;
 
 class Code {

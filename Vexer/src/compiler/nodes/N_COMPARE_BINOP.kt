@@ -21,7 +21,7 @@ abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_B
         var a1type = when (arg1.type) {
             VAL_INT, VAL_NIL, VAL_BOOL -> VAL_INT
             VAL_FLOAT, VAL_VECTOR, VAL_COLOR -> VAL_FLOAT
-            else -> throw CompileException("incomparable types")
+            else -> throw CompileException(this, "incomparable types")
         }
         arg2.code(coder)
         when (arg2.type) {
@@ -36,7 +36,7 @@ abstract class N_COMPARE_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_B
             VAL_VECTOR -> coder.code(OP_V2F)
             VAL_COLOR -> coder.code(OP_C2F)
             VAL_INT -> if (a1type == VAL_FLOAT) coder.code(OP_I2F)
-            VAL_STRING -> throw CompileException("incomparable types")
+            VAL_STRING -> throw CompileException(this, "incomparable types")
         }
         arg1.code(coder)
         when (arg1.type) {

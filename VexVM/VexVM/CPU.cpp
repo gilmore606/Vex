@@ -29,12 +29,17 @@ void CPU::Boot() {
 }
 
 void CPU::OnUpdate(float deltaTime) {
+	// Run pending input handler
 	if (countPressed > 0) {
 		CLEAR_STACK();
 		run(code->entryButton);
-		clearInput();
+		for (int i = 0; i < 32; i++) {
+			buttonPressed[i] = false;
+		}
+		countPressed = 0;
 	}
 
+	// Run waiting tasks
 	elapsed += deltaTime;
 	std::vector<Task> undone;
 	for (int i = 0; i < tasks.size(); i++) {
@@ -47,17 +52,10 @@ void CPU::OnUpdate(float deltaTime) {
 	}
 	tasks = undone;
 
-
-	// CLEAR_STACK();
-	// push(FLOAT_VAL(deltaTime));
-	// run(code->entryUpdate);
-}
-
-void CPU::clearInput() {
-	for (int i = 0; i < 32; i++) {
-		buttonPressed[i] = false;
-	}
-	countPressed = 0;
+	// Run update
+	CLEAR_STACK();
+	code->variables[SYSVAR_DELTA] = FLOAT_VAL(deltaTime);
+	run(code->entryUpdate);
 }
 
 void CPU::OnInput(int input) {

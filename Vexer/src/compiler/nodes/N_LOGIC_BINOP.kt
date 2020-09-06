@@ -14,8 +14,8 @@ abstract class N_LOGIC_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION) : Node.N_BI
         }
         return true
     }
-    override fun checkType() {
-        if (arg1.type != VAL_BOOL || arg2.type != VAL_BOOL) throw CompileException("type error: logic op accepts only booleans")
+    override fun checkTypeSane() {
+        if (arg1.type != VAL_BOOL || arg2.type != VAL_BOOL) throw CompileException(this, "type error: logic op accepts only booleans")
     }
     override fun code(coder: Coder) {
         arg2.code(coder)

@@ -30,3 +30,5 @@ data class Variable(val id: Int, val name: String, var scope: Node,
 
 data class FuncSig(val sys: Boolean, val name: String, val funcID: Int,
                    val returnType: ValueType, val returnObjType: ObjectType?, val argtypes: List<ValueType>)
+
+data class FuncArg(val name: String, val type: ValueType)

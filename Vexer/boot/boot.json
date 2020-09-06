@@ -34,7 +34,7 @@
 	],
 	"particles": [
 		{
-			"name": "burstpoint",
+			"name": "smoke",
 			"id": 0,
 			"image": "square",
 			"v": [0.0, 0.0],
@@ -60,7 +60,7 @@
 	"songs": [
 		{
 			"id": 1,
-            "name": "start1",
+            "name": "ping",
 			"notes": [
 				{ "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 70, "d2": 127 },
 				{ "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 70, "d2": 0 }
@@ -71,7 +71,7 @@
 		},
 		{
 			"id": 2,
-            "name": "start2",
+            "name": "pong",
 			"notes": [
 				{ "tick": 0, "chan": 0, "event": "NOTE_ON", "d1": 90, "d2": 127 },
 				{ "tick": 320, "chan": 0, "event": "NOTE_OFF", "d1": 90, "d2": 0 }

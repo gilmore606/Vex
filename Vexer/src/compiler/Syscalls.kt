@@ -11,9 +11,25 @@ import compiler.ValueType.*
 
 object Syscalls {
 
+    // Keywords for specifying types in function args
+
+    val typeKeywords = HashMap<String,ValueType>().apply {
+        set("BOOL", VAL_BOOL)
+        set("INT", VAL_INT)
+        set("FLOAT", VAL_FLOAT)
+        set("VEC", VAL_VECTOR)
+        set("COLOR", VAL_COLOR)
+    }
+
+
+    // System-supplied variables
+
     val vars = ArrayList<Variable>().apply {
         add(Variable(0, "delta", Node(), VAL_FLOAT))
     }
+
+
+    // System functions
 
     val funcs = FUNCLIST().apply {
         add(FuncSig(true, "V", 0, VAL_VECTOR, null,
@@ -62,6 +78,9 @@ object Syscalls {
         add(FuncSig(true, "TEXT", 30, VAL_OBJECT, ObjectType.OBJ_SPRITE,
                 TYPELIST().apply { add(VAL_STRING) }))
     }
+
+
+    // System classes
 
     val classes = HashMap<ObjectType, FUNCLIST>().also {
 

@@ -20,6 +20,8 @@ class Coder(
 
     }
 
+    fun lastByte() = outBytes[outBytes.lastIndex]
+
     fun code(op: Opcode, arg1: Int? = null, arg2: Int? = null, arg3: Int? = null) {
         outBytes.add(op.ordinal.toUByte())
         arg1?.also { arg2i(it) }

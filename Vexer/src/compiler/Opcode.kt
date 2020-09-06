@@ -22,6 +22,7 @@ enum class Opcode {
     OP_LDBT,     // Push true to the stack
     OP_LDBF,     // Push false to the stack
     OP_FUN,      // [2:fun] Call function with stack args, push return on stack
+    OP_RETURN,   // Return from user function
     OP_SFUN,     // [2:sysfun] Call system function with stack args, push return on stack
     OP_SMETH,    // [2:sysclassmeth] Call system class method with stack args (this on top), push return on stack
     OP_STAT,     // [2:sid] [2:paramcount] Call system statement <sid> with <paramcount> stack args

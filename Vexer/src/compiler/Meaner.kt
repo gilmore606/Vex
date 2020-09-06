@@ -4,7 +4,6 @@ import compiler.nodes.Node
 import compiler.nodes.Node.*
 import compiler.nodes.*
 import compiler.ValueType.*
-import compiler.ObjectType.*
 import model.Game
 
 typealias FUNCLIST = ArrayList<FuncSig>
@@ -19,21 +18,22 @@ class Meaner (
     val variables = ArrayList<Variable>()
     var globalCount = 0
 
+    val functions = ArrayList<N_TOP_USERFUNC>()
+
     // Get ID of named variable in my scope
     fun variableToID(sourceNode: Node, name: String, scope: Node): Int {
         variables.forEachIndexed { i, v ->
-            if ((i < globalCount) && (v.name == name)) {  // global
-                if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
-                return v.id
-            }
-            if (v.scope == scope && v.name == name) {  // local
-                if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
-                return v.id
+            if (v.name == name) {
+                if ((i < globalCount) || (v.scope == scope)) {
+                    if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
+                    return v.id
+                }
             }
         }
         val v = Variable(variables.size, name, scope, null, null)
         if (sourceNode is N_VARIABLE) v.nodes.add(sourceNode)
         variables.add(v)
+        println("CREATE VAR " + v.id + " " + v.name)
         return v.id
     }
 
@@ -43,6 +43,7 @@ class Meaner (
     // Set type of all nodes for a variable
     fun learnVarType(varID: Int, type: ValueType, objtype: ObjectType?) {
         variables.find { it.id == varID }!!.also { v ->
+            println("LEARN VAR TYPE " + v.id + " " + v.name + " = " + type.toString())
             v.type = type
             v.objtype = objtype
             v.nodes.forEach {
@@ -53,7 +54,7 @@ class Meaner (
     }
 
     // Look up signature of named function
-    fun getFuncSig(name: String, args: List<N_EXPRESSION>): FuncSig {
+    fun getFuncSig(node: Node, name: String, args: List<N_EXPRESSION>): FuncSig {
         Syscalls.funcs.forEach { if (it.name == name) {
             var match = true
             it.argtypes.forEachIndexed { i, type ->
@@ -62,11 +63,12 @@ class Meaner (
             }
             if (match) return it
         } }
-        throw CompileException("unknown function call")
+        args.forEach { println("  supplied arg type: " + it.type.toString() )}
+        throw CompileException(node, "unknown function call " + name)
     }
 
     // Look up signature of system class method
-    fun getMethodSig(type: ObjectType, name: String, args: List<N_EXPRESSION>): FuncSig {
+    fun getMethodSig(node: Node, type: ObjectType, name: String, args: List<N_EXPRESSION>): FuncSig {
         Syscalls.classes[type]!!.forEach {
             if (it.name == name && it.returnType == VAL_NIL) {
                 var match = true
@@ -77,7 +79,14 @@ class Meaner (
                 if (match) return it
             }
         }
-        throw CompileException("unknown system method call")
+        throw CompileException(node, "unknown system method call " + name)
+    }
+
+    // Assign ID to user function
+    fun assignFunctionID(node: N_TOP_USERFUNC): Int {
+        functions.add(node)
+        println("LEARN FUNC ID " + functions.lastIndex + " " + node.name)
+        return functions.lastIndex
     }
 
 
@@ -92,7 +101,6 @@ class Meaner (
         // Index state (global) variables, get count
         // All variables from 0-(globalCount-1) are globals
         globalCount = scopeGlobals()
-        println("found " + globalCount + " globals")
 
         // Index local variables
         ast.scopeVars(ast, this)
@@ -112,11 +120,7 @@ class Meaner (
         ast.print(0)
 
         // Check types for sanity
-        ast.traverse { it.checkType() }
-
-
-        // TODO: Index all function entries
-
+        ast.traverse { it.checkTypeSane() }
     }
 
     fun annealTypes(top: Node) {
@@ -126,6 +130,9 @@ class Meaner (
             top.traverse {
                 if (!it.setType(this)) settled = false
             }
+        }
+        top.traverse {
+            it.checkTypeResolved()
         }
     }
 

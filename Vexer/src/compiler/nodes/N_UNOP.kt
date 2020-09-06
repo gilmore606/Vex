@@ -27,7 +27,7 @@ class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
             VAL_INT -> coder.code(OP_NEGI)
             VAL_FLOAT -> coder.code(OP_NEGF)
             VAL_VECTOR -> coder.code(OP_NEGV)
-            else -> throw CompileException("type error: can only negate numeric values")
+            else -> throw CompileException(this, "type error: can only negate numeric values")
         }
     }
 }
@@ -40,8 +40,8 @@ class N_INVERSE(arg: N_EXPRESSION): N_UNOP(arg) {
         }
         return true
     }
-    override fun checkType() {
-        if (arg.type != VAL_BOOL) throw CompileException("type error: can only NOT booleans")
+    override fun checkTypeSane() {
+        if (arg.type != VAL_BOOL) throw CompileException(this, "type error: can only NOT booleans")
     }
     override fun code(coder: Coder) {
         arg.code(coder)

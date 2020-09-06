@@ -13,10 +13,20 @@ class Lexer(val fVerbose: Boolean) {
     var last: Token? = null
     val outBuffer = ArrayList<Token>()
 
+    val lines = ArrayList<String>()
+    var currentLine = ""
+
     fun process(c: Char, isReprocess: Boolean = false) {
         if (!isReprocess) {
-            if (c == '\n') { linePos++ ; charPos = 0 }
-            else charPos++
+            if (c == '\n') {
+                linePos++
+                charPos = 0
+                lines.add(currentLine)
+                currentLine = ""
+            } else {
+                charPos++
+                currentLine += c.toString()
+            }
         }
         if (inType != null) {
             when (inType) {
@@ -158,5 +168,14 @@ class Lexer(val fVerbose: Boolean) {
         token?.also { emit(it) }
         inType = null
         process(nextC, true)
+    }
+
+    fun dumpCodeAt(linePos: Int, charPos: Int) {
+        val lp = Math.min(linePos, this.linePos)
+        val cp = Math.min(charPos, lines[lp].length)
+        println("")
+        println(lines[lp])
+        repeat (cp - 1) { print("-") }
+        print("^\n\n")
     }
 }

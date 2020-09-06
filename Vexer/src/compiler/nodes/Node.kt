@@ -44,7 +44,8 @@ open class Node {
 
     open fun setType(meaner: Meaner): Boolean { return true }
     open fun resolveResources(config: Game) { }
-    open fun checkType() { }
+    open fun checkTypeResolved() { }
+    open fun checkTypeSane() { }
 
     open val localScope = false
     open fun scopeVars(scope: Node, meaner: Meaner) {
@@ -58,6 +59,9 @@ open class Node {
     abstract class N_EXPRESSION: Node() {
         var type: ValueType? = null
         var objtype: ObjectType? = null
+        override fun checkTypeResolved() {
+            type ?: throw CompileException(this, "expression type unresolved")
+        }
     }
 
     abstract class N_BINOP(val arg1: N_EXPRESSION, val arg2: N_EXPRESSION): N_EXPRESSION() {

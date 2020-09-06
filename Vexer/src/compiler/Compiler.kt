@@ -1,8 +1,10 @@
 package compiler
 
 import Writer
+import compiler.nodes.Node
 import model.Game
 import java.io.File
+import kotlin.system.exitProcess
 
 class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolean) {
 
@@ -27,9 +29,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
             try {
                 lexer.process(c)
             } catch (e: LexException) {
-                println("Syntax error at line " + e.lexer.linePos + "," + e.lexer.charPos + ": ")
-                println("  " + e.m)
-                throw RuntimeException(e.m)
+                reportError("Token", e.lexer.linePos, e.lexer.charPos, e.m)
             }
             nextChar = inStream.read()
         }
@@ -47,11 +47,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
         try {
             parser.parse()
         } catch (e: ParseException) {
-            println("")
-            println("last token was " + parser.tokens.get(0).toString() + " " + parser.tokens.get(1).toString())
-            println("Syntax error at line " + e.parser.linePos() + "," + e.parser.charPos() + ": ")
-            println("  " + e.m)
-            throw RuntimeException(e.m)
+            reportError("Syntax", e.parser.linePos(), e.parser.charPos(), e.m)
         }
 
         try {
@@ -69,10 +65,7 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
             coder.generate()
 
         } catch (e: CompileException) {
-            println("")
-            println("Compile error at line ???: ")
-            println("  " + e.m)
-            throw RuntimeException(e.m)
+            reportError("Compile", e.node.linePos, e.node.charPos, e.m)
         }
     }
 
@@ -84,10 +77,17 @@ class Compiler(val filepath: String, val chunkName: String, val fVerbose: Boolea
 
         println("  wrote code " + chunkName)
     }
+
+    fun reportError(type: String, linePos: Int, charPos: Int, message: String) {
+        println("\n\n" + type + " error at " + linePos + "," + charPos + ":")
+        lexer.dumpCodeAt(linePos, charPos)
+        println("  " + message)
+        exitProcess(0)
+    }
 }
 
 class LexException(val lexer: Lexer, val m: String): Exception(m)
 
 class ParseException(val parser: Parser, val m: String): Exception(m)
 
-class CompileException(val m: String): Exception(m)
+class CompileException(val node: Node, val m: String): Exception(m)

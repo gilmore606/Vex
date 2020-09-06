@@ -4,6 +4,7 @@ import compiler.TokenType.*
 import compiler.nodes.Node
 import compiler.nodes.Node.*
 import compiler.nodes.*
+import compiler.ValueType.*
 import java.lang.RuntimeException
 
 class Parser(
@@ -43,6 +44,7 @@ class Parser(
         return true
     }
     fun nextTokenOneOf(vararg types: TokenType): Boolean = nextToken().type in types
+    fun nextTokenOneOf(vararg strings: String): Boolean = (nextToken().type == T_IDENTIFIER) && (nextToken().string in strings)
     fun nextIDIs(ident: String): Boolean {
         if (nextToken().type != T_IDENTIFIER) return false
         return nextToken().string == ident
@@ -70,9 +72,11 @@ class Parser(
 
     fun parseTop(depth: Int): N_TOPBLOCK? {
         parseOnMethod(depth)?.also { return it }
+        parseToMethod(depth)?.also { return it }
         parseState(depth)?.also { return it }
         return null
     }
+
 
     fun parseOnMethod(depth: Int): N_TOPBLOCK? {
         if (!(nextIDIs("on"))) return null
@@ -84,6 +88,26 @@ class Parser(
         }
         val code = N_CODEBLOCK(parseCodeblock(depth + 1)).also { it.tag(this) }
         return N_TOP_HANDLER(handler, code).also { it.tag(this) }
+    }
+
+    fun parseToMethod(depth: Int): N_TOPBLOCK? {
+        if (!(nextIDIs("to"))) return null
+        toss()
+        var name = ""
+        var args = ArrayList<FuncArg>()
+        if (nextTokenIs(T_IDENTIFIER)) {
+            name = getToken().string
+        } else if (nextTokenIs(T_IDENTIFUNC)) {
+            name = getToken().string
+            args = parseArgspec();
+        }
+        var returnType = VAL_NIL;
+        if (nextTokenIs(T_IDENTIFIER) && Syscalls.typeKeywords.contains(nextToken().string)) {
+            returnType = Syscalls.typeKeywords[getToken().string]!!
+        }
+        expectToken(T_COLON, "expected colon after function def")
+        val code = parseCodeblock(depth + 1)
+        return N_TOP_USERFUNC(name, args, returnType, N_CODEBLOCK(code).also { it.tag(this) }).also { it.tag(this) }
     }
 
     fun parseButtonHandlers(depth: Int): N_TOPBLOCK? {
@@ -134,9 +158,11 @@ class Parser(
         parseParticle(depth)?.also { l.add(it); return l }
         parseSong(depth)?.also { l.add(it); return l }
         parseMethcalls()?.also { return it }
+        parseReturn()?.also { l.add(it); return l }
         parseIf(depth)?.also { l.add(it); return l }
         parseWait()?.also { l.add(it); return l }
         parseLog()?.also { l.add(it); return l }
+        parseEvery(depth)?.also { l.add(it); return l }
         parseRepeat(depth)?.also { l.add(it); return l }
         parseFor(depth)?.also { l.add(it); return l }
         parseEach(depth)?.also { l.add(it); return l }
@@ -146,7 +172,7 @@ class Parser(
     }
 
     fun parseParticle(depth: Int): N_PARTICLE? {
-        if (!(nextIDIs("PARTICLE"))) return null
+        if (!(nextIDIs("spark"))) return null
         toss()
         val partid = parseExpression() ?: throw ParseException(this, "expected particle id expression")
         val params = parseParams(depth + 1)
@@ -154,7 +180,7 @@ class Parser(
     }
 
     fun parseSong(depth: Int): N_SONG? {
-        if (!(nextIDIs("SONG"))) return null
+        if (!(nextIDIs("song"))) return null
         toss()
         val songid = parseExpression() ?: throw ParseException(this, "expected song id expression")
         val params = parseParams(depth + 1)
@@ -189,16 +215,23 @@ class Parser(
         return if (calls.isNotEmpty()) calls else null
     }
 
+    fun parseReturn(): N_STATEMENT? {
+        if (!nextIDIs("return")) return null
+        toss()
+        if (nextTokenOneOf(T_INDENT, T_EOP)) return N_RETURN(null)
+        return N_RETURN(parseExpression()?.also { it.tag(this) })
+    }
+
     fun parseIf(depth: Int): N_STATEMENT? {
         if (!(nextIDIs("if"))) return null
         toss()
         val test = parseExpression() ?: throw ParseException(this, "expected test expr after if")
         val code = parseStatementOrBlock(depth + 1)
-        if (!(nextIDnextLineIs("else"))) return N_IF(test, N_CODEBLOCK(code)).also { it.tag(this) }
+        if (!(nextIDnextLineIs("else"))) return N_IF(test, N_CODEBLOCK(code).also { it.tag(this) }).also { it.tag(this) }
         tossToNextLine()
         toss()
         val elseblock = parseStatementOrBlock(depth + 1)
-        return N_IFELSE(test, N_CODEBLOCK(code), N_CODEBLOCK(elseblock)).also { it.tag(this) }
+        return N_IFELSE(test, N_CODEBLOCK(code).also { it.tag(this) }, N_CODEBLOCK(elseblock).also { it.tag(this) }).also { it.tag(this) }
     }
 
     fun parseStatementOrBlock(depth: Int): List<N_STATEMENT> {
@@ -216,6 +249,14 @@ class Parser(
         return N_WAIT(time).also { it.tag(this) }
     }
 
+    fun parseEvery(depth: Int): N_EVERY? {
+        if (!(nextIDIs("every"))) return null
+        toss()
+        val time = parseExpression() ?: throw ParseException(this, "expected time expression for every block")
+        val code = parseStatementOrBlock(depth + 1)
+        return N_EVERY(time, N_CODEBLOCK(code).also { it.tag(this) }).also { it.tag(this) }
+    }
+
     fun parseLog(): N_LOG? {
         if (!(nextIDIs("log"))) return null
         toss()
@@ -228,7 +269,7 @@ class Parser(
         toss()
         val count = parseExpression() ?: throw ParseException(this, "expected count expression for repeat block")
         val code = parseStatementOrBlock(depth + 1)
-        return N_REPEAT(count, N_CODEBLOCK(code)).also { it.tag(this) }
+        return N_REPEAT(count, N_CODEBLOCK(code).also { it.tag(this) }).also { it.tag(this) }
     }
 
     fun parseFor(depth: Int): N_FOR? {
@@ -285,8 +326,11 @@ class Parser(
 
     fun parseAndOr(): N_EXPRESSION? {
         var leftExpr = parseConditional() ?: return null
-        while (nextTokenOneOf(T_LOGIC_AND, T_LOGIC_OR)) {
-            val operator = getToken()
+        while (nextTokenOneOf(T_LOGIC_AND, T_LOGIC_OR) || nextTokenOneOf("and", "or")) {
+            var operator = getToken()
+            if (operator.type == T_IDENTIFIER) {
+                operator = Token(if (operator.string == "and") T_LOGIC_AND else T_LOGIC_OR)
+            }
             val rightExpr = parseConditional()
             if (rightExpr != null) {
                 leftExpr = if (operator.type == T_LOGIC_AND) N_LOGIC_AND(leftExpr, rightExpr).also { it.tag(this) }
@@ -461,6 +505,21 @@ class Parser(
         while (!nextTokenIs(T_PAREN_CLOSE)) {
             parseExpression()?.also { args.add(it) }
             if (nextTokenIs(T_COMMA)) toss()
+        }
+        toss()
+        return args
+    }
+
+    fun parseArgspec(): ArrayList<FuncArg> {
+        val args = ArrayList<FuncArg>()
+        while (!nextTokenIs(T_PAREN_CLOSE)) {
+            if (!nextTokensAre(T_IDENTIFIER, T_IDENTIFIER)) throw ParseException(this, "expected name and type of function arg")
+            val name = getToken().string
+            val type = Syscalls.typeKeywords[getToken().string] ?: throw ParseException(this, "invalid type specifier")
+            args.add(FuncArg(name, type))
+            if (!nextTokenIs(T_PAREN_CLOSE)) {
+                expectToken(T_COMMA, "expected comma separating function args")
+            }
         }
         toss()
         return args

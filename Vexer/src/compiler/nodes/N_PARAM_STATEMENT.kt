@@ -16,7 +16,7 @@ abstract class N_PARAM_STATEMENT(val params: List<N_PARAMSET>): N_STATEMENT() {
     override fun setType(meaner: Meaner): Boolean {
         var unchanged = true
         params.forEachIndexed { i, param ->
-            val info = paramInfo[param.target.name] ?: throw CompileException("unknown param")
+            val info = paramInfo[param.target.name] ?: throw CompileException(this, "unknown param")
             if (info.type != param.target.type) {
                 param.target.type = info.type
                 unchanged = false
@@ -42,8 +42,8 @@ class N_PARAMSET(val target: N_PARAM, val value: N_EXPRESSION): N_STATEMENT() {
     override fun toString() = "SET PARAM"
     var paramID: Int = -1
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
-    override fun checkType() {
-        if (target.type != value.type) throw CompileException("parameter value type mismatch")
+    override fun checkTypeSane() {
+        if (target.type != value.type) throw CompileException(this, "parameter value type mismatch")
     }
     override fun code(coder: Coder) {
         value.code(coder)
@@ -77,8 +77,8 @@ class N_PARTICLE(var partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_ST
             }
         }
     }
-    override fun checkType() {
-        if (partid.type != VAL_INT) throw CompileException("particle id must be int")
+    override fun checkTypeSane() {
+        if (partid.type != VAL_INT) throw CompileException(this, "particle id must be int")
     }
     override fun codeParams(coder: Coder) {
         partid.code(coder)
@@ -107,8 +107,8 @@ class N_SONG(var songid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEM
             }
         }
     }
-    override fun checkType() {
-        if (songid.type != VAL_INT) throw CompileException("song id must be int")
+    override fun checkTypeSane() {
+        if (songid.type != VAL_INT) throw CompileException(this, "song id must be int")
     }
     override fun codeParams(coder: Coder) {
         songid.code(coder)
