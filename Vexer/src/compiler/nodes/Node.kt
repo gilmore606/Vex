@@ -43,8 +43,11 @@ open class Node {
     }
 
     open fun setType(meaner: Meaner): Boolean { return true }
+
     open fun resolveResources(config: Game) { }
+
     open fun checkTypeResolved() { }
+
     open fun checkTypeSane() { }
 
     open val localScope = false
@@ -59,6 +62,7 @@ open class Node {
     abstract class N_EXPRESSION: Node() {
         var type: ValueType? = null
         var objtype: ObjectType? = null
+
         override fun checkTypeResolved() {
             type ?: throw CompileException(this, "expression type unresolved")
         }
@@ -71,6 +75,7 @@ open class Node {
 
     class N_PROGRAM(val blocks: List<N_TOPBLOCK>): Node() {
         override fun kids(): NODES = super.kids().apply { blocks.forEach { add(it) } }
+
         override fun code(coder: Coder) {
             blocks.forEach { it.code(coder) }
         }
@@ -79,6 +84,7 @@ open class Node {
     class N_CODEBLOCK(val statements: List<N_STATEMENT>): Node() {
         override fun toString() = "BLOCK:"
         override fun kids(): NODES = super.kids().apply { statements.forEach { add(it) } }
+
         override fun code(coder: Coder) {
             statements.forEach { it.code(coder) }
         }

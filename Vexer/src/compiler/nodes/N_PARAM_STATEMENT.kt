@@ -12,11 +12,13 @@ typealias PARAMMAP = HashMap<String,ParamInfo>
 abstract class N_PARAM_STATEMENT(val params: List<N_PARAMSET>): N_STATEMENT() {
     abstract val paramInfo: PARAMMAP
     abstract val codeID: Int
+    abstract fun codeParams(coder: Coder)
     override fun kids(): NODES = super.kids().apply { params.forEach { add(it) }}
+
     override fun setType(meaner: Meaner): Boolean {
         var unchanged = true
         params.forEachIndexed { i, param ->
-            val info = paramInfo[param.target.name] ?: throw CompileException(this, "unknown param")
+            val info = paramInfo[param.target.name] ?: throw CompileException(this, "unknown parameter '" + param.target.name + "'")
             if (info.type != param.target.type) {
                 param.target.type = info.type
                 unchanged = false
@@ -28,6 +30,7 @@ abstract class N_PARAM_STATEMENT(val params: List<N_PARAMSET>): N_STATEMENT() {
         }
         return unchanged
     }
+
     override fun code(coder: Coder) {
         codeParams(coder)
         params.forEach {
@@ -35,16 +38,18 @@ abstract class N_PARAM_STATEMENT(val params: List<N_PARAMSET>): N_STATEMENT() {
         }
         coder.code(OP_STAT, codeID, params.size)
     }
-    abstract fun codeParams(coder: Coder)
 }
 
 class N_PARAMSET(val target: N_PARAM, val value: N_EXPRESSION): N_STATEMENT() {
     override fun toString() = "SET PARAM"
     var paramID: Int = -1
     override fun kids(): NODES { return super.kids().apply { add(target); add(value) }}
+
     override fun checkTypeSane() {
-        if (target.type != value.type) throw CompileException(this, "parameter value type mismatch")
+        if (target.type != value.type)
+            throw CompileException(this, "parameter value type mismatch (" + target.type.toString() + ", " + value.type.toString() + ")")
     }
+
     override fun code(coder: Coder) {
         value.code(coder)
         coder.code(OP_LDI, paramID)
@@ -67,6 +72,7 @@ class N_PARTICLE(var partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_ST
     }
     override fun toString() = "PARTICLE"
     override fun kids(): NODES = super.kids().apply { add(partid) }
+
     override fun resolveResources(config: Game) {
         if (partid is N_STRING) {
             config.particles.forEach {
@@ -77,9 +83,11 @@ class N_PARTICLE(var partid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_ST
             }
         }
     }
+
     override fun checkTypeSane() {
         if (partid.type != VAL_INT) throw CompileException(this, "particle id must be int")
     }
+
     override fun codeParams(coder: Coder) {
         partid.code(coder)
     }
@@ -96,6 +104,7 @@ class N_SONG(var songid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEM
     }
     override fun toString() = "SONG"
     override fun kids(): NODES = super.kids().apply { add(songid) }
+
     override fun resolveResources(config: Game) {
         if (songid is N_STRING) {
             config.songs.forEach {
@@ -107,9 +116,11 @@ class N_SONG(var songid: N_EXPRESSION, params: List<N_PARAMSET>): N_PARAM_STATEM
             }
         }
     }
+
     override fun checkTypeSane() {
         if (songid.type != VAL_INT) throw CompileException(this, "song id must be int")
     }
+
     override fun codeParams(coder: Coder) {
         songid.code(coder)
     }

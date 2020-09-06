@@ -11,6 +11,7 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
     var sig: FuncSig? = null
     override fun toString() = "METH:" + obj.name + "." + name + "(" + args.joinToString(",") + ")"
     override fun kids(): NODES = super.kids().apply { add(obj); args.forEach { add(it) }}
+
     override fun setType(meaner: Meaner): Boolean {
         val oldsig = sig
         if (obj.type == VAL_OBJECT) {
@@ -18,12 +19,14 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
         }
         return oldsig == sig
     }
+
     override fun checkTypeSane() {
         if (obj.type != VAL_OBJECT) throw CompileException(this, "can't call method on non-object")
         sig!!.argtypes.forEachIndexed { i, argtype ->
             if (argtype != args[i].type) throw CompileException(this, "wrong arg type in system method call")
         }
     }
+
     override fun code(coder: Coder) {
         args.forEach { it.code(coder) }
         obj.code(coder)
@@ -34,14 +37,18 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
 open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
     override fun toString() = "ASSIGN " + value.type + " to " + target.type
     override fun kids(): NODES = super.kids().apply { add(target); add(value) }
+
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = target.type
         if ((target.type == null) && (value.type != null)) meaner.learnVarType(target.varID, value.type!!, value.objtype)
         return oldtype == target.type
     }
+
     override fun checkTypeSane() {
-        if (target.type != value.type) throw CompileException(this, "type error: mismatched types in assignment")
+        if (target.type != value.type)
+            throw CompileException(this, "type error: mismatched types in assignment")
     }
+
     override fun code(coder: Coder) {
         // Optimizations
         if ((target is N_VARIABLE) && (value is N_VARIABLE)) {
@@ -82,13 +89,17 @@ open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT(
 class N_REPEAT(val count: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
     var loopVarID = -1
     override fun kids(): NODES = super.kids().apply { add(count); add(code) }
+
     override fun scopeVars(scope: Node, meaner: Meaner) {
         super.scopeVars(scope, meaner)
         loopVarID = meaner.variableToID(this, "_loop"+id, scope)
     }
+
     override fun checkTypeSane() {
-        if (count.type != VAL_INT) throw CompileException(this, "type error: repeat statement expects int count")
+        if (count.type != VAL_INT)
+            throw CompileException(this, "type error: repeat statement expects int count")
     }
+
     override fun code(coder: Coder) {
         count.code(coder)
         coder.code(OP_SETVAR, loopVarID)
@@ -108,9 +119,12 @@ class N_EACH(val iterator: N_VARIABLE, val code: N_CODEBLOCK): N_STATEMENT() {
 
 class N_IF(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(condition); add(ifblock); }
+
     override fun checkTypeSane() {
-        if (condition.type != VAL_BOOL) throw CompileException(this, "type error: if statement expects boolean expr")
+        if (condition.type != VAL_BOOL)
+            throw CompileException(this, "type error: if statement expects boolean expr")
     }
+
     override fun code(coder: Coder) {
         condition.code(coder)
         coder.code(OP_IF)
@@ -122,9 +136,12 @@ class N_IF(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK): N_STATEMENT()
 
 class N_IFELSE(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK, val elseblock: N_CODEBLOCK): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(condition); add(ifblock); add(elseblock) }
+
     override fun checkTypeSane() {
-        if (condition.type != VAL_BOOL) throw CompileException(this, "type error: if statement expects boolean expr")
+        if (condition.type != VAL_BOOL)
+            throw CompileException(this, "type error: if statement expects boolean expr")
     }
+
     override fun code(coder: Coder) {
         condition.code(coder)
         coder.code(OP_IF)
@@ -141,18 +158,23 @@ class N_IFELSE(val condition: N_EXPRESSION, val ifblock: N_CODEBLOCK, val elsebl
 class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
     var endvarID = -1
     override fun kids(): NODES = super.kids().apply { add(index); add(start); add(end); add(code); }
+
     override fun scopeVars(scope: Node, meaner: Meaner) {
         super.scopeVars(scope, meaner)
         endvarID = meaner.variableToID(this, "_forend"+id, scope)
     }
+
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = index.type
         meaner.learnVarType(index.varID, VAL_INT, null)
         return oldtype == index.type
     }
+
     override fun checkTypeSane() {
-        if (start.type != VAL_INT || end.type != VAL_INT) throw CompileException(this, "type error: for loop can only count int")
+        if (start.type != VAL_INT || end.type != VAL_INT)
+            throw CompileException(this, "type error: for loop can only count int")
     }
+
     override fun code(coder: Coder) {
         end.code(coder)
         coder.code(OP_SETVAR, endvarID)
@@ -173,9 +195,12 @@ class N_FOR(val index: N_VARIABLE, val start: N_EXPRESSION, val end: N_EXPRESSIO
 
 class N_WAIT(val time: N_EXPRESSION): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(time) }
+
     override fun checkTypeSane() {
-        if (time.type != VAL_INT) throw CompileException(this, "type error: wait statement expects int msec")
+        if (time.type != VAL_INT)
+            throw CompileException(this, "type error: wait statement expects int msec")
     }
+
     override fun code(coder: Coder) {
         time.code(coder)
         coder.code(OP_WAIT)
@@ -208,10 +233,22 @@ class N_EVERY(val time: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
 }
 
 class N_RETURN(val value: N_EXPRESSION?): N_STATEMENT() {
+    lateinit var function: N_TOP_USERFUNC
     override fun kids(): NODES = super.kids().apply { value?.also { add(it) }}
+
+    fun learnFunction(function: N_TOP_USERFUNC) { this.function = function }
+
     override fun checkTypeSane() {
-        // TODO: make sure we return the returntype of the func we're in
+        when {
+            ((value == null) && (function.returnType != VAL_NIL)) ->
+                throw CompileException(this, function.returnType.toString() + " function must return a value")
+            ((value != null) && (function.returnType == VAL_NIL)) ->
+                throw CompileException(this, "can't return a value from a null function")
+            ((value != null) && (value.type != function.returnType)) ->
+                throw CompileException(this, "can't return " + value.type.toString() + " from " + function.returnType.toString() + " function")
+        }
     }
+
     override fun code(coder: Coder) {
         value?.also { value.code(coder) }
         coder.code(OP_RETURN)
@@ -220,6 +257,7 @@ class N_RETURN(val value: N_EXPRESSION?): N_STATEMENT() {
 
 class N_LOG(val expr: N_EXPRESSION): N_STATEMENT() {
     override fun kids(): NODES = super.kids().apply { add(expr) }
+
     override fun code(coder: Coder) {
         expr.code(coder)
         coder.code(OP_DEBUG)

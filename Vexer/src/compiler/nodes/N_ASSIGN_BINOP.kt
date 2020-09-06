@@ -8,12 +8,14 @@ import compiler.ValueType.*
 abstract class N_ASSIGN_BINOP(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN(target, value) {
     override fun toString() = "assign" + mathNode.toString()
     abstract val mathNode: N_MATH_BINOP
+
     override fun setType(meaner: Meaner): Boolean {
         return mathNode.setType(meaner)
     }
     override fun checkTypeSane() {
         mathNode.checkTypeSane()
     }
+
     override fun code(coder: Coder) {
         mathNode.code(coder)
         target.codeSet(coder)
@@ -22,6 +24,7 @@ abstract class N_ASSIGN_BINOP(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN(t
 
 class N_ASSIGN_ADD(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN_BINOP(target, value) {
     override val mathNode = N_ADD(target, value)
+
     override fun code(coder: Coder) {
         if (target is N_VARIABLE) {
             if (value is N_INTEGER) {
@@ -52,6 +55,7 @@ class N_ASSIGN_ADD(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN_BINOP(target
 
 class N_ASSIGN_SUB(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN_BINOP(target, value) {
     override val mathNode = N_SUBTRACT(target, value)
+
     override fun code(coder: Coder) {
         if ((value is N_INTEGER) && (value.value == 1)) {
             coder.code(OP_DECVAR, target.varID)
@@ -60,9 +64,11 @@ class N_ASSIGN_SUB(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN_BINOP(target
         super.code(coder)
     }
 }
+
 class N_ASSIGN_MULT(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN_BINOP(target, value) {
     override val mathNode = N_MULTIPLY(target, value)
 }
+
 class N_ASSIGN_DIV(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN_BINOP(target, value) {
     override val mathNode = N_DIVIDE(target, value)
 }

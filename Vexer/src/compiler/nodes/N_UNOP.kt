@@ -8,19 +8,23 @@ import compiler.ValueType.*
 
 abstract class N_UNOP(val arg: N_EXPRESSION): Node.N_EXPRESSION() {
     override fun kids(): NODES { return super.kids().apply { add(arg) }}
+
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         this.type = arg.type
         return this.type == oldtype
     }
 }
+
 class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
     override fun toString() = "NEGATE"
+
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type
         this.type = arg.type
         return this.type == oldtype
     }
+
     override fun code(coder: Coder) {
         arg.code(coder)
         when (this.type) {
@@ -31,8 +35,10 @@ class N_NEGATE(arg: N_EXPRESSION): N_UNOP(arg) {
         }
     }
 }
+
 class N_INVERSE(arg: N_EXPRESSION): N_UNOP(arg) {
     override fun toString() = "NOT"
+
     override fun setType(meaner: Meaner): Boolean {
         if (this.type != VAL_BOOL) {
             this.type = VAL_BOOL
@@ -40,9 +46,12 @@ class N_INVERSE(arg: N_EXPRESSION): N_UNOP(arg) {
         }
         return true
     }
+
     override fun checkTypeSane() {
-        if (arg.type != VAL_BOOL) throw CompileException(this, "type error: can only NOT booleans")
+        if (arg.type != VAL_BOOL)
+            throw CompileException(this, "type error: can only NOT booleans")
     }
+
     override fun code(coder: Coder) {
         arg.code(coder)
         coder.code(OP_NOT)

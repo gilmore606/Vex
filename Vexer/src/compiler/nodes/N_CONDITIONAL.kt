@@ -11,6 +11,7 @@ import compiler.nodes.*
 class N_CONDITIONAL(val condition: N_EXPRESSION, val trueVal: N_EXPRESSION, val falseVal: N_EXPRESSION): N_EXPRESSION() {
     override fun toString() = "COND: ? (true) : (false)"
     override fun kids(): NODES = super.kids().apply { add(condition); add(trueVal); add(falseVal) }
+
     override fun setType(meaner: Meaner): Boolean {
         var unchanged = true
         if (this.type == null) {
@@ -19,10 +20,14 @@ class N_CONDITIONAL(val condition: N_EXPRESSION, val trueVal: N_EXPRESSION, val 
         }
         return unchanged
     }
+
     override fun checkTypeSane() {
-        if (condition.type != VAL_BOOL) throw CompileException(this, "condition expects bool expr")
-        if (trueVal.type != falseVal.type) throw CompileException(this, "conditional types must match")
+        if (condition.type != VAL_BOOL)
+            throw CompileException(this, "condition expects bool expr, not " + condition.type.toString())
+        if (trueVal.type != falseVal.type)
+            throw CompileException(this, "conditional types must match (saw " + trueVal.type.toString() + " and " + falseVal.type.toString() + ")")
     }
+
     override fun code(coder: Coder) {
         condition.code(coder)
         coder.code(OP_IF)
