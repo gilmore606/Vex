@@ -587,6 +587,14 @@ void CPU::callSFUN(int fi) {
 		f1 = AS_FLOAT(pop());
 		push(BOOL_VAL((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) <= f1));
 		break;
+	case 21: // int = INT(f)
+		TOPVAL().as.integer = static_cast<int>(TOPVAL().as.fp);
+		TOPVAL().type = VAL_INT;
+		break;
+	case 22: // float = FLOAT(i)
+		TOPVAL().as.fp = static_cast<float>(TOPVAL().as.integer);
+		TOPVAL().type = VAL_FLOAT;
+		break;
 
 	case 30: // sprite = TEXT("text")
 		text = pop().as.string;

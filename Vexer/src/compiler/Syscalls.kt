@@ -74,6 +74,10 @@ object Syscalls {
                 TYPELIST().apply { add(VAL_FLOAT) }))
         add(FuncSig(true, "CHANCE", 20, VAL_BOOL, null,
                 TYPELIST().apply { add(VAL_FLOAT) }))
+        add(FuncSig(true, "INT", 21, VAL_INT, null,
+                TYPELIST().apply { add(VAL_FLOAT) }))
+        add(FuncSig(true, "FLOAT", 22, VAL_FLOAT, null,
+                TYPELIST().apply { add(VAL_INT) }))
 
         add(FuncSig(true, "TEXT", 30, VAL_OBJECT, ObjectType.OBJ_SPRITE,
                 TYPELIST().apply { add(VAL_STRING) }))
