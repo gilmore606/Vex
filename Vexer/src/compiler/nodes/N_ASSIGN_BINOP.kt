@@ -4,6 +4,7 @@ import compiler.Coder
 import compiler.Meaner
 import compiler.Opcode.*
 import compiler.ValueType.*
+import compiler.nodes.*
 
 abstract class N_ASSIGN_BINOP(target: N_VARREF, value: N_EXPRESSION): N_ASSIGN(target, value) {
     override fun toString() = "assign" + mathNode.toString()

@@ -3,6 +3,7 @@ package compiler.nodes
 import compiler.*
 import compiler.Opcode.*
 import compiler.ValueType.*
+import compiler.nodes.*
 import model.Game
 
 typealias NODES = ArrayList<Node>
@@ -67,11 +68,6 @@ open class Node {
             type ?: throw CompileException(this, "expression type unresolved")
         }
     }
-
-    abstract class N_BINOP(val arg1: N_EXPRESSION, val arg2: N_EXPRESSION): N_EXPRESSION() {
-        override fun kids(): NODES = super.kids().apply { add(arg1); add(arg2) }
-    }
-
 
     class N_PROGRAM(val blocks: List<N_TOPBLOCK>): Node() {
         override fun kids(): NODES = super.kids().apply { blocks.forEach { add(it) } }

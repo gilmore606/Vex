@@ -67,6 +67,8 @@ typedef enum {
     OP_ADDVF,    // v + f
     OP_MULVF,    // v * f (dot product, produce float)
     OP_DIVVF,    // v / f (????)
+    OP_ROTVF,    // v @ f (rotate vector by float rads)
+    OP_ROTFFV,   // f @ f (produce vector from float size @ rads)
 
     OP_ADDC,     // c + c
     OP_ADDCF,    // c + f

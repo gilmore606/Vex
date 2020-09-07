@@ -1,27 +1,38 @@
 state:
-	speed = 0.0
-	dir = 1.5
-	fountainOn = false
+	linesOut = 0
+	linesTotal = 200
+	angle = 0.0
+	speedup = 1.0
 
 on start:
-	spurtSmoke(40)
+	linesOut = 0
 
 on button:
 	start:
-		fountainOn = !fountainOn
-		song "ping"
+		linesOut = 0
+		speedup = 1.0
+		angle = 0.0
 
 on update:
-	speed += dir * delta
-	if speed > 1.5 or speed < -1.5 dir = -dir
-	every 0.4:
-		if fountainOn:
-			spurtSmoke(12)
+	if linesOut < linesTotal:
+		every (0.4 * speedup):
+			linesOut++
+			angle += 0.04
+			if angle > 6.283 angle -= 6.283
+			speedup *= 0.95
+			spawnLine(0.0 + angle)
+			spawnLine(1.5708 + angle)
 
-to spurtSmoke(count INT):
-	repeat count:
-		spark "smoke":
-			p = V(RAND(-0.3,0.3),RAND(-0.3,-0.2))
-			v = V(RAND(-0.5,0.5), speed + RAND(0.5))
-			vv = V(0.0, speed * -2.0)
-			color0 = C(speed * 0.1,0.6,1.3)
+to spawnLine(angle FLOAT):
+	vel = V(-2.0,0.0) @ angle
+	log vel
+	spark "gridline":
+		v = vel
+		rot = angle
+		rotv = 0.05
+		color0 = C(1.4,0.3,0.3)
+	spark "gridline":
+		v = vel * -1.0
+		rot = angle
+		rotv = 0.05
+		color0 = C(0.3,0.3,1.4)

@@ -106,7 +106,7 @@ void CPU::run(uint8_t* address) {
 	VStr* vs1;
 	VStr* vs2;
 	int vi, ji, fi;
-	float f, f2;
+	float f, f2, f3;
 	boolean b;
 
 	for (;;) {
@@ -363,6 +363,18 @@ void CPU::run(uint8_t* address) {
 			f = pop().as.fp;
 			TOPVAL().as.vector[0] /= f;
 			TOPVAL().as.vector[1] /= f;
+			break;
+		case OP_ROTVF:     // rotate vector by float rads
+			f = pop().as.fp;
+			f2 = std::sin(f);
+			f3 = std::cos(f);
+			TOPVAL().as.vector[0] = (TOPVAL().as.vector[0] * f3) - (TOPVAL().as.vector[1] * f2);
+			TOPVAL().as.vector[1] = (TOPVAL().as.vector[0] * f2) + (TOPVAL().as.vector[1] * f3);
+			break;
+		case OP_ROTFFV:    // create vector from float size @ rads
+			f = pop().as.fp;
+			f2 = pop().as.fp;
+			push(VECTOR_VAL(std::cos(f) * f2, std::sin(f) * f2));
 			break;
 
 

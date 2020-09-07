@@ -5,8 +5,11 @@ import compiler.CompileException
 import compiler.Meaner
 import compiler.Opcode.*
 import compiler.ValueType.*
+import compiler.nodes.*
+import compiler.nodes.Node.*
+import compiler.nodes.N_BINOP
 
-abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): Node.N_BINOP(arg1, arg2) {
+abstract class N_MATH_BINOP(arg1: N_EXPRESSION, arg2: N_EXPRESSION): N_BINOP(arg1, arg2) {
 
     override fun setType(meaner: Meaner): Boolean {
         val oldtype = this.type

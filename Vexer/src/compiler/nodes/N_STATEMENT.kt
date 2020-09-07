@@ -34,16 +34,31 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
     }
 }
 
+class N_EXPRSTATEMENT(val expr: N_EXPRESSION): N_STATEMENT() {
+    override fun kids(): NODES = super.kids().apply { add(expr) }
+    override fun code(coder: Coder) {
+        expr.code(coder)
+    }
+}
+
 class N_FUNCSTATEMENT(val name: String, val args: List<N_EXPRESSION>): N_STATEMENT() {
     var funID = -1
     var funSig: FuncSig? = null
     override fun toString() = "FUNC: " + name + "()"
     override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
 
-    override fun scopeVars(scope: Node, meaner: Meaner) {
-        funSig = meaner.getFuncSig(this, name, args)
-        funID = funSig!!.funcID
-        super.scopeVars(scope, meaner)
+    override fun setType(meaner: Meaner): Boolean {
+        var unchanged = true
+        if (funID == -1) {
+            var argsTyped = true
+            args.forEach { if (it.type == null) argsTyped = false }
+            if (argsTyped) {
+                funSig = meaner.getFuncSig(this, name, args)
+                funID = funSig!!.funcID
+                unchanged = false
+            }
+        }
+        return unchanged
     }
 
     override fun checkTypeSane() {

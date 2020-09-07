@@ -168,6 +168,7 @@ class Parser(
         parseFor(depth)?.also { l.add(it); return l }
         parseEach(depth)?.also { l.add(it); return l }
         parseAssign()?.also { l.add(it); return l }
+        parseExprStatement(depth)?.also { l.add(it); return l }
 
         return null
     }
@@ -197,10 +198,18 @@ class Parser(
             if (it !is N_ASSIGN) throw ParseException(this, "only assignments allowed in param block")
             if (it.target !is N_VARIABLE) throw ParseException(this, "only plain param names allowed in param block")
             val p = N_PARAM(it.target.name).also { it.tag(this) }
-            val pset = N_PARAMSET(p, it.value)
+            val pset = N_PARAMSET(p, it.value).also { it.tag(this) }
             checked.add(pset)
         }
         return checked
+    }
+
+    fun parseExprStatement(depth: Int): N_EXPRSTATEMENT? {
+        val expr = parseExpression() ?: return null
+        if (expr is N_INCDEC) {
+            expr.isStatement = true
+            return N_EXPRSTATEMENT(expr).also { it.tag(this) }
+        } else throw ParseException(this, "illegal statement expression")
     }
 
     fun parseFuncStatement(depth: Int): N_FUNCSTATEMENT? {
@@ -311,6 +320,9 @@ class Parser(
 
     fun parseAssign(): N_ASSIGN? {
         if (!nextTokenIs(T_IDENTIFIER)) return null
+        val op = nextToken(1).type
+        if (!(op==T_ASSIGN || op==T_ADD_ASSIGN || op==T_SUBTRACT_ASSIGN || op==T_MULT_ASSIGN || op==T_DIV_ASSIGN)) return null
+
         val identifier = parseIdentifier() ?: throw ParseException(this, "not a valid statement")
         if (identifier !is N_VARREF) throw ParseException(this, "left side of assignment must be a variable or propref")
         val oper = getToken()
@@ -394,13 +406,25 @@ class Parser(
     }
 
     fun parseAddition(): N_EXPRESSION? {
-        var leftExpr = parsePower() ?: return null
+        var leftExpr = parseRotation() ?: return null
         while (nextTokenOneOf(T_ADD, T_SUBTRACT)) {
             val operator = getToken()
-            val rightExpr = parsePower()
+            val rightExpr = parseRotation()
             if (rightExpr != null) {
                 leftExpr = if (operator.type == T_ADD) N_ADD(leftExpr, rightExpr).also { it.tag(this) }
                 else N_SUBTRACT(leftExpr, rightExpr).also { it.tag(this) }
+            }
+        }
+        return leftExpr
+    }
+
+    fun parseRotation(): N_EXPRESSION? {
+        var leftExpr = parsePower() ?: return null
+        while (nextTokenIs(T_ATSIGN)) {
+            toss()
+            val rightExpr = parsePower()
+            if (rightExpr != null) {
+                leftExpr = N_ROTATE(leftExpr, rightExpr).also { it.tag(this) }
             }
         }
         return leftExpr
@@ -441,10 +465,20 @@ class Parser(
             return if (operator.type == T_BANG) N_INVERSE(rightExpr).also { it.tag(this) }
                 else N_NEGATE(rightExpr).also { it.tag(this) }
         }
+        if (nextTokenOneOf(T_INCREMENT, T_DECREMENT)) {
+            val operator = getToken()
+            val rightExpr = parseExpression() ?: throw ParseException(this, "expected varref after increment/decrement")
+            return N_INCDEC(operator.type, rightExpr, false, false).also { it.tag(this) }
+        }
         return parseValue()
     }
 
     fun parseValue(): N_EXPRESSION? {
+        if (nextTokensAre(T_IDENTIFIER, T_INCREMENT) || nextTokensAre(T_IDENTIFIER, T_DECREMENT)) {
+            val varname = getToken().string
+            val operator = getToken().type
+            return N_INCDEC(operator, N_VARIABLE(varname), true, false).also { it.tag(this) }
+        }
         if (nextTokenIs(T_IDENTIFIER)) return parseIdentifier()
         if (nextTokenIs(T_IDENTIFUNC)) {
             parseVector()?.also { return it }

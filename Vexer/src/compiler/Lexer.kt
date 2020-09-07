@@ -121,6 +121,7 @@ class Lexer(val fVerbose: Boolean) {
                 '?' -> emit(Token(T_QUESTION))
                 '"' -> begin(T_STRING)
                 '^' -> emit(Token(T_POWER))
+                '@' -> emit(Token(T_ATSIGN))
                 '%' -> emit(Token(T_MODULUS))
                 '\t' -> emit(Token(T_INDENT))
                 '|' -> begin(T_LOGIC_OR)
@@ -174,7 +175,7 @@ class Lexer(val fVerbose: Boolean) {
         val lp = Math.min(linePos, this.linePos)
         val cp = Math.min(charPos, lines[lp].length)
         println("")
-        println(lines[lp - 2])
+        println(lines[if (lp < 2) 0 else lp - 2])
         repeat (cp - 1) { print("-") }
         print("^\n\n")
     }
