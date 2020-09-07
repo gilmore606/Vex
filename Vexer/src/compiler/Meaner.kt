@@ -63,6 +63,14 @@ class Meaner (
             }
             if (match) return it
         } }
+        functions.forEach {
+            var match = true
+            it.args.forEachIndexed { i, a ->
+                if (i > args.lastIndex) match = false
+                else if (a.type != args[i].type) match = false
+            }
+            if (match) return it.getFuncSig()
+        }
         args.forEach { println("  supplied arg type: " + it.type.toString() )}
         throw CompileException(node, "unknown function call " + name)
     }
@@ -102,6 +110,9 @@ class Meaner (
         // All variables from 0-(globalCount-1) are globals
         globalCount = scopeGlobals()
 
+        // Register function signatures
+        ast.traverse { if (it is N_TOP_USERFUNC) it.scopeVars(it, this) }
+
         // Index local variables
         ast.scopeVars(ast, this)
 
@@ -112,7 +123,6 @@ class Meaner (
                 learnVarType(v.id, v.type!!, null)
             }
         }
-
 
         // Infer all local expression types
         annealTypes(ast)

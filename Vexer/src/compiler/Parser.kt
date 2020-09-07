@@ -157,6 +157,7 @@ class Parser(
         val l = ArrayList<N_STATEMENT>()
         parseParticle(depth)?.also { l.add(it); return l }
         parseSong(depth)?.also { l.add(it); return l }
+        parseFuncStatement(depth)?.also { l.add(it); return l }
         parseMethcalls()?.also { return it }
         parseReturn()?.also { l.add(it); return l }
         parseIf(depth)?.also { l.add(it); return l }
@@ -200,6 +201,13 @@ class Parser(
             checked.add(pset)
         }
         return checked
+    }
+
+    fun parseFuncStatement(depth: Int): N_FUNCSTATEMENT? {
+        if (!nextTokenIs(T_IDENTIFUNC)) return null
+        val name = getToken().string
+        val args = parseArglist()
+        return N_FUNCSTATEMENT(name, args).also { it.tag(this) }
     }
 
     fun parseMethcalls(): List<N_METHCALL>? {

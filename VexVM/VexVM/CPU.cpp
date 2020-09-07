@@ -24,6 +24,7 @@ void CPU::Boot() {
 	srand(static_cast <unsigned> (glfwGetTime())); // seed rng
 
 	CLEAR_STACK();
+	RESET_CALLSTACK();
 	run(code->entryState);
 	run(code->entryStart);
 }
@@ -59,7 +60,6 @@ void CPU::OnUpdate(float deltaTime) {
 }
 
 void CPU::OnInput(int input) {
-	std::cout << "INPUT button: " << input << std::endl;
 	buttonPressed[input] = true;
 	countPressed++;
 }
@@ -180,10 +180,6 @@ void CPU::run(uint8_t* address) {
 			code->variables[READ_I16()].as.boolean = false;
 			break;
 		case OP_SETSYS: 
-
-			break;
-		case OP_FUN:
-			fi = READ_I16();
 
 			break;
 		case OP_SFUN:
@@ -480,6 +476,14 @@ void CPU::run(uint8_t* address) {
 			if (!AS_BOOL(pop())) {
 				ip = code->jumps[ji];
 			}
+			break;
+		case OP_FUN:
+			fi = READ_I16();
+			callstackPush(ip);
+			ip = code->functions[fi];
+			break;
+		case OP_RETURN:
+			ip = callstackPop();
 			break;
 
 		}

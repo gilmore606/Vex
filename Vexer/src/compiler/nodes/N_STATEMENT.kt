@@ -34,6 +34,35 @@ class N_METHCALL(val obj: N_VARIABLE, val name: String, val args: List<N_EXPRESS
     }
 }
 
+class N_FUNCSTATEMENT(val name: String, val args: List<N_EXPRESSION>): N_STATEMENT() {
+    var funID = -1
+    var funSig: FuncSig? = null
+    override fun toString() = "FUNC: " + name + "()"
+    override fun kids(): NODES = super.kids().apply { args.forEach { add(it) }}
+
+    override fun scopeVars(scope: Node, meaner: Meaner) {
+        funSig = meaner.getFuncSig(this, name, args)
+        funID = funSig!!.funcID
+        super.scopeVars(scope, meaner)
+    }
+
+    override fun checkTypeSane() {
+        if (funSig!!.returnType != VAL_NIL)
+            throw CompileException(this, "function returns " + funSig!!.returnType + " and can't be a statement")
+        args.forEachIndexed { i, a ->
+            if (args[i].type != funSig!!.argtypes[i])
+                throw CompileException(this, "type error: function takes " + funSig!!.argtypes[i].toString() + " but got " + args[i].type.toString())
+        }
+    }
+
+    override fun code(coder: Coder) {
+        args.forEach {
+            it.code(coder)
+        }
+        coder.code(OP_FUN, funID)
+    }
+}
+
 open class N_ASSIGN(val target: N_VARREF, val value: N_EXPRESSION): N_STATEMENT() {
     override fun toString() = "ASSIGN " + value.type + " to " + target.type
     override fun kids(): NODES = super.kids().apply { add(target); add(value) }

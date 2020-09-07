@@ -10,9 +10,11 @@
 
 #define READ_BYTE() (*ip++)
 #define CLEAR_STACK() stacktop = stack
+#define RESET_CALLSTACK() callstacktop = callstack
 #define TOPVAL() (*(stacktop - 1))
 
 const static int STACK_MAX = 256;
+const static int CALLSTACK_MAX = 256;
 
 class Note;
 
@@ -41,13 +43,15 @@ protected:
 	Value stack[STACK_MAX];
 	Value* stacktop;
 
+	uint8_t* callstack[CALLSTACK_MAX];
+	uint8_t** callstacktop;
+
 	std::vector<Task> tasks;
 	double elapsed;
 
 	void run(uint8_t* address);
 	void resume(Task task);
 	void logValue(Value v);
-	void clearInput();
 
 private:
 
@@ -69,5 +73,13 @@ private:
 	inline Value pop() {
 		stacktop--;
 		return *stacktop;
+	}
+	inline void callstackPush(uint8_t* returnPointer) {
+		*callstacktop = returnPointer;
+		callstacktop++;
+	}
+	inline uint8_t* callstackPop() {
+		callstacktop--;
+		return *callstacktop;
 	}
 };

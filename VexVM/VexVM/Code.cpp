@@ -97,15 +97,20 @@ void Code::Read(ROMReader* rom) {
 	}
 	std::cout << "  " << codec << " bytecodes" << std::endl;
 
-	// build jump and entry tables
+	// build jump, entry, function tables
 
 	for (int i = 0; i < entryc; i++) {
 		uint8_t* point = code + entriesRel[i];
 		entries.push_back(point);
 		if (entryLabels[i] == "state") { entryState = point; }
-		if (entryLabels[i] == "start") { entryStart = point; }
-		if (entryLabels[i] == "update") { entryUpdate = point; }
-		if (entryLabels[i] == "button") { entryButton = point; }
+		else if (entryLabels[i] == "start") { entryStart = point; }
+		else if (entryLabels[i] == "update") { entryUpdate = point; }
+		else if (entryLabels[i] == "button") { entryButton = point; }
+		else {
+			int fi = std::stoi(entryLabels[i]);
+			while (functions.size() < (fi + 1)) { functions.push_back(nullptr); }
+			functions[fi] = point;
+		}
 	}
 	for (int i = 0; i < jumpc; i++) {
 		jumps.push_back(code + jumpsRel[i]);

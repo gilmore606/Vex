@@ -50,10 +50,15 @@ class N_TOP_USERFUNC(val name: String, val args: List<FuncArg>, val returnType: 
 
     init { args.forEach { argVarIDs.add(-1) } }
 
+    fun getFuncSig(): FuncSig {
+        return FuncSig(false, name, funID, returnType, null, args.map { it.type })
+    }
+
     override fun toString() = "USERFUNC to " + name + ":"
     override fun kids(): NODES = super.kids().apply { add(code) }
 
     override fun scopeVars(scope: Node, meaner: Meaner) {
+        if (funID != -1) return
         funID = meaner.assignFunctionID(this)
         traverse { if (it is N_RETURN) it.learnFunction(this) }
         args.forEachIndexed { i, arg ->
