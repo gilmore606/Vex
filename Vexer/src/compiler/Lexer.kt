@@ -174,7 +174,7 @@ class Lexer(val fVerbose: Boolean) {
         val lp = Math.min(linePos, this.linePos)
         val cp = Math.min(charPos, lines[lp].length)
         println("")
-        println(lines[lp])
+        println(lines[lp - 2])
         repeat (cp - 1) { print("-") }
         print("^\n\n")
     }

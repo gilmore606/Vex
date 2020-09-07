@@ -22,6 +22,8 @@ typedef enum {
     OP_LDI,      // [2:int] Push int to the stack as value
     OP_LDBT,     // Push true to the stack
     OP_LDBF,     // Push false to the stack
+    OP_DUBS,     // Duplicate the stacktop
+    OP_SWAP,     // Swap two top stack values
 
     OP_FUN,      // [2:fun] Call function with stack args, push return on stack
     OP_RETURN,   // Return from user function

@@ -17,7 +17,6 @@ public:
 	std::vector<Value> constants;
 	std::vector<Value> variables;
 	std::vector<uint8_t*> entries;  // pointers into code
-	std::vector<std::string> entryLabels;
 	std::vector<uint8_t*> functions; // pointers into code
 	std::vector<uint8_t*> jumps;  // pointers into code
 

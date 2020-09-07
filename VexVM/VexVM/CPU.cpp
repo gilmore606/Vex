@@ -201,6 +201,15 @@ void CPU::run(uint8_t* address) {
 		case OP_LDBF:
 			push(BOOL_VAL(false));
 			break;
+		case OP_DUBS:
+			push(TOPVAL());
+			break;
+		case OP_SWAP:
+			v = pop();
+			v2 = pop();
+			push(v);
+			push(v2);
+			break;
 
 
 			// Stack math

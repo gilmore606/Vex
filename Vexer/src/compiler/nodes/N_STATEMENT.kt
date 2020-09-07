@@ -238,25 +238,31 @@ class N_WAIT(val time: N_EXPRESSION): N_STATEMENT() {
 
 class N_EVERY(val time: N_EXPRESSION, val code: N_CODEBLOCK): N_STATEMENT() {
     var elapsedVarID = -1
+    var skiptimeVarID = -1
     override fun kids(): NODES = super.kids().apply { add(time); add(code) }
     override fun scopeVars(scope: Node, meaner: Meaner) {
         super.scopeVars(scope, meaner)
         elapsedVarID = meaner.variableToID(this, "_every" + id, scope)
+        skiptimeVarID = meaner.variableToID(this, "_skiptime" + id, scope)
     }
     override fun checkTypeSane() {
-        if (time.type != VAL_INT) throw CompileException(this, "type error: every statement expects int msec")
+        if (time.type != VAL_FLOAT) throw CompileException(this, "type error: every statement expects float sec")
     }
     override fun code(coder: Coder) {
-        coder.code(OP_VAR, Syscalls.vars.find{it.name=="delta"}!!.id)
-        coder.code(OP_ACCVAR, elapsedVarID)
-        coder.code(OP_VAR, elapsedVarID)
+        val deltaID = Syscalls.vars.find{it.name=="delta"}!!.id
+        coder.code(OP_VAR, deltaID)
+        coder.code(OP_ACCVARF, elapsedVarID)
         time.code(coder)
+        coder.code(OP_DUBS)
+        coder.code(OP_SETVAR, skiptimeVarID)
+        coder.code(OP_VAR, elapsedVarID)
         coder.code(OP_GTF)
         coder.code(OP_IF)
         coder.jumpFuture("everyskip"+id)
+        coder.code(OP_VAR, skiptimeVarID)
+        coder.code(OP_NEGF)
+        coder.code(OP_ACCVARF, elapsedVarID)
         code.code(coder)
-        coder.code(OP_LDI, 0)
-        coder.code(OP_SETVAR, elapsedVarID)
         coder.reachFuture("everyskip"+id)
     }
 }

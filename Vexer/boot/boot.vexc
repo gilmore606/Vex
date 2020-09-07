@@ -1,7 +1,7 @@
 state:
 	speed = 0.0
 	dir = 1.5
-	fountainOn = true
+	fountainOn = false
 
 on start:
 	spurtSmoke(40)
@@ -14,10 +14,11 @@ on button:
 on update:
 	speed += dir * delta
 	if speed > 1.5 or speed < -1.5 dir = -dir
-	every 350 if fountainOn spurtSmoke(12)
+	every 0.4:
+		if fountainOn:
+			spurtSmoke(12)
 
 to spurtSmoke(count INT):
-	if !fountainOn return
 	repeat count:
 		spark "smoke":
 			p = V(RAND(-0.3,0.3),RAND(-0.3,-0.2))
